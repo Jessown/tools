@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>공지 · Notice</title>
+<meta name="robots" content="noindex">
+<script src="../assets/config.js"></script><script src="../assets/gas-shim.js"></script>
+<style>
+body{margin:0;background:#f4f7f6;color:#1d2421;font:16px/1.55 system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.w{max-width:600px;margin:0 auto;padding:14px 16px 40px}
+.top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dfe5e2;border-radius:12px;padding:10px 12px;margin-bottom:12px}
+.top label{font-size:13px;color:#66706b}
+select{font:inherit;font-size:17px;padding:8px 10px;border:2px solid #1f6f5c;border-radius:10px;background:#fff;flex:1;min-width:170px}
+h1{font-size:19px;margin:6px 2px 12px;word-break:keep-all}
+.n{background:#fff;border:1px solid #dfe5e2;border-radius:14px;padding:14px 16px;margin-bottom:10px}
+.n.new{border:2px solid #1f6f5c;box-shadow:0 2px 10px rgba(31,111,92,.15)}
+.n .t{font-size:19px;white-space:pre-wrap;word-break:break-word}
+.n .ko{font-size:13px;color:#66706b;margin-top:8px;border-top:1px dashed #dfe5e2;padding-top:6px;white-space:pre-wrap}
+.n .tm{font-size:12px;color:#99a39e;margin-bottom:4px}
+.n .tm b{background:#1f6f5c;color:#fff;border-radius:6px;padding:0 6px;margin-right:6px;font-size:11px}
+.msg{text-align:center;padding:30px 10px;color:#66706b}
+.st{font-size:12px;color:#99a39e;text-align:center;margin-top:16px}
+@keyframes fl{0%{background:#fff7d6}100%{background:#fff}}.n.fl{animation:fl 2s}
+</style></head><body>
+<div class="w">
+<div class="top"><label for="lg">언어 · Language</label><select id="lg"></select></div>
+<h1 id="ti"></h1><div id="list"><div class="msg">연결하는 중… / Connecting…</div></div><div class="st" id="st"></div></div>
+<script>
+var ID = (new URLSearchParams(location.search).get('id') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+var LANGS = { 'ko': '한국어', 'vi': 'Tiếng Việt (베트남어)', 'zh-CN': '中文 (중국어)', 'en': 'English (영어)', 'tl': 'Filipino (필리핀어)', 'km': 'ខ្មែរ (캄보디아어)', 'th': 'ไทย (태국어)', 'mn': 'Монгол (몽골어)', 'ja': '日本語 (일본어)', 'ru': 'Русский (러시아어)', 'uz': 'Oʻzbek (우즈베크어)', 'ne': 'नेपाली (네팔어)', 'id': 'Bahasa Indonesia (인도네시아어)', 'my': 'မြန်မာ (미얀마어)', 'kk': 'Қазақ (카자흐어)' };
+var LANG = 'ko', V = -1, TOP = 0, STOP = false, busyT = 0;
+var MSG = { ko: ['아직 공지가 없습니다', '원문(한국어)', '공지방이 닫혔습니다'], vi: ['Chưa có thông báo', 'Bản gốc (tiếng Hàn)', 'Phòng thông báo đã đóng'], 'zh-CN': ['暂无通知', '原文（韩语）', '通知已结束'], en: ['No notices yet', 'Original (Korean)', 'This notice room is closed'] };
+function $(s) { return document.getElementById(s); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function st(t) { $('st').textContent = t || ''; }
+function M(i) { return (MSG[LANG] || MSG.en)[i]; }
+(function () {
+  var s = $('lg'), h = '';
+  for (var k in LANGS) h += '<option value="' + k + '">' + esc(LANGS[k]) + '</option>';
+  s.innerHTML = h;
+  var sv = ''; try { sv = localStorage.getItem('nt_lang') || ''; } catch (e) {}
+  if (!sv) { var n = (navigator.language || 'ko').toLowerCase(); sv = n.indexOf('zh') === 0 ? 'zh-CN' : n.indexOf('fil') === 0 ? 'tl' : n.split('-')[0]; }
+  LANG = LANGS[sv] ? sv : 'ko'; s.value = LANG;
+  s.onchange = function () { LANG = s.value; try { localStorage.setItem('nt_lang', LANG); } catch (e) {} V = -1; TOP = 0; $('list').innerHTML = '<div class="msg">…</div>'; busyT = 0; tick(); };
+})();
+function tm(t) { var d = new Date(t); return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
+function render(r) {
+  if (!r) return;
+  if (r.gone || r.end) { $('list').innerHTML = '<div class="msg">' + esc(M(2)) + '</div>'; STOP = true; return; }
+  if (!r.list) return;
+  V = r.v; $('ti').textContent = r.title || '';
+  if (!r.list.length) { $('list').innerHTML = '<div class="msg">' + esc(M(0)) + '</div>'; return; }
+  var nw = r.list[0].i > TOP && TOP > 0; TOP = Math.max(TOP, r.list[0].i);
+  $('list').innerHTML = r.list.map(function (x, k) {
+    return '<div class="n' + (k === 0 ? ' new' : '') + (k === 0 && nw ? ' fl' : '') + '"><div class="tm">' + (k === 0 ? '<b>NEW</b>' : '') + tm(x.at) + '</div><div class="t">' + esc(x.t || x.ko) + '</div>' + (LANG !== 'ko' && x.t && x.t !== x.ko ? '<div class="ko">' + esc(M(1)) + ': ' + esc(x.ko) + '</div>' : '') + '</div>';
+  }).join('');
+  if (nw) { try { if (navigator.vibrate) navigator.vibrate(200); } catch (e) {} }
+}
+function tick() {
+  if (STOP) return; if (Date.now() - busyT < 12000) return; busyT = Date.now(); var lg = LANG;
+  toolApi('noticeGet', [ID, lg, V]).then(function (r) { busyT = 0; if (lg !== LANG) return; st(''); render(r); }, function () { busyT = 0; st('연결이 잠시 끊겼습니다… / Reconnecting…'); });
+}
+if (!ID) { $('list').innerHTML = '<div class="msg">주소가 올바르지 않습니다 / Invalid link</div>'; }
+else { setInterval(function () { if (!document.hidden) tick(); }, 3000); tick(); }
+</script>
+</body></html>

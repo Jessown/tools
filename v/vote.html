@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>실시간 투표</title>
+<meta name="robots" content="noindex">
+<script src="../assets/config.js"></script><script src="../assets/gas-shim.js"></script>
+<style>
+body{margin:0;background:#f4f7f6;color:#1d2421;font:16px/1.5 system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.w{max-width:560px;margin:0 auto;padding:18px 16px 40px}
+h1{font-size:13px;color:#1f6f5c;margin:0 0 6px;font-weight:700}
+.q{font-size:21px;font-weight:700;margin:4px 0 16px;word-break:keep-all}
+.op{display:block;width:100%;text-align:left;margin:0 0 10px;padding:14px 16px;font:inherit;font-size:17px;background:#fff;border:2px solid #dfe5e2;border-radius:12px;cursor:pointer;color:inherit}
+.op.on{border-color:#1f6f5c;background:#eaf4ef;font-weight:700}
+.sc{display:flex;gap:8px}.sc .op{text-align:center;padding:16px 0;font-size:20px}
+.scl{display:flex;justify-content:space-between;font-size:13px;color:#66706b;margin:-4px 2px 12px}
+textarea{width:100%;box-sizing:border-box;font:inherit;font-size:17px;padding:12px;border:2px solid #dfe5e2;border-radius:12px;min-height:90px}
+.go{width:100%;padding:15px;font:inherit;font-size:17px;font-weight:700;background:#1f6f5c;color:#fff;border:0;border-radius:12px;margin-top:6px}
+.go:disabled{opacity:.4}
+.msg{text-align:center;padding:30px 10px;color:#66706b;font-size:17px}
+.done{background:#eaf4ef;color:#1f6f5c;border-radius:12px;padding:16px;text-align:center;font-weight:700;margin-bottom:14px}
+.bar{margin:0 0 10px}.bar .l{display:flex;justify-content:space-between;gap:8px;font-size:14px}.bar .t{height:12px;background:#e3e9e6;border-radius:6px;overflow:hidden}.bar .f{height:100%;background:#1f6f5c}
+.tx{display:inline-block;background:#fff;border:1px solid #dfe5e2;border-radius:16px;padding:4px 10px;margin:3px;font-size:14px}
+.st{font-size:12px;color:#99a39e;text-align:center;margin-top:20px}
+</style></head><body>
+<div class="w"><h1>실시간 투표 · 설문</h1><div id="form"><div class="msg">연결하는 중…</div></div><div id="res"></div><div class="st" id="st"></div></div>
+<script>
+var ID = (new URLSearchParams(location.search).get('id') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+var Q = null, SEL = [], SENT = {}, FK = '', RK = '', sending = false, STOP = false, busyT = 0;
+function $(s) { return document.getElementById(s); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function st(t) { $('st').textContent = t || ''; }
+function sk() { return 'vt_' + ID + '_' + (Q ? Q.n : 0); }
+function done() { if (SENT[sk()]) return true; try { return localStorage.getItem(sk()) === '1'; } catch (e) { return false; } }
+function mark() { SENT[sk()] = 1; try { localStorage.setItem(sk(), '1'); } catch (e) {} }
+function bars(r) {
+  if (!r || !Q) return '';
+  if (Q.type === 'text') return '<div>' + (r.t || []).slice(-80).map(function (t) { return '<span class="tx">' + esc(t) + '</span>'; }).join('') + '</div>';
+  var tot = 0; (r.c || []).forEach(function (v) { tot += v || 0; });
+  return Q.opts.map(function (o, i) { var c = r.c[i] || 0, p = tot ? Math.round(c * 100 / tot) : 0; return '<div class="bar"><div class="l"><span>' + esc(Q.type === 'scale' ? o + '점' : o) + '</span><b>' + c + ' (' + p + '%)</b></div><div class="t"><div class="f" style="width:' + p + '%"></div></div></div>'; }).join('');
+}
+function form() {
+  var q = Q, h = '<div class="q">' + esc(q.q) + '</div>';
+  if (done()) h += '<div class="done">응답했습니다. 감사합니다!</div>' + (q.show ? '' : '<div class="msg" style="padding:8px">결과는 앞 화면에서 함께 봅니다.</div>');
+  else if (!q.open) h += '<div class="msg">지금은 응답을 받지 않습니다.</div>';
+  else if (q.type === 'text') h += '<textarea id="ta" maxlength="60" placeholder="짧게 써 주세요 (60자 이내)"></textarea><button class="go" id="go" type="button">보내기</button>';
+  else if (q.type === 'scale') h += '<div class="sc">' + q.opts.map(function (o, i) { return '<button class="op" type="button" data-i="' + i + '">' + esc(o) + '</button>'; }).join('') + '</div><div class="scl"><span>1 전혀 아니다</span><span>5 매우 그렇다</span></div><button class="go" id="go" type="button" disabled>보내기</button>';
+  else h += (q.type === 'multi' ? '<div class="msg" style="padding:0 0 10px;font-size:14px">여러 개 고를 수 있습니다</div>' : '') + q.opts.map(function (o, i) { return '<button class="op" type="button" data-i="' + i + '">' + esc(o) + '</button>'; }).join('') + '<button class="go" id="go" type="button" disabled>보내기</button>';
+  $('form').innerHTML = h;
+  [].forEach.call(document.querySelectorAll('.op'), function (b) {
+    b.onclick = function () {
+      var i = +b.getAttribute('data-i');
+      if (Q.type === 'multi') { var k = SEL.indexOf(i); if (k >= 0) SEL.splice(k, 1); else SEL.push(i); } else SEL = [i];
+      [].forEach.call(document.querySelectorAll('.op'), function (x) { x.classList.toggle('on', SEL.indexOf(+x.getAttribute('data-i')) >= 0); });
+      $('go').disabled = !SEL.length;
+    };
+  });
+  if ($('go')) $('go').onclick = send;
+}
+function send() {
+  if (sending || !Q) return; var ans;
+  if (Q.type === 'text') { ans = ($('ta').value || '').trim(); if (!ans) return; }
+  else { if (!SEL.length) return; ans = Q.type === 'multi' ? SEL.slice() : SEL[0]; }
+  sending = true; $('go').disabled = true; $('go').textContent = '보내는 중…';
+  toolApi('voteSubmit', [ID, Q.n, ans]).then(function (r) {
+    sending = false;
+    if (r && (r.ok || r.closed || r.stale)) { if (r.ok) mark(); FK = ''; busyT = 0; tick(); return; }
+    throw new Error('fail');
+  }).catch(function () {
+    sending = false;
+    if ($('go')) { $('go').disabled = false; $('go').textContent = '다시 보내기'; }
+    st('보내지 못했습니다. 다시 눌러 주세요.');
+  });
+}
+function render(s) {
+  if (!s) return;
+  if (s.gone) { $('form').innerHTML = '<div class="msg">투표를 찾을 수 없습니다. QR을 다시 찍어 주세요.</div>'; $('res').innerHTML = ''; STOP = true; return; }
+  if (s.end) { $('form').innerHTML = '<div class="msg">투표가 끝났습니다. 참여해 주셔서 감사합니다.</div>'; $('res').innerHTML = ''; STOP = true; return; }
+  var q = s.q; if (!Q || Q.n !== q.n) SEL = []; Q = q;
+  var fk = q.n + '|' + q.open + '|' + done() + '|' + q.show; if (fk !== FK) { FK = fk; form(); }
+  var rk = (s.r && (done() || !q.open)) ? JSON.stringify(s.r) : '';
+  if (rk !== RK) { RK = rk; $('res').innerHTML = rk ? '<h1 style="margin-top:18px">지금까지 결과</h1>' + bars(s.r) : ''; }
+}
+function tick() {
+  if (STOP) return; if (Date.now() - busyT < 9000) return; busyT = Date.now();
+  toolApi('voteState', [ID]).then(function (r) { busyT = 0; st(''); render(r); }, function () { busyT = 0; st('연결이 잠시 끊겼습니다. 다시 시도 중…'); });
+}
+if (!ID) { $('form').innerHTML = '<div class="msg">주소가 올바르지 않습니다. QR을 다시 찍어 주세요.</div>'; }
+else { setInterval(function () { if (!document.hidden) tick(); }, 2500); tick(); }
+</script>
+</body></html>
