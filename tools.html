@@ -115,6 +115,24 @@ header{flex-wrap:wrap;gap:8px 14px}.tgs{display:none!important}#toolSel{font:inh
 #sec-chalk .chwrap{position:relative;width:100%}
 #sec-chalk .chstage{position:relative;margin:0 auto;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.15)}
 #sec-chalk canvas{display:block;touch-action:none}
+#sec-chalk.lysp .chwrap{display:flex;gap:14px;justify-content:center;align-items:center}
+#sec-chalk.lysp .chstage{margin:0;box-shadow:0 0 0 3px #0047ff,0 1px 4px rgba(0,0,0,.15)}
+#sec-chalk .chalt{position:relative;border-radius:10px;overflow:hidden;cursor:pointer;opacity:.92;box-shadow:0 1px 4px rgba(0,0,0,.15);flex:0 0 auto;touch-action:manipulation}
+#sec-chalk .chalt{order:1}#sec-chalk .chalt.l{order:-1}
+#sec-chalk .chalt:hover{opacity:1}
+#sec-chalk .chaltl{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);background:rgba(17,17,17,.75);color:#fff;font-size:12.5px;border-radius:999px;padding:4px 12px;white-space:nowrap;pointer-events:none}
+#sec-chalk .chsidel{position:absolute;left:8px;top:6px;z-index:4;font-size:11.5px;font-weight:800;color:#fff;background:#0047ff;border-radius:999px;padding:2px 9px;pointer-events:none}
+.chmemop{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.45);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:24px 12px}
+.chmemop .bx{background:#fff;color:#111;border-radius:14px;max-width:920px;width:100%;padding:18px 18px 22px;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.chmemop h3{margin:0 0 4px;font-size:20px}.chmemop .sub{color:#666;font-size:13px;margin:0 0 12px;word-break:keep-all}
+.chmemop .mbar{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;align-items:center}
+.chmemop .it{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;border-top:1px solid #e4e4e4;padding:12px 0}
+.chmemop .it img{width:100%;border:1px solid #e4e4e4;border-radius:8px;background:#fff}
+.chmemop .it b{display:block;font-size:13px;margin-bottom:4px}
+.chmemop textarea{width:100%;box-sizing:border-box;min-height:120px;font:inherit;font-size:15px;line-height:1.6;border:1.5px solid #111;border-radius:8px;padding:8px;resize:vertical}
+.chmemop .row2{display:flex;gap:6px;margin-top:6px;align-items:center;font-size:12.5px;color:#666}
+.chmemop .x{margin-left:auto}
+@media (max-width:640px){.chmemop .it{grid-template-columns:1fr}}
 #sec-chalk{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 #sec-chalk input,#sec-chalk textarea,#sec-chalk [contenteditable=true]{-webkit-user-select:text;user-select:text}
 #sec-chalk button,#sec-chalk select,#sec-chalk .chpgt{touch-action:manipulation}
@@ -590,6 +608,8 @@ main{padding-top:20px}
         </span>
         <select id="chShape" hidden aria-label="도형" title="도형 · Shift 누르면 정사각형·정원·반듯한 선"><option value="">도형…</option><option value="line">／ 직선</option><option value="arrow">→ 화살표</option><option value="rect">▭ 네모</option><option value="ellipse">◯ 원</option></select>
         <button class="btn" type="button" id="chImg" title="그림 넣기 (끌어다 놓기·Ctrl+V도 됨)">그림</button><input type="file" id="chImgF" accept="image/*" hidden><button class="btn" type="button" id="chPdf" title="PDF 펼치기: PPT에서 「PDF로 저장」한 파일을 올리면 슬라이드마다 한 쪽씩 펼쳐집니다 (끌어다 놓기도 됨)">PDF</button><input type="file" id="chPdfF" accept="application/pdf,.pdf" hidden>
+        <span class="chseg chlay" id="chLay" role="group" aria-label="화면 배치"><button type="button" data-lay="one" title="한 쪽만 크게">한 쪽</button><button type="button" data-lay="two" title="이어진 두 쪽을 나란히 (안 쓰는 쪽을 누르면 그쪽에 씁니다)">두 쪽</button><button type="button" data-lay="memo" title="왼쪽은 자료(PDF·판서), 오른쪽은 이 쪽의 메모장">자료+메모</button></span>
+        <button class="btn" type="button" id="chMemoAll" title="메모장에 쓴 필기만 모아 글로 바꾸고 내려받기">메모 모아보기</button>
         <span class="chsp"></span>
         <span class="chg chgrp"><button class="btn" type="button" id="chUndo" title="되돌리기 (Ctrl+Z)">↶</button><button class="btn" type="button" id="chRedo" title="다시 하기 (Ctrl+Y)">↷</button></span>
         <button class="btn pri" type="button" id="chFs" title="전체화면 (도구는 마우스를 맨 위로 올리면 나옵니다)">전체화면</button>
@@ -621,6 +641,7 @@ main{padding-top:20px}
     </div>
     
 <div class="chwrap" id="chWrap">
+      <div class="chalt" id="chAlt" hidden role="button" tabindex="0" aria-label="이쪽에 쓰기"><canvas id="chAltCv"></canvas><span class="chaltl" id="chAltL">눌러서 여기에 쓰기</span></div>
       <div class="chstage" id="chStage" tabindex="-1"><canvas id="chCv" aria-label="칠판"></canvas><div class="chobj" id="chObj"></div><div class="chclock" id="chClk" hidden></div><canvas class="chlz" id="chLz" aria-hidden="true"></canvas><div class="chdrop" id="chDrop" hidden>여기에 놓으면 그림이 들어갑니다</div></div>
       <button class="btn chshow" type="button" id="chShow" hidden title="도구 막대 보이기">도구</button>
       <div class="chlyp" id="chLyP" hidden></div>
@@ -634,7 +655,7 @@ main{padding-top:20px}
     </div>
   </section>
 </main>
-<div class="bar" id="bar" hidden><span class="q" id="q"></span>
+<div class="mbar" id="bar" hidden><span class="q" id="q"></span>
   <span class="grp"><span>이 사진</span><button class="btn" type="button" id="cp">복사</button><button class="btn pri" type="button" id="dl1">다운로드</button></span>
   <span class="grp"><span id="gsel">선택</span><button class="btn" type="button" id="cpsel">복사</button><button class="btn pri" type="button" id="dlsel">다운로드</button></span>
   <span class="grp"><span id="gall">전체</span><button class="btn" type="button" id="cpall">복사</button><button class="btn pri" type="button" id="dlall">다운로드(압축)</button></span>
@@ -1777,7 +1798,7 @@ var CH_BG = { green: '#25463a', black: '#1f2124', navy: '#1b2a4a', white: '#ffff
 var CH_FONT = '"Apple SD Gothic Neo","Malgun Gothic",sans-serif';
 function chDark() { return CH.bg === 'green' || CH.bg === 'black' || CH.bg === 'navy'; }
 function chCol() { if (CH.tool === 'laser') { if (!CH.lzc) CH.lzc = chDark() ? '#ff4d4d' : '#e03131'; return CH.lzc; } var L = CH_COLS[chDark() ? 'dark' : 'light']; if (!CH.col) CH.col = L[0]; return CH.col; }
-function chPage() { return CH.pages[CH.i]; }
+function chPage() { var p = CH.pages[CH.i]; if (CH.side === 'm' && p) { if (!p.memo) p.memo = { s: [], o: [], bg: 'line' }; return p.memo; } return p; }
 function chR() { return $('#chCv').clientWidth / CH.W; }
 /* ----- 저장(브라우저) ----- */
 var chSaveT = 0;
@@ -1785,35 +1806,35 @@ function chStore() { try { if (CH.tw && CH.tw.delete) CH.tw.delete(chPage()); } 
 /* 아래쪽 쪽 목록 (작은 그림) */
 CH.tw = typeof WeakMap === 'function' ? new WeakMap() : { has: function () { return false; }, get: function () { return ''; }, set: function () {} };
 function chThumb(i) {
-  var keep = CH.i, kb = CH.bg; CH.i = i; if (chPage().bg) CH.bg = chPage().bg;
+  var keep = CH.i, kb = CH.bg, ks = CH.side; CH.i = i; CH.side = CH.thSide || ''; if (chPage().bg) CH.bg = chPage().bg;
   try {
-    var c = document.createElement('canvas'); c.width = 192; c.height = 108; var x = c.getContext('2d'), k = c.width / CH.W; chBgDraw(x, k, c.width, c.height); chDrawImgs(x, k);
+    var c = document.createElement('canvas'); c.width = CH.thW || 192; c.height = Math.round(c.width * CH.H / CH.W); var x = c.getContext('2d'), k = c.width / CH.W; chBgDraw(x, k, c.width, c.height); chDrawImgs(x, k);
     var ink = document.createElement('canvas'); ink.width = c.width; ink.height = c.height; chInkTo(ink); x.drawImage(ink, 0, 0);
     chPage().o.forEach(function (o) { if (!chTL(o) || !chLyVis(chLyOf(o))) return; if (o.t === 'clock' && o.md === 'ana') { chClockCv(x, o, k); return; } var otx = o.t === 'clock' ? chClkText(o) : o.txt; x.save(); x.font = (o.b ? 800 : 500) + ' ' + Math.max(2, o.fs * k) + 'px ' + CH_FONT; x.textBaseline = 'top'; x.fillStyle = o.c; String(otx || '').split('\n').forEach(function (ln, j) { var tw = x.measureText(ln).width, lx = o.al === 'center' ? (o.x + o.w / 2) * k - tw / 2 : o.al === 'right' ? (o.x + o.w) * k - tw : o.x * k; x.fillText(ln, lx, (o.y + o.fs * .08) * k + j * o.fs * 1.25 * k); }); x.restore(); });
-    return c.toDataURL('image/jpeg', .7);
-  } catch (e) { return ''; } finally { CH.i = keep; CH.bg = kb; }
+    if (CH.thCv) return c; return c.toDataURL('image/jpeg', .7);
+  } catch (e) { return ''; } finally { CH.i = keep; CH.bg = kb; CH.side = ks; }
 }
 function chPagesUI() {
   var box = $('#chPages'); if (!box) return;
   box.innerHTML = CH.pages.map(function (p, i) { if (!CH.tw.has(p)) CH.tw.set(p, chThumb(i)); return '<button type="button" class="chpgt' + (i === CH.i ? ' on' : '') + '" data-pg="' + i + '" title="' + (i + 1) + '쪽으로"><img src="' + CH.tw.get(p) + '" alt="' + (i + 1) + '쪽"><span>' + (i + 1) + '</span>' + (CH.pages.length > 1 ? '<i class="chpgx" data-pgdel="' + i + '" title="' + (i + 1) + '쪽 삭제 (두 번 누르기)">×</i>' : '') + '</button>'; }).join('') + '<button type="button" class="chpgadd" data-pgadd="1" title="새 쪽 추가">＋<small>새 쪽</small></button>';
   var on = box.querySelector('.chpgt.on'); if (on && on.scrollIntoView && box.scrollWidth > box.clientWidth) { var bl = box.scrollLeft, ol = on.offsetLeft; if (ol < bl || ol + on.offsetWidth > bl + box.clientWidth) box.scrollLeft = ol - 20; }
 }
-function chRestore() { try { var d = JSON.parse(localStorage.getItem('dg_chalk_v1') || 'null'); if (d && d.pages && d.pages.length) { CH.pages = d.pages.map(function (p) { return { s: p.s || [], o: p.o || [], ly: p.ly, cur: p.cur, bg: p.bg }; }); CH.i = Math.min(d.i || 0, CH.pages.length - 1); CH.bg = d.bg || 'green'; CH.und = CH.pages.map(function () { return []; }); CH.red = CH.pages.map(function () { return []; }); } } catch (e) {} setTimeout(function () { chIbGc(); chIbMigrate(); }, 1500); }
+function chRestore() { try { var d = JSON.parse(localStorage.getItem('dg_chalk_v1') || 'null'); if (d && d.pages && d.pages.length) { CH.pages = d.pages.map(function (p) { return { s: p.s || [], o: p.o || [], ly: p.ly, cur: p.cur, bg: p.bg, memo: p.memo }; }); CH.i = Math.min(d.i || 0, CH.pages.length - 1); CH.bg = d.bg || 'green'; CH.und = CH.pages.map(function () { return []; }); CH.red = CH.pages.map(function () { return []; }); } } catch (e) {} setTimeout(function () { chIbGc(); chIbMigrate(); }, 1500); }
 /* ----- 되돌리기: 쪽 상태를 통째로 기억 ----- */
 function chSnap() { return JSON.stringify(chPage()); }
 function chPush(before) { var u = CH.und[CH.i] = CH.und[CH.i] || []; u.push(before); if (u.length > 80) u.shift(); CH.red[CH.i] = []; chStore(); chUI(); }
-function chLoad(js) { var p = JSON.parse(js); CH.pages[CH.i] = { s: p.s || [], o: p.o || [], ly: p.ly, cur: p.cur, bg: p.bg }; CH.sel = null; CH.edit = null; chRebuild(); chRender(); chObjs(); chUI(); chStore(); }
+function chLoad(js) { var p = JSON.parse(js), np = { s: p.s || [], o: p.o || [], ly: p.ly, cur: p.cur, bg: p.bg }, old = CH.pages[CH.i]; if (CH.side === 'm') { np.txt = old.memo && old.memo.txt; old.memo = np; } else { np.memo = old.memo; CH.pages[CH.i] = np; } CH.sel = null; CH.edit = null; chRebuild(); chRender(); chObjs(); chUI(); chStore(); }
 /* ----- 화면 맞추기 ----- */
 function chFit() {
   var cv = $('#chCv'), st = $('#chStage'), wr = $('#chWrap'), sec = $('#sec-chalk'), fs = sec.classList.contains('fs');
-  var aw = wr.clientWidth || 800, ah = fs ? Math.max(200, wr.clientHeight) : Math.min(aw * CH.H / CH.W, window.innerHeight - 260);
+  var sp = CH.lay === 'two' || CH.lay === 'memo', aw = ((wr.clientWidth || 800) - (sp ? 14 : 0)) / (sp ? 2 : 1), ah = fs ? Math.max(200, wr.clientHeight) : Math.min(aw * CH.H / CH.W, window.innerHeight - 260);
   var w = Math.min(aw, ah * CH.W / CH.H), h = w * CH.H / CH.W, dpr = Math.min(window.devicePixelRatio || 1, 2);
   st.style.width = w + 'px'; st.style.height = h + 'px'; cv.style.width = w + 'px'; cv.style.height = h + 'px';
   var pw = Math.max(1, Math.round(w * dpr)), ph = Math.max(1, Math.round(h * dpr));
   if (cv.width !== pw || cv.height !== ph || !CH.ink) { cv.width = pw; cv.height = ph; CH.ink = document.createElement('canvas'); CH.ink.width = pw; CH.ink.height = ph; chRebuild(); }
   var lz = $('#chLz'); if (lz) { lz.style.width = w + 'px'; lz.style.height = h + 'px'; if (lz.width !== pw || lz.height !== ph) { lz.width = pw; lz.height = ph; } }
   sec.style.background = fs ? CH_BG[CH.bg] : '';
-  chRender(); chObjs(); chClockDraw(); cv.style.cursor = chCursor();
+  chRender(); chObjs(); chClockDraw(); cv.style.cursor = chCursor(); if (typeof chAltDraw === 'function') chAltDraw(w, h);
 }
 /* ----- 그리기 ----- */
 function chBgDraw(x, k, w, h) {
@@ -2479,7 +2500,7 @@ function chPdfImport(f) {
     };
     return step().then(function () {
       busy(''); if (!out.length) { toast('PDF에 쪽이 없습니다'); return; }
-      var cur = chPage(), empty = !cur.s.length && !cur.o.length, pos = empty ? CH.i : CH.i + 1;
+      var cur = CH.pages[CH.i], empty = !cur.s.length && !cur.o.length && !chMemoHas(cur), pos = empty ? CH.i : CH.i + 1;
       if (empty) { CH.pages.splice(CH.i, 1); CH.und.splice(CH.i, 1); CH.red.splice(CH.i, 1); }
       Array.prototype.splice.apply(CH.pages, [pos, 0].concat(out)); out.forEach(function () { CH.und.splice(pos, 0, []); CH.red.splice(pos, 0, []); });
       CH.i = pos; CH.sel = null; CH.tool = 'pen'; chRebuild(); chRender(); chObjs(); chUI(); chStore();
@@ -2489,6 +2510,102 @@ function chPdfImport(f) {
 }
 $('#chPdf').addEventListener('click', function () { $('#chPdfF').click(); });
 $('#chPdfF').addEventListener('change', function () { var f = this.files[0]; this.value = ''; if (f) chPdfImport(f); });
+/* ----- 화면 배치: 한 쪽 / 두 쪽 / 자료+메모 (쓰는 쪽은 진짜 칠판, 옆 쪽은 그림으로 보여 주고 누르면 바뀜) ----- */
+try { CH.lay = localStorage.getItem('dg_chalk_lay') || 'one'; } catch (e) { CH.lay = 'one'; }
+if (!/^(one|two|memo)$/.test(CH.lay)) CH.lay = 'one';
+CH.side = ''; CH.altK = '';
+var CH_MAINU = null;
+function chSetSide(sd) {
+  sd = sd || ''; if ((CH.side || '') === sd) return; if (CH.edit) chEndEdit();
+  if (sd === 'm') { CH_MAINU = { und: CH.und, red: CH.red }; CH.und = []; CH.red = []; }
+  else { if (CH_MAINU) { CH.und = CH_MAINU.und; CH.red = CH_MAINU.red; CH_MAINU = null; } if (CH.und.length !== CH.pages.length) { CH.und = CH.pages.map(function () { return []; }); CH.red = CH.pages.map(function () { return []; }); } }
+  CH.side = sd; CH.sel = null; CH.altK = ''; chRebuild(); chRender(); chObjs(); chUI();
+}
+function chSetLay(l) {
+  CH.lay = l; try { localStorage.setItem('dg_chalk_lay', l); } catch (e) {}
+  $('#sec-chalk').classList.toggle('lysp', l !== 'one');
+  chSetSide(l === 'memo' ? 'm' : ''); CH.altK = ''; chLayUI(); chFit();
+}
+function chLayUI() {
+  [].forEach.call(document.querySelectorAll('#chLay [data-lay]'), function (b) { b.classList.toggle('on', b.dataset.lay === CH.lay); });
+  var sl = $('#chSideL'); if (sl) { sl.hidden = CH.lay === 'one'; sl.textContent = CH.lay === 'memo' ? (CH.side === 'm' ? (CH.i + 1) + '쪽 메모' : (CH.i + 1) + '쪽 자료') : (CH.i + 1) + '쪽'; }
+}
+function chAltIdx() {
+  var n = CH.pages.length;
+  if (CH.lay === 'memo') return { i: CH.i, side: CH.side === 'm' ? '' : 'm', right: CH.side !== 'm' };
+  if (CH.lay === 'two') { var L = CH.i - (CH.i % 2); if (CH.i === L) return L + 1 < n ? { i: L + 1, side: '', right: true } : (L > 0 ? { i: L - 1, side: '', right: false } : null); return { i: L, side: '', right: false }; }
+  return null;
+}
+function chAltDraw(w, h) {
+  var a = $('#chAlt'); if (!a) return; var t = CH.lay === 'one' ? null : chAltIdx();
+  if (!t) { a.hidden = true; return; }
+  a.hidden = false; a.classList.toggle('l', !t.right); a.style.width = w + 'px'; a.style.height = h + 'px';
+  var cv = $('#chAltCv'), dpr = Math.min(window.devicePixelRatio || 1, 2), pw = Math.max(1, Math.round(w * dpr)), ph = Math.max(1, Math.round(h * dpr));
+  cv.style.width = w + 'px'; cv.style.height = h + 'px';
+  $('#chAltL').textContent = CH.lay === 'memo' ? (t.side === 'm' ? '메모장 · 눌러서 쓰기' : '자료 · 눌러서 쓰기') : (t.i + 1) + '쪽 · 눌러서 쓰기';
+  var k = t.i + '|' + t.side + '|' + pw + 'x' + ph; if (k === CH.altK && cv.width === pw) return; CH.altK = k;
+  cv.width = pw; cv.height = ph; CH.thW = pw; CH.thSide = t.side; CH.thCv = true;
+  var c; try { c = chThumb(t.i); } finally { CH.thW = null; CH.thSide = null; CH.thCv = false; }
+  if (c && c.getContext) cv.getContext('2d').drawImage(c, 0, 0, pw, ph);
+}
+function chAltGo() {
+  var t = chAltIdx(); if (!t) return; if (CH.edit) chEndEdit();
+  if (CH.lay === 'memo') chSetSide(t.side);
+  else { CH.i = t.i; CH.sel = null; CH.altK = ''; chRebuild(); chRender(); chObjs(); chUI(); chStore(); }
+  CH.altK = ''; chFit();
+}
+(function () {
+  var st = $('#chStage'), sl = document.createElement('span'); sl.className = 'chsidel'; sl.id = 'chSideL'; sl.hidden = true; st.appendChild(sl);
+  $('#chAlt').addEventListener('click', chAltGo);
+  $('#chAlt').addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); chAltGo(); } });
+  $('#chLay').addEventListener('click', function (e) { var b = e.target.closest('[data-lay]'); if (b) chSetLay(b.dataset.lay); });
+  var ui0 = chUI; chUI = function () { var r = ui0.apply(this, arguments); chLayUI(); var t = CH.lay === 'one' ? null : chAltIdx(), cv = $('#chCv'); if (t && cv.clientWidth) chAltDraw(cv.clientWidth, cv.clientHeight); else if (!t && !$('#chAlt').hidden) { $('#chAlt').hidden = true; } return r; };
+  $('#sec-chalk').classList.toggle('lysp', CH.lay !== 'one');
+  if (CH.lay === 'memo') { CH_MAINU = { und: CH.und, red: CH.red }; CH.und = []; CH.red = []; CH.side = 'm'; }
+  chLayUI();
+})();
+
+/* ----- 메모 모아보기: 메모장에 쓴 필기만 모아 글로 바꾸고 고친 뒤 내려받기 ----- */
+function chMemoHas(p) { var m = p && p.memo; return !!(m && ((m.s || []).length || (m.o || []).length || m.txt)); }
+function chMemoCv(i) {
+  var m = CH.pages[i].memo, bk = m.bg; m.bg = 'white'; CH.thW = 1600; CH.thSide = 'm'; CH.thCv = true; var c;
+  try { c = chThumb(i); } finally { m.bg = bk; CH.thW = null; CH.thSide = null; CH.thCv = false; }
+  if (!c || !c.getContext) return null;
+  var x = c.getContext('2d'), d = x.getImageData(0, 0, c.width, c.height).data, x0 = c.width, y0 = c.height, x1 = -1, y1 = -1;
+  for (var y = 0; y < c.height; y += 2) for (var xx = 0; xx < c.width; xx += 2) { var o = (y * c.width + xx) * 4; if (d[o] < 225 || d[o + 1] < 225 || d[o + 2] < 225) { if (xx < x0) x0 = xx; if (xx > x1) x1 = xx; if (y < y0) y0 = y; if (y > y1) y1 = y; } }
+  if (x1 < 0) return null; var pad = 30; x0 = Math.max(0, x0 - pad); y0 = Math.max(0, y0 - pad); x1 = Math.min(c.width, x1 + pad); y1 = Math.min(c.height, y1 + pad);
+  var o2 = document.createElement('canvas'); o2.width = x1 - x0; o2.height = y1 - y0; var ox = o2.getContext('2d'); ox.fillStyle = '#fff'; ox.fillRect(0, 0, o2.width, o2.height); ox.drawImage(c, x0, y0, o2.width, o2.height, 0, 0, o2.width, o2.height); return o2;
+}
+function chOcr(i) {
+  var c = chMemoCv(i); if (!c) return Promise.resolve('');
+  var b64 = c.toDataURL('image/jpeg', .85).split(',')[1];
+  return toolApi('memoOcr', [b64]).then(function (r) { if (r && r.ok) return r.t || ''; throw new Error(r && r.err === 'limit' ? '오늘 글자 바꾸기 횟수를 다 썼습니다' : '글자로 바꾸지 못했습니다'); });
+}
+function chMemoPanel() {
+  if (CH.edit) chEndEdit(); var old = document.getElementById('chMemoP'); if (old) old.remove();
+  var L = []; CH.pages.forEach(function (p, i) { if (chMemoHas(p)) L.push(i); });
+  var P = document.createElement('div'); P.className = 'chmemop'; P.id = 'chMemoP';
+  P.innerHTML = '<div class="bx"><div class="mbar"><h3 style="flex:1">메모 모아보기</h3><button class="btn" type="button" data-mm="close">닫기</button></div>' +
+    '<p class="sub">「자료+메모」 배치에서 메모장에 쓴 필기만 모았습니다. 「글자로 바꾸기」를 누르면 필기를 글로 바꿉니다(필기 그림이 구글 문자 인식으로 보내져 글만 받아 오고, 그림은 바로 지워집니다). 바뀐 글은 고칠 수 있고, 아래에서 한 번에 내려받습니다.</p>' +
+    (L.length ? '<div class="mbar"><button class="btn pri" type="button" data-mm="ocrall">모두 글자로 바꾸기</button><span class="sub" id="chMmSt" style="margin:0"></span><span style="flex:1"></span><button class="btn" type="button" data-mm="txt">글(.txt) 받기</button><button class="btn" type="button" data-mm="pdf">필기 그림(PDF) 받기</button></div>' : '<p class="sub"><b>아직 메모가 없습니다.</b> 도구 막대의 「자료+메모」를 누르면 오른쪽에 메모장이 열립니다.</p>') +
+    L.map(function (i) { var c = chMemoCv(i); return '<div class="it" data-i="' + i + '"><div><b>' + (i + 1) + '쪽 메모</b>' + (c ? '<img alt="' + (i + 1) + '쪽 필기" src="' + c.toDataURL('image/jpeg', .8) + '">' : '<span class="sub">필기 없음</span>') + '</div><div><b>글</b><textarea data-mt="' + i + '" placeholder="「글자로 바꾸기」를 누르거나 직접 적으세요">' + esc(CH.pages[i].memo.txt || '') + '</textarea><div class="row2"><button class="btn" type="button" data-mm="ocr" data-i="' + i + '">글자로 바꾸기</button><span data-ms="' + i + '"></span><button class="btn x" type="button" data-mm="go" data-i="' + i + '">이 쪽으로 가기</button></div></div></div>'; }).join('') + '</div>';
+  document.body.appendChild(P);
+  var st = function (i, t) { var e = P.querySelector('[data-ms="' + i + '"]'); if (e) e.textContent = t; };
+  var one = function (i) { st(i, '바꾸는 중…'); return chOcr(i).then(function (t) { CH.pages[i].memo.txt = t; var ta = P.querySelector('[data-mt="' + i + '"]'); if (ta) ta.value = t; st(i, t ? '바꿨습니다 · 틀린 곳은 고쳐 주세요' : '글자를 찾지 못했습니다'); chStore(); }, function (e) { st(i, (e && e.message) || '실패'); }); };
+  P.addEventListener('input', function (e) { var t = e.target; if (t.dataset && t.dataset.mt != null) { CH.pages[+t.dataset.mt].memo.txt = t.value; chStore(); } });
+  P.addEventListener('click', function (e) {
+    if (e.target === P) { P.remove(); return; }
+    var b = e.target.closest('[data-mm]'); if (!b) return; var a = b.dataset.mm;
+    if (a === 'close') { P.remove(); return; }
+    if (a === 'ocr') { one(+b.dataset.i); return; }
+    if (a === 'go') { P.remove(); CH.i = +b.dataset.i; if (CH.lay !== 'memo') chSetLay('memo'); else { CH.sel = null; CH.altK = ''; chRebuild(); chRender(); chObjs(); chUI(); chFit(); } return; }
+    if (a === 'ocrall') { b.disabled = true; var k = 0; L.reduce(function (pr, i) { return pr.then(function () { k++; $('#chMmSt').textContent = k + ' / ' + L.length + ' 바꾸는 중…'; return one(i); }); }, Promise.resolve()).then(function () { b.disabled = false; $('#chMmSt').textContent = '다 바꿨습니다. 틀린 곳은 고쳐 주세요.'; }); return; }
+    var d = new Date(), nm = '칠판메모_' + pad2(d.getMonth() + 1) + pad2(d.getDate());
+    if (a === 'txt') { var tx = L.map(function (i) { return '[' + (i + 1) + '쪽 메모]\r\n' + String(CH.pages[i].memo.txt || '').replace(/\r?\n/g, '\r\n'); }).join('\r\n\r\n'); save(new Blob(['﻿' + tx], { type: 'text/plain;charset=utf-8' }), nm + '.txt'); return; }
+    if (a === 'pdf') { busy('PDF 만드는 중…'); (window.jspdf ? Promise.resolve() : loadScript(JSPDF)).then(function () { var doc = null; L.forEach(function (i) { var c = chMemoCv(i); if (!c) return; var l = c.width >= c.height, W = l ? 297 : 210, H = l ? 210 : 297; if (!doc) doc = new jspdf.jsPDF({ orientation: l ? 'l' : 'p', unit: 'mm', format: 'a4', compress: true }); else doc.addPage('a4', l ? 'l' : 'p'); var k2 = Math.min((W - 20) / c.width, (H - 20) / c.height); doc.addImage(c.toDataURL('image/jpeg', .9), 'JPEG', (W - c.width * k2) / 2, 10, c.width * k2, c.height * k2); }); busy(''); if (doc) save(doc.output('blob'), nm + '.pdf'); else toast('필기가 없습니다'); }).catch(function (er) { busy(''); toast('PDF를 만들지 못했습니다: ' + ((er && er.message) || er)); }); }
+  });
+}
+$('#chMemoAll').addEventListener('click', chMemoPanel);
 var CH_FSR = fsRedraw; fsRedraw = function () { try { CH_FSR.apply(this, arguments); } catch (e) {} try { if (!document.querySelector('#sec-chalk.fs') && navigator.keyboard && navigator.keyboard.unlock) navigator.keyboard.unlock(); } catch (e) {} var sc = document.getElementById('sec-chalk'); if (sc && !sc.classList.contains('fs')) { sc.classList.remove('chhide'); $('#chShow').hidden = true; } if (MODE === 'chalk') setTimeout(chFit, 60); };
 var CH_SM = setMode; setMode = function (m) { var r = CH_SM.apply(this, arguments); var on = MODE === 'chalk'; $('#sec-chalk').hidden = !on; if (!on) $('#chMini').hidden = true; var dsc = document.getElementById('desc'); if (dsc) dsc.hidden = on; if (on) { $('#desc').textContent = DESC.chalk; chUI(); setTimeout(chFit, 0); } return r; };
 
