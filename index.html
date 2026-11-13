@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>현장 도구함</title>
+<meta name="description" content="사진 개인정보 가리기, 칠판, 실시간 투표, 다국어 공지, 사진 대지 만들기까지. 설치·로그인 없이 바로 쓰는 현장 업무 도구.">
+<script src="assets/config.js"></script>
+<style>
+:root{--brand:#1f6f5c;--brand-soft:#eaf4ef;--ink:#1d2421;--sub:#66706b;--line:#dfe5e2;--bg:#f4f7f6;--panel:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--brand:#5cc4a6;--brand-soft:#1c2f29;--ink:#e6ecea;--sub:#9aa6a1;--line:#2c3532;--bg:#121615;--panel:#1a201e}}
+:root[data-theme="dark"]{--brand:#5cc4a6;--brand-soft:#1c2f29;--ink:#e6ecea;--sub:#9aa6a1;--line:#2c3532;--bg:#121615;--panel:#1a201e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 "Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif}
+.w{max-width:1040px;margin:0 auto;padding:0 16px}
+header{padding:36px 0 18px}
+header h1{margin:0;font-size:28px;letter-spacing:-.5px}
+header p{margin:6px 0 0;color:var(--sub);max-width:640px}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.pill{font-size:12.5px;background:var(--brand-soft);color:var(--brand);border-radius:999px;padding:3px 10px;font-weight:600}
+h2{font-size:14px;color:var(--sub);margin:26px 0 10px;font-weight:700;letter-spacing:.2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+a.card{display:flex;gap:12px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;text-decoration:none;color:inherit;transition:border-color .15s,transform .15s}
+a.card:hover{border-color:var(--brand);transform:translateY(-1px)}
+a.card:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.ic{flex:0 0 38px;height:38px;border-radius:10px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center}
+.ic svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.card b{display:block;font-size:15px}
+.card small{display:block;color:var(--sub);font-size:12.5px;line-height:1.45;margin-top:2px}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;color:#b54708;background:#fff4e5;border-radius:6px;padding:0 5px;margin-left:4px;vertical-align:1px}
+footer{margin:40px 0 30px;padding-top:16px;border-top:1px solid var(--line);color:var(--sub);font-size:12.5px;display:flex;flex-wrap:wrap;gap:6px 16px}
+footer a{color:inherit}
+</style></head><body>
+<div class="w">
+<header>
+  <h1 id="nm">현장 도구함</h1>
+  <p>설치나 로그인 없이 바로 쓰는 현장 업무 도구입니다. 사진은 내 기기 안에서만 처리되고 서버로 올라가지 않습니다.</p>
+  <div class="pills"><span class="pill">무료</span><span class="pill">로그인 없음</span><span class="pill">휴대폰 참여(QR)</span><span class="pill">다국어 공지</span></div>
+</header>
+<main id="list"></main>
+<footer><span id="cp"></span><a href="privacy.html">개인정보 안내</a></footer>
+</div>
+<script>
+var I = {
+  eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  mask: '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h6M7 14h10"/>',
+  cut: '<circle cx="12" cy="9" r="4"/><path d="M5 21c1-4 4-6 7-6s6 2 7 6"/>',
+  down: '<path d="M12 4v12M7 11l5 5 5-5M5 20h14"/>',
+  px: '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 9h16M9 4v16"/>',
+  scan: '<path d="M4 7V4h3M17 4h3v3M20 17v3h-3M7 20H4v-3"/><path d="M8 9h8M8 12h8M8 15h5"/>',
+  qr: '<rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 14h2v2M18 18h2v2M14 20h2"/>',
+  sheet: '<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M4 12h16M12 3v18"/>',
+  wheel: '<circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
+  ladder: '<path d="M7 3v18M17 3v18M7 8h10M7 13h10M7 18h10"/>',
+  ball: '<circle cx="12" cy="13" r="7"/><path d="M9 3h6"/>',
+  timer: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 3h6"/>',
+  board: '<rect x="3" y="4" width="18" height="12" rx="1"/><path d="M8 20h8M12 16v4M7 12l3-3 2 2 4-4"/>',
+  vote: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>'
+};
+var G = [
+  ['사진·개인정보', [
+    ['mosaic', '모자이크 처리기', '사진 속 얼굴·이름을 흐리게', 'eye'],
+    ['mask', '개인정보 가리개', '신청서·명단의 연락처·주소를 덮어 가리기 (PDF 가능)', 'mask'],
+    ['bgrm', '배경 지우기', '사람·물건만 남기고 배경 지우기(누끼)', 'cut'],
+    ['resize', '사진 용량 줄이기', '업로드·메일 첨부용으로 용량 줄이기', 'down'],
+    ['px', '사진 크기 변경', '가로·세로 픽셀 크기를 한 번에 맞추기', 'px']]],
+  ['문서·만들기', [
+    ['scan', '문서 반듯하게 펴기', '비스듬히 찍은 문서를 스캔본처럼, 여러 장 PDF로', 'scan'],
+    ['sheet', '사진 대지 만들기', '활동사진을 보고서용 A4 사진 대지 PDF로', 'sheet', 1],
+    ['qr', 'QR 생성기', '링크를 QR 코드 그림으로', 'qr']]],
+  ['진행·참여', [
+    ['chalk', '칠판', '판서·안내문 띄우기, 휴대폰으로 함께 보기', 'board'],
+    ['vote', '실시간 투표·설문', 'QR로 참여, 결과를 그래프·단어 구름으로', 'vote', 1],
+    ['notice', '다국어 실시간 공지', '공지를 참여자 언어로 실시간 번역', 'globe', 1],
+    ['timer', '타이머/스톱워치', '회의·활동용 큰 화면 시간 표시', 'timer']]],
+  ['추첨·게임', [
+    ['wheel', '돌림판', '항목을 넣고 돌려서 뽑기', 'wheel'],
+    ['ladder', '사다리타기', '인원·결과를 넣고 사다리 타기', 'ladder'],
+    ['lotto', '공 추첨기', '경품별 개수를 정해 추첨', 'ball']]]
+];
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+document.getElementById('list').innerHTML = G.map(function (g) {
+  return '<h2>' + esc(g[0]) + '</h2><div class="grid">' + g[1].map(function (t) {
+    return '<a class="card" href="tools.html?m=' + t[0] + '"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true">' + I[t[3]] + '</svg></span><span><b>' + esc(t[1]) + (t[4] ? '<span class="tag">새 도구</span>' : '') + '</b><small>' + esc(t[2]) + '</small></span></a>';
+  }).join('') + '</div>';
+}).join('');
+var N = window.SITE_NAME || '현장 도구함';
+document.getElementById('nm').textContent = N; document.title = N;
+document.getElementById('cp').textContent = '© ' + new Date().getFullYear() + ' ' + N;
+</script>
+</body></html>
