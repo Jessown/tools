@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src https://cdn.jsdelivr.net; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; base-uri 'self'; form-action 'none'"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>도구 희망 · 쓱툴</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<script src="assets/config.js"></script><script src="assets/gas-shim.js"></script>
+<style>
+:root{--ink:#111;--sub:#666;--line:#e4e4e4;--bg:#fff;--brand:#0047ff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#f2f2f2;--sub:#9a9a9a;--line:#2c2c2c;--bg:#111;--brand:#6b8cff}}
+:root[data-theme="dark"]{--ink:#f2f2f2;--sub:#9a9a9a;--line:#2c2c2c;--bg:#111;--brand:#6b8cff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif}
+.w{max-width:620px;margin:0 auto;padding:32px 16px 56px}
+a{color:var(--brand)}
+h1{font-size:30px;font-weight:900;letter-spacing:-1px;margin:18px 0 6px}
+.lead{color:var(--sub);margin:0 0 24px;word-break:keep-all}
+label{display:block;font-weight:800;margin:18px 0 6px}
+label small{font-weight:400;color:var(--sub);margin-left:6px}
+input,textarea{width:100%;font:inherit;color:inherit;background:transparent;border:0;border-bottom:2px solid var(--ink);padding:8px 2px;outline:none}
+textarea{min-height:96px;resize:vertical;border:2px solid var(--ink);border-radius:10px;padding:10px}
+input:focus,textarea:focus{border-color:var(--brand)}
+button{margin-top:26px;width:100%;font:inherit;font-weight:800;font-size:17px;padding:14px;border:0;border-radius:999px;background:var(--ink);color:var(--bg);cursor:pointer}
+button:disabled{opacity:.4}
+.msg{margin-top:16px;font-weight:700}
+.done{border-top:2px solid var(--ink);padding-top:18px}
+.note{margin-top:30px;font-size:13px;color:var(--sub);word-break:keep-all}
+</style></head><body><div class="w">
+<p><a href="./">← 처음으로</a></p>
+<h1>이런 도구 있으면 좋겠어요</h1>
+<p class="lead">일하다 "이거 있으면 좋겠다" 싶은 게 있으면 짧게 적어 주세요. 하나씩 만들어 보겠습니다.</p>
+<div id="f">
+  <label for="what">어떤 도구가 필요한가요?</label>
+  <input id="what" maxlength="300" placeholder="예) 출석 명단을 넣으면 이름표를 뽑아 주는 도구">
+  <label for="why">어디에 쓰나요? <small>선택</small></label>
+  <textarea id="why" maxlength="500" placeholder="예) 매달 프로그램마다 이름표를 손으로 만들어서 오래 걸려요"></textarea>
+  <label for="who">답을 받고 싶다면 <small>선택 · 이메일 등</small></label>
+  <input id="who" maxlength="80" placeholder="비워 두어도 됩니다">
+  <button id="go" type="button">보내기</button>
+  <div class="msg" id="msg" role="status"></div>
+</div>
+<div class="done" id="ok" hidden><b>잘 받았습니다. 고맙습니다!</b><p class="lead">다른 것도 생각나면 언제든 다시 적어 주세요. <a href="wish.html">하나 더 쓰기</a></p></div>
+<p class="note">적어 주신 내용은 쓱툴 운영자만 봅니다. 연락처는 답을 드릴 때만 쓰고, 다른 개인정보는 적지 말아 주세요.</p>
+</div>
+<script>
+var $ = function (s) { return document.getElementById(s); };
+$('go').onclick = function () {
+  var w = { what: $('what').value.trim(), why: $('why').value.trim(), who: $('who').value.trim() };
+  if (w.what.length < 2) { $('msg').textContent = '어떤 도구인지 한 줄만 적어 주세요.'; $('what').focus(); return; }
+  $('go').disabled = true; $('go').textContent = '보내는 중…'; $('msg').textContent = '';
+  toolApi('wishAdd', [w]).then(function (r) {
+    if (r && r.ok) { $('f').hidden = true; $('ok').hidden = false; return; }
+    throw new Error(r && r.err === 'limit' ? '오늘은 접수가 많아 잠시 쉬고 있습니다. 내일 다시 보내 주세요.' : '보내지 못했습니다.');
+  }).catch(function (e) { $('go').disabled = false; $('go').textContent = '다시 보내기'; $('msg').textContent = (e && e.message && /^[가-힣]/.test(e.message)) ? e.message : '보내지 못했습니다. 잠시 뒤 다시 눌러 주세요.'; });
+};
+</script>
+</body></html>
