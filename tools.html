@@ -2185,11 +2185,11 @@ function chOptUI() {
     var x = CH.ink.getContext('2d');
     if (e.shiftKey && s.t !== 'eraser') { s.p = [s.p[0], chShift(s, chPt(e))]; s.sh = 1; }
     if (CH.multi) { if (s.t !== 'hl' && s.t !== 'pen' && s.t !== 'eraser') s.p = [s.p[0], s.p[s.p.length - 1]]; if (!CH.lyRaf) CH.lyRaf = requestAnimationFrame(function () { CH.lyRaf = 0; if (CH.cur) { chRebuild(CH.cur); chRender(); } }); return; }
-    if ((s.t === 'pen' && !s.sh && !s.d) || s.t === 'eraser') chStroke(x, { t: s.t, c: s.c, w: s.w, p: s.p.slice(Math.max(0, s.p.length - 4)) });
+    if ((s.t === 'pen' && !s.sh && !s.d) || s.t === 'eraser') { chStroke(x, { t: s.t, c: s.c, w: s.w, p: s.p.slice(Math.max(0, (s.dn || 0) - 3)) }); s.dn = s.p.length; }
     else { if (s.t !== 'hl' && s.t !== 'pen') s.p = [s.p[0], s.p[s.p.length - 1]]; if (s.t === 'pen' && !e.shiftKey) s.sh = 0; x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1; x.clearRect(0, 0, CH.ink.width, CH.ink.height); x.drawImage(CH.base, 0, 0); chStroke(x, s); }
-    chRender();
+    chRenderSoon();
   });
-  var end = function (e) { if (CH.zap) { var z = CH.zap; CH.zap = null; if (z.hit) chPush(z.before); return; } var s = CH.cur; if (!s) return; CH.cur = null; CH.base = null; if (e && e.shiftKey && s.t !== 'eraser' && s.p.length > 1) s.p = [s.p[0], chShift(s, s.p[s.p.length - 1])]; delete s.sh; var a = s.p[0], b = s.p[s.p.length - 1];
+  var end = function (e) { if (CH.zap) { var z = CH.zap; CH.zap = null; if (z.hit) chPush(z.before); return; } var s = CH.cur; if (!s) return; CH.cur = null; CH.base = null; if (e && e.shiftKey && s.t !== 'eraser' && s.p.length > 1) s.p = [s.p[0], chShift(s, s.p[s.p.length - 1])]; delete s.sh; delete s.dn; var a = s.p[0], b = s.p[s.p.length - 1];
     if (s.t !== 'pen' && s.t !== 'hl' && s.t !== 'eraser' && Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) < 4) { chRebuild(); chRender(); return; }
     chPage().s.push(s); chPush(CH.before); chRebuild(); chRender(); };
   var lzUp = function (e) { if (!LZ.down) return; LZ.down.up = LZ.up = performance.now(); LZ.down = null; if (e.pointerType !== 'mouse') LZ.head = null; chLzLoop(); };
