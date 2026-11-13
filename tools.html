@@ -508,7 +508,7 @@ header{flex-wrap:wrap;gap:8px 14px}.tgs{display:none!important}#toolSel{font:inh
   </section>
   <section class="card" id="sec-notice" hidden>
     <div id="ntSetup">
-      <div class="row"><label style="flex:1 1 300px">공지방 이름 <input id="ntTitle" maxlength="60" style="flex:1" placeholder="예) 결혼이민자 자조모임 11월"></label><button class="btn pri" type="button" id="ntGo">공지방 열기</button></div>
+      <div class="row"><label style="flex:1 1 300px">공지방 이름 <input id="ntTitle" maxlength="60" style="flex:1" placeholder="예) 11월 정기 모임"></label><button class="btn pri" type="button" id="ntGo">공지방 열기</button></div>
       <p class="sub">참여자는 QR을 찍고 자기 언어를 고르면, 여기서 한국어로 보내는 공지가 그 언어로 번역되어 바로 보입니다(구글 번역 · 15개 언어). 이름·연락처 같은 개인정보는 넣지 마세요. 공지방은 6시간 뒤 자동으로 닫힙니다.</p>
     </div>
     <div id="ntLive" hidden>
@@ -526,7 +526,7 @@ header{flex-wrap:wrap;gap:8px 14px}.tgs{display:none!important}#toolSel{font:inh
   <section class="card" id="sec-sheet" hidden>
     <div class="drop" id="shDrop"><p class="big">사진 대지에 넣을 활동사진을 여기로 끌어다 놓으세요</p><p>또는 눌러서 선택 (여러 장 가능 · 순서와 설명은 아래에서)</p><input type="file" id="shFile" accept="image/*,.heic,.heif" multiple hidden></div>
     <div id="shWork" hidden>
-      <div class="row"><label>제목 <input id="shT" value="사진 대지" maxlength="40" style="width:140px"></label><label>사업명 <input id="shBiz" maxlength="60" style="width:210px" placeholder="예) 다문화가족 자녀 진로설계"></label><label>일시 <input id="shDate" maxlength="40" style="width:170px" placeholder="예) 2026. 11. 12.(목) 14:00"></label><label>장소 <input id="shPlace" maxlength="40" style="width:150px" placeholder="예) 센터 프로그램실"></label></div>
+      <div class="row"><label>제목 <input id="shT" value="사진 대지" maxlength="40" style="width:140px"></label><label>행사명 <input id="shBiz" maxlength="60" style="width:210px" placeholder="예) 봄 워크숍"></label><label>일시 <input id="shDate" maxlength="40" style="width:170px" placeholder="예) 2026. 11. 12.(목) 14:00"></label><label>장소 <input id="shPlace" maxlength="40" style="width:150px" placeholder="예) 2층 세미나실"></label></div>
       <div class="row"><label>용지 <select id="shOri"><option value="p">A4 세로</option><option value="l">A4 가로</option></select></label><label>한 쪽에 <select id="shN"><option value="1">1장</option><option value="2">2장</option><option value="4" selected>4장</option><option value="6">6장</option><option value="8">8장</option><option value="9">9장</option></select></label><label>사진 맞춤 <select id="shFit"><option value="cover">칸에 꽉 채우기 (가장자리 잘림)</option><option value="contain">사진 전체 보이기 (여백)</option></select></label><label><input type="checkbox" id="shCap" checked> 설명 칸</label><label><input type="checkbox" id="shPg" checked> 쪽 번호</label></div>
       <div class="shlist" id="shList"></div>
       <div class="row"><button class="btn" type="button" id="shMore">사진 더 넣기</button><button class="btn" type="button" id="shClr">모두 빼기</button><span style="flex:1"></span><button class="btn" type="button" id="shJpg">그림(JPG)으로 받기</button><button class="btn pri" type="button" id="shPdf">PDF로 받기</button></div>
@@ -1625,7 +1625,7 @@ function bgRun(list) {
   }).then(function (out) {
     if (!out) return; BG.out = out; busy('');
     var u = URL.createObjectURL(out), im = new Image(); im.onload = function () { BG.outImg = im; }; im.src = u; $('#bgOut').src = u; toast('배경을 지웠습니다');
-  }).catch(function (e) { busy(''); toast('배경을 지우지 못했습니다. 인터넷 연결이나 기관 보안 설정을 확인해 주세요. (' + (e && e.message || e) + ')'); });
+  }).catch(function (e) { busy(''); toast('배경을 지우지 못했습니다. 인터넷 연결이나 네트워크 보안 설정을 확인해 주세요. (' + (e && e.message || e) + ')'); });
 }
 function bgFillVal() { var v = $('#bgFill').value; return v === 'custom' ? $('#bgCol').value : v; }
 function bgPreview() { var v = bgFillVal(); $('#bgCol').hidden = $('#bgFill').value !== 'custom'; $('#bgChk').style.background = v ? v : ''; }
@@ -1965,7 +1965,7 @@ function chTpl(k) {
   else if (k === 'break') big('쉬는 시간\n' + chTime(10) + '에 다시 시작합니다', 110, 260);
   else if (k === 'start') big('잠시 후 시작합니다\n조금만 기다려 주세요', 110, 260);
   else if (k === 'phone') big('휴대폰은 무음으로\n바꿔 주세요 🙏', 120, 260);
-  else if (k === 'welcome') big('환영합니다!\n프로그램 이름', 130, 250);
+  else if (k === 'welcome') big('환영합니다!\n행사 이름', 130, 250);
   else if (k === 'wifi') big('와이파이: 이름\n비밀번호: ○○○○', 100, 280);
   toast('글자를 두 번 누르면 고칠 수 있고, 모서리를 끌면 크기가 바뀝니다');
 }
@@ -2402,7 +2402,7 @@ function lvYmd() { var d = new Date(); return d.getFullYear() + ('0' + (d.getMon
 TITLES.vote = '실시간 투표·설문'; DESC.vote = '질문을 만들고 「투표 시작」을 누르면 QR이 나옵니다. 참여자는 휴대폰으로 QR을 찍어 로그인 없이 응답하고, 결과가 이 화면에 바로 그래프·단어 구름으로 나옵니다. 「다음 질문」으로 같은 QR에서 계속 묻고, 「결과 저장」으로 엑셀 파일을 받습니다. 응답은 6시간 뒤 자동으로 지워집니다.';
 var VT = { id: '', key: '', url: '', q: null, r: null, hist: {}, busy: 0, dk: '' };
 var VT_COL = ['#1f6f5c', '#1971c2', '#e8590c', '#9c36b5', '#2f9e44', '#c2255c', '#0c8599', '#f08c00', '#5c940d', '#3b5bdb', '#d6336c', '#868e96'];
-var VT_PRE = { sat: ['오늘 활동은 만족스러웠나요?', 'scale', ''], one: ['오늘 활동에서 가장 좋았던 것은?', 'one', '만들기\n이야기 나누기\n게임\n간식'], word: ['오늘 활동을 한 단어로 표현하면?', 'text', ''], next: ['다음에 해 보고 싶은 활동은? (여러 개)', 'multi', '요리\n나들이\n공예\n운동\n진로 체험'] };
+var VT_PRE = { sat: ['오늘 활동은 만족스러웠나요?', 'scale', ''], one: ['오늘 활동에서 가장 좋았던 것은?', 'one', '만들기\n이야기 나누기\n게임\n간식'], word: ['오늘 활동을 한 단어로 표현하면?', 'text', ''], next: ['다음에 해 보고 싶은 활동은? (여러 개)', 'multi', '요리\n나들이\n공예\n운동\n견학'] };
 var VT_TN = { one: '하나 고르기', multi: '여러 개 고르기', scale: '만족도(1~5)', text: '한 줄 의견' };
 function vtTypeUI() { $('#vtOptW').hidden = !/^(one|multi)$/.test($('#vtType').value); }
 $('#vtType').addEventListener('change', vtTypeUI); vtTypeUI();
@@ -2527,7 +2527,7 @@ function shDraw(c, pi, k0) {
   c.width = W; c.height = H; var x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H); x.textBaseline = 'middle';
   var y = m, ti = $('#shT').value.trim(); x.fillStyle = '#111';
   if (ti) { x.font = 'bold ' + Math.round(40 * u) + 'px ' + SH_FF; x.textAlign = 'center'; x.fillText(ti, W / 2, y + 22 * u); y += 66 * u; }
-  var info = [['사업명', $('#shBiz').value.trim()], ['일시', $('#shDate').value.trim()], ['장소', $('#shPlace').value.trim()]].filter(function (a) { return a[1]; });
+  var info = [['행사명', $('#shBiz').value.trim()], ['일시', $('#shDate').value.trim()], ['장소', $('#shPlace').value.trim()]].filter(function (a) { return a[1]; });
   x.lineWidth = Math.max(1, 1.6 * u); x.strokeStyle = '#333';
   if (info.length) { var rh = 42 * u, lw = 130 * u, tw = W - 2 * m; info.forEach(function (a, k) { var yy = y + k * rh; x.fillStyle = '#eef1f0'; x.fillRect(m, yy, lw, rh); x.strokeRect(m, yy, lw, rh); x.strokeRect(m + lw, yy, tw - lw, rh); x.fillStyle = '#111'; x.font = 'bold ' + Math.round(19 * u) + 'px ' + SH_FF; x.textAlign = 'center'; x.fillText(a[0], m + lw / 2, yy + rh / 2); x.font = Math.round(19 * u) + 'px ' + SH_FF; x.textAlign = 'left'; x.fillText(shFitTxt(x, a[1], tw - lw - 26 * u), m + lw + 14 * u, yy + rh / 2); }); y += info.length * rh + 22 * u; }
   var pn = $('#shPg').checked, bot = H - m - (pn ? 34 * u : 0), g = 18 * u, cw = (W - 2 * m - (L.c - 1) * g) / L.c, chh = (bot - y - (L.r - 1) * g) / L.r, cap = $('#shCap').checked, caph = cap ? Math.max(38 * u, Math.min(60 * u, chh * 0.13)) : 0, fit = $('#shFit').value;
