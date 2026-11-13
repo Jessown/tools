@@ -1,48 +1,46 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src https://cdn.jsdelivr.net https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'"><meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="ko"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src https://cdn.jsdelivr.net; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>쓱툴</title>
 <meta name="description" content="일하다 필요할 때마다 하나씩 만든 도구 모음. 사진 가리기, 칠판, 투표, 다국어 공지, 사진 대지.">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" rel="stylesheet">
 <script src="assets/config.js"></script>
 <style>
-:root{--paper:#f7f4ee;--ink:#1f1e1c;--soft:#6b665e;--rule:#d9d3c7;--mark:#d4502a;--hover:#efe9de}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#191816;--ink:#ece8e1;--soft:#9c968c;--rule:#36332f;--mark:#f0805c;--hover:#24221f}}
-:root[data-theme="dark"]{--paper:#191816;--ink:#ece8e1;--soft:#9c968c;--rule:#36332f;--mark:#f0805c;--hover:#24221f}
+:root{--paper:#fff;--ink:#111;--soft:#666;--rule:#e4e4e4;--mark:#0047ff;--hover:#f5f5f5}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#111;--ink:#f2f2f2;--soft:#9a9a9a;--rule:#2c2c2c;--mark:#6b8cff;--hover:#1b1b1b}}
+:root[data-theme="dark"]{--paper:#111;--ink:#f2f2f2;--soft:#9a9a9a;--rule:#2c2c2c;--mark:#6b8cff;--hover:#1b1b1b}
 *{box-sizing:border-box}
 html{background:var(--paper)}
-body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.65 "Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;-webkit-font-smoothing:antialiased}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 "Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;-webkit-font-smoothing:antialiased}
 .w{max-width:760px;margin:0 auto;padding:0 20px}
 a{color:inherit}
-header{padding:56px 0 8px}
-.logo{display:inline-block;font-size:44px;font-weight:800;letter-spacing:-2px;line-height:1;position:relative;text-decoration:none}
-.logo svg{position:absolute;left:-4px;right:-6px;bottom:-10px;width:calc(100% + 10px);height:14px;color:var(--mark)}
-.intro{margin:26px 0 0;font-size:17px;max-width:560px;word-break:keep-all}
-.intro b{font-weight:700}
-.note{font-family:"Nanum Pen Script",cursive;font-size:22px;color:var(--mark);transform:rotate(-2deg);display:inline-block;margin-top:10px}
-section{margin-top:44px}
-h2{font-size:13px;font-weight:700;color:var(--soft);margin:0 0 6px;padding-bottom:8px;border-bottom:2px solid var(--ink);letter-spacing:.5px}
+header{padding:64px 0 4px}
+.logo{display:inline-block;font-size:52px;font-weight:900;letter-spacing:-3px;line-height:1;text-decoration:none}
+.logo i{font-style:normal;color:var(--mark)}
+.intro{margin:22px 0 0;font-size:18px;font-weight:500;max-width:540px;word-break:keep-all;letter-spacing:-.3px}
+.facts{display:flex;flex-wrap:wrap;gap:4px 16px;margin:16px 0 0;padding:0;list-style:none;font-size:14px;color:var(--soft)}
+.facts li:before{content:"— ";color:var(--ink)}
+section{margin-top:48px}
+h2{font-size:13px;font-weight:800;margin:0;padding-bottom:10px;border-bottom:2px solid var(--ink);letter-spacing:.3px}
 ol{list-style:none;margin:0;padding:0}
-li a{display:grid;grid-template-columns:28px 1fr auto;gap:4px 12px;align-items:baseline;padding:13px 6px;border-bottom:1px solid var(--rule);text-decoration:none}
+li a{display:grid;grid-template-columns:30px 1fr auto;gap:2px 14px;align-items:baseline;padding:15px 4px;border-bottom:1px solid var(--rule);text-decoration:none}
 li a:hover{background:var(--hover)}
 li a:focus-visible{outline:2px solid var(--mark);outline-offset:-2px}
-.n{font-variant-numeric:tabular-nums;color:var(--soft);font-size:13px}
-.t{font-weight:700;font-size:17px}
-.d{grid-column:2/3;color:var(--soft);font-size:14px;margin-top:-2px;word-break:keep-all}
-.go{grid-row:1/3;grid-column:3;align-self:center;color:var(--soft);font-size:14px;white-space:nowrap}
-li a:hover .go{color:var(--mark)}
-.new{font-family:"Nanum Pen Script",cursive;font-weight:400;color:var(--mark);font-size:20px;margin-left:6px;display:inline-block;transform:rotate(-4deg)}
-.memo{margin-top:52px;padding:18px 20px;border:1px solid var(--rule);border-radius:2px;background:var(--hover);font-size:15px;color:var(--soft);word-break:keep-all}
+.n{font-variant-numeric:tabular-nums;color:var(--soft);font-size:13px;font-weight:600}
+.t{font-weight:800;font-size:18px;letter-spacing:-.4px}
+.d{grid-column:2/3;color:var(--soft);font-size:14px;word-break:keep-all}
+.go{grid-row:1/3;grid-column:3;align-self:center;font-size:20px;font-weight:700;transition:transform .15s}
+li a:hover .go{transform:translateX(4px);color:var(--mark)}
+.new{font-size:10.5px;font-weight:800;color:var(--mark);margin-left:8px;vertical-align:3px;letter-spacing:.5px}
+.memo{margin-top:56px;padding:18px 0 0;border-top:2px solid var(--ink);font-size:14.5px;color:var(--soft);word-break:keep-all}
 .memo b{color:var(--ink)}
-footer{margin:48px 0 40px;font-size:13px;color:var(--soft);display:flex;flex-wrap:wrap;gap:6px 18px}
-@media (max-width:520px){header{padding-top:40px}.logo{font-size:38px}.go{display:none}li a{grid-template-columns:24px 1fr}}
+footer{margin:40px 0 44px;font-size:13px;color:var(--soft);display:flex;flex-wrap:wrap;gap:6px 18px}
+@media (max-width:520px){header{padding-top:44px}.logo{font-size:44px}.go{display:none}li a{grid-template-columns:26px 1fr}}
 </style></head><body>
 <div class="w">
 <header>
-  <a class="logo" href="./"><span id="nm">쓱툴</span><svg viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2 9 C 25 4, 55 3, 98 7" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></svg></a>
-  <p class="intro">일하다가 <b>"이거 하나만 있으면 좋겠다"</b> 싶을 때마다 하나씩 만든 도구들입니다. 설치도, 가입도 없이 열어서 바로 쓰면 됩니다.</p>
-  <span class="note">사진은 내 기기 밖으로 안 나가요</span>
+  <a class="logo" href="./"><span id="nm">쓱툴</span><i>.</i></a>
+  <p class="intro">일하다가 "이거 하나만 있으면 좋겠다" 싶을 때 쓰는 도구 모음.</p>
+  <ul class="facts"><li>설치·가입 없음</li><li>사진은 내 기기 안에서만 처리</li><li>참여자는 QR만 찍으면 끝</li></ul>
 </header>
 <main id="list"></main>
 <p class="memo"><b>투표·공지·칠판 함께 보기</b>는 참여자가 휴대폰으로 QR만 찍으면 됩니다. 이 내용은 잠깐 서버에 머물다 6시간 뒤 저절로 지워집니다. 그 밖의 사진·문서 도구는 모두 지금 쓰는 기기 안에서만 처리합니다.</p>
@@ -75,7 +73,7 @@ var k = 0;
 document.getElementById('list').innerHTML = G.map(function (g) {
   return '<section><h2>' + esc(g[0]) + '</h2><ol>' + g[1].map(function (t) {
     k++;
-    return '<li><a href="tools.html?m=' + t[0] + '"><span class="n">' + (k < 10 ? '0' + k : k) + '</span><span class="t">' + esc(t[1]) + (t[3] ? '<span class="new">new</span>' : '') + '</span><span class="go">열기 →</span><span class="d">' + esc(t[2]) + '</span></a></li>';
+    return '<li><a href="tools.html?m=' + t[0] + '"><span class="n">' + (k < 10 ? '0' + k : k) + '</span><span class="t">' + esc(t[1]) + (t[3] ? '<span class="new">NEW</span>' : '') + '</span><span class="go">→</span><span class="d">' + esc(t[2]) + '</span></a></li>';
   }).join('') + '</ol></section>';
 }).join('');
 var N = window.SITE_NAME || '쓱툴';
