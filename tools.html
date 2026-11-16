@@ -2810,5 +2810,143 @@ $('#shJpg').addEventListener('click', function () {
 var LV_SM = setMode; setMode = function (m) { var r = LV_SM.apply(this, arguments); ['vote', 'notice', 'sheet'].forEach(function (k) { var s = $('#sec-' + k); if (s) s.hidden = MODE !== k; }); if (MODE === 'sheet') shSched(); if (MODE === 'vote') vtPoll(); return r; };
 setMode(MODE);
 </script>
+<script>/* 칠판 그림: 변 끌어 자르기 · 배경 지우기 */
+(function () {
+  if (typeof chDrawImgs !== 'function' || !document.getElementById('chObj')) return;
+  var X = { cr: {}, pv: {}, bg: null };
+  var css = document.createElement('style');
+  css.textContent = '#chObj .cho .hd.cx{border-color:#f59f00;border-radius:5px;background:#fff}#chObj .cho .hd.cl,#chObj .cho .hd.cr{width:10px;height:32px;top:calc(50% - 16px);cursor:ew-resize}#chObj .cho .hd.cl{left:-7px}#chObj .cho .hd.cr{right:-7px}#chObj .cho .hd.ct,#chObj .cho .hd.cb{width:32px;height:10px;left:calc(50% - 16px);cursor:ns-resize}#chObj .cho .hd.ct{top:-7px}#chObj .cho .hd.cb{bottom:-7px}'
+    + '.chbgx{position:fixed;z-index:96;display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 8px;box-shadow:0 4px 14px rgba(0,0,0,.15);font-size:13px;color:#222}.chbgx input[type=range]{width:140px}.chbgx .btn{padding:4px 10px;font-size:13px}';
+  document.head.appendChild(css);
+
+  /* 그리기: 자르는 중이면 잘린 부분만, 배경 지우기 미리보기면 미리보기 그림 */
+  var DI0 = chDrawImgs;
+  chDrawImgs = function (x, k) {
+    if (!Object.keys(X.cr).length && !Object.keys(X.pv).length) return DI0.apply(this, arguments);
+    x.save(); x.setTransform(1, 0, 0, 1, 0, 0); x.globalAlpha = 1; x.globalCompositeOperation = 'source-over'; var small = k < .3;
+    chPage().o.forEach(function (o) {
+      if (o.t !== 'img' || !chLyVis(chLyOf(o))) return;
+      var im = X.pv[o.id] || (small && o.th ? chImgGet(o.th, 1) : chImgGet(o.src)); if (!im) return;
+      var c = X.cr[o.id];
+      if (!c) { x.drawImage(im, o.x * k, o.y * k, o.w * k, o.h * k); return; }
+      var nw = im.naturalWidth || im.width, nh = im.naturalHeight || im.height;
+      x.drawImage(im, c.l * nw, c.t * nh, (c.r - c.l) * nw, (c.b - c.t) * nh, (o.x + c.l * o.w) * k, (o.y + c.t * o.h) * k, (c.r - c.l) * o.w * k, (c.b - c.t) * o.h * k);
+    });
+    x.restore();
+  };
+
+  /* 새 그림을 저장하고 개체에 넣기 */
+  function put(o, cv, png) {
+    o.src = cv.toDataURL(png ? 'image/png' : 'image/jpeg', .9); delete o.th; if (png) o.alpha = 1;
+    if (typeof CHIB !== 'undefined' && CHIB.ok && o.src.length > 30000 && typeof chStoreCv === 'function') {
+      var id = o.id; chStoreCv(cv, png).then(function (r) { var q = chObjOf(id); if (q && r && /^ib:/.test(r.src)) { q.src = r.src; q.th = r.th; chStore(); chRender(); } }).catch(function () {});
+    }
+  }
+  function load(o) { return chSrcAsync(o.src).then(function (u) { return new Promise(function (ok, no) { if (!u) return no(); var im = new Image(); im.onload = function () { ok(im); }; im.onerror = no; im.src = u; }); }); }
+  function isPng(o) { return !!o.alpha || /^data:image\/png/.test(o.src || ''); }
+
+  /* 변 손잡이 붙이기 */
+  var OB0 = chObjs;
+  chObjs = function () {
+    var r = OB0.apply(this, arguments);
+    [].forEach.call(document.querySelectorAll('#chObj .cho.im'), function (el) {
+      if (el.querySelector('.hd.cx')) return;
+      el.insertAdjacentHTML('beforeend', ['cl', 'cr', 'ct', 'cb'].map(function (h) { return '<span class="hd cx ' + h + '" data-cx="' + h + '" title="끌어서 자르기"></span>'; }).join(''));
+    });
+    return r;
+  };
+
+  /* 변 끌어 자르기 */
+  var dr = null, ob = document.getElementById('chObj');
+  ob.addEventListener('pointerdown', function (e) {
+    var h = e.target.dataset && e.target.dataset.cx; if (!h) return;
+    e.preventDefault(); e.stopPropagation();
+    var el = e.target.closest('.cho'), o = el && chObjOf(el.dataset.oid); if (!o || o.lk) return;
+    if (X.bg) bgClose(false);
+    try { e.target.setPointerCapture(e.pointerId); } catch (x) {}
+    dr = { o: o, el: el, h: h, sx: e.clientX, sy: e.clientY, before: chSnap() };
+    X.cr[o.id] = { l: 0, t: 0, r: 1, b: 1 };
+  }, true);
+  ob.addEventListener('pointermove', function (e) {
+    if (!dr) return; e.preventDefault(); e.stopPropagation();
+    var r = chR(), o = dr.o, c = X.cr[o.id], dx = (e.clientX - dr.sx) / r, dy = (e.clientY - dr.sy) / r, m = 12 / Math.max(o.w, o.h);
+    if (dr.h === 'cl') c.l = Math.max(0, Math.min(c.r - m, dx / o.w));
+    if (dr.h === 'cr') c.r = Math.min(1, Math.max(c.l + m, 1 + dx / o.w));
+    if (dr.h === 'ct') c.t = Math.max(0, Math.min(c.b - m, dy / o.h));
+    if (dr.h === 'cb') c.b = Math.min(1, Math.max(c.t + m, 1 + dy / o.h));
+    var s = dr.el.style; s.left = (o.x + c.l * o.w) * r + 'px'; s.top = (o.y + c.t * o.h) * r + 'px'; s.width = (c.r - c.l) * o.w * r + 'px'; s.height = (c.b - c.t) * o.h * r + 'px';
+    chRenderSoon(); chMini();
+  }, true);
+  function crEnd(e) {
+    if (!dr) return; if (e) e.stopPropagation(); var d = dr, o = d.o, c = X.cr[o.id]; dr = null;
+    if (!c || (c.l < .002 && c.t < .002 && c.r > .998 && c.b > .998)) { delete X.cr[o.id]; chObjs(); return; }
+    load(o).then(function (im) {
+      var nw = im.naturalWidth, nh = im.naturalHeight, cv = document.createElement('canvas');
+      cv.width = Math.max(1, Math.round((c.r - c.l) * nw)); cv.height = Math.max(1, Math.round((c.b - c.t) * nh));
+      cv.getContext('2d').drawImage(im, c.l * nw, c.t * nh, cv.width, cv.height, 0, 0, cv.width, cv.height);
+      var x0 = o.x + c.l * o.w, y0 = o.y + c.t * o.h, w0 = (c.r - c.l) * o.w, h0 = (c.b - c.t) * o.h;
+      put(o, cv, isPng(o)); o.x = Math.round(x0); o.y = Math.round(y0); o.w = Math.round(w0); o.h = Math.round(h0);
+      delete X.cr[o.id]; chPush(d.before); chObjs();
+    }).catch(function () { delete X.cr[o.id]; chObjs(); toast('그림을 자르지 못했습니다'); });
+  }
+  ob.addEventListener('pointerup', crEnd, true); ob.addEventListener('pointercancel', crEnd, true);
+
+  /* 배경 지우기 */
+  var mini = document.getElementById('chMini'), lk = mini.querySelector('[data-chm=lock]');
+  mini.insertBefore(Object.assign(document.createElement('button'), { className: 'btn', type: 'button', title: '배경 지우기', textContent: '배경 지우기' }), lk).dataset.chx = 'bg';
+  var MI0 = chMini;
+  chMini = function () {
+    var r = MI0.apply(this, arguments), o = CH.sel && chObjOf(CH.sel), b = mini.querySelector('[data-chx=bg]');
+    if (b) { b.hidden = !o || o.t !== 'img'; b.disabled = !!(o && o.lk); }
+    if (X.bg && (!o || o.id !== X.bg.id)) bgClose(false); else if (X.bg) bgPos();
+    return r;
+  };
+  mini.addEventListener('click', function (e) {
+    if (!e.target.closest('[data-chx=bg]')) return; e.stopPropagation();
+    var o = CH.sel && chObjOf(CH.sel); if (!o || o.t !== 'img' || o.lk) return;
+    if (X.bg) { bgClose(false); return; } bgOpen(o);
+  });
+  function bgPos() { var p = document.getElementById('chBgx'), rc = mini.getBoundingClientRect(); if (!p) return; p.style.left = Math.max(4, Math.min(window.innerWidth - p.offsetWidth - 4, rc.left)) + 'px'; p.style.top = (rc.bottom + 6 + p.offsetHeight > window.innerHeight ? rc.top - p.offsetHeight - 6 : rc.bottom + 6) + 'px'; }
+  function bgOpen(o) {
+    load(o).then(function (im) {
+      var k = Math.min(1, 1600 / Math.max(im.naturalWidth, im.naturalHeight)), cv = document.createElement('canvas');
+      cv.width = Math.round(im.naturalWidth * k); cv.height = Math.round(im.naturalHeight * k);
+      var cx = cv.getContext('2d'); cx.drawImage(im, 0, 0, cv.width, cv.height);
+      X.bg = { id: o.id, src: cx.getImageData(0, 0, cv.width, cv.height), cv: cv, before: chSnap(), t: 0 };
+      var p = document.createElement('div'); p.className = 'chbgx'; p.id = 'chBgx';
+      p.innerHTML = '<span>배경 지우기</span><span style="color:#888">약하게</span><input type="range" min="4" max="120" value="36" id="chBgxR"><span style="color:#888">강하게</span><button class="btn" type="button" data-bgx="no">취소</button><button class="btn p" type="button" data-bgx="ok" style="background:var(--brand);border-color:var(--brand);color:#fff">적용</button>';
+      document.body.appendChild(p); bgPos();
+      p.addEventListener('input', function () { clearTimeout(X.bg.t); X.bg.t = setTimeout(bgRun, 90); });
+      p.addEventListener('click', function (e) { var b = e.target.closest('[data-bgx]'); if (b) bgClose(b.dataset.bgx === 'ok'); });
+      bgRun();
+    }).catch(function () { toast('그림을 불러오지 못했습니다'); });
+  }
+  function bgRun() {
+    var B = X.bg; if (!B) return; var tol = +document.getElementById('chBgxR').value, S = B.src, w = S.width, h = S.height, d = S.data, n = w * h;
+    var bgm = new Uint8Array(n), q = new Int32Array(n), qh = 0, qt = 0, t2 = tol * tol * 3, E = [], H = {}, C = [];
+    for (var x = 0; x < w; x++) { E.push(x, (h - 1) * w + x); } for (var y = 1; y < h - 1; y++) { E.push(y * w, y * w + w - 1); }
+    E.forEach(function (i) { var a = i * 4, key = (d[a] >> 5) + '_' + (d[a + 1] >> 5) + '_' + (d[a + 2] >> 5), z = H[key] || (H[key] = [0, 0, 0, 0]); z[0]++; z[1] += d[a]; z[2] += d[a + 1]; z[3] += d[a + 2]; });
+    Object.keys(H).map(function (k) { return H[k]; }).sort(function (a, b) { return b[0] - a[0]; }).forEach(function (z, i) { if (i < 4 && z[0] >= E.length * .06) C.push([z[1] / z[0], z[2] / z[0], z[3] / z[0]]); });
+    var near = function (i) { var a = i * 4; if (d[a + 3] < 8) return true; for (var k = 0; k < C.length; k++) { var r = d[a] - C[k][0], g = d[a + 1] - C[k][1], bl = d[a + 2] - C[k][2]; if (r * r + g * g + bl * bl <= t2) return true; } return false; };
+    var push = function (i) { if (!bgm[i] && near(i)) { bgm[i] = 1; q[qt++] = i; } };
+    E.forEach(push);
+    while (qh < qt) { var i = q[qh++], px = i % w; if (px > 0) push(i - 1); if (px < w - 1) push(i + 1); if (i >= w) push(i - w); if (i < n - w) push(i + w); }
+    var out = new ImageData(new Uint8ClampedArray(d), w, h), o = out.data;
+    for (var j = 0; j < n; j++) {
+      if (bgm[j]) { o[j * 4 + 3] = 0; continue; }
+      var px2 = j % w, bg = (px2 > 0 && bgm[j - 1]) + (px2 < w - 1 && bgm[j + 1]) + (j >= w && bgm[j - w]) + (j < n - w && bgm[j + w]);
+      if (bg) o[j * 4 + 3] = Math.round(d[j * 4 + 3] * (1 - bg * .2));
+    }
+    B.cv.getContext('2d').putImageData(out, 0, 0); X.pv[B.id] = B.cv; chRender();
+  }
+  function bgClose(ok) {
+    var B = X.bg, p = document.getElementById('chBgx'); X.bg = null; if (p) p.remove(); if (!B) return; clearTimeout(B.t);
+    var o = chObjOf(B.id); delete X.pv[B.id];
+    if (ok && o) { put(o, B.cv, true); chPush(B.before); chObjs(); toast('배경을 지웠습니다 (되돌리기: Ctrl+Z)'); } else chRender();
+  }
+  document.addEventListener('keydown', function (e) { if (X.bg && e.key === 'Escape') { e.preventDefault(); bgClose(false); } if (X.bg && e.key === 'Enter') { e.preventDefault(); bgClose(true); } }, true);
+  try { chObjs(); } catch (e) {}
+})();
+</script>
 <script>(function(){var a=document.getElementById('siteHome');if(a&&window.SITE_NAME)a.textContent=window.SITE_NAME;})();</script>
 </body></html>
