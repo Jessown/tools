@@ -3302,5 +3302,38 @@ setMode(MODE);
   var svb = document.getElementById('chSv'); svb.insertAdjacentHTML('afterend', '<button class="btn" type="button" id="chSvAs" title="다른 이름으로 저장 (Ctrl+Shift+S)">다른 이름으로</button>');
 })();
 </script>
+<script>/* 즐겨찾기 다시 누르면 모양 바꾸기 · 칠판 우클릭으로 색 바꾸기 */
+(function () {
+  if (typeof chFavApply !== 'function' || !document.getElementById('chCv')) return;
+  var DASH = [['solid', '실선'], ['dash', '파선'], ['dot', '점선'], ['dashdot', '일점쇄선']], SHP = ['line', 'arrow', 'rect', 'ellipse'], last = 0;
+  var FA = chFavApply;
+  chFavApply = function (n) {
+    var f = chFavGet()[n - 1];
+    if (f && f.tool && last === n && (CH.tool === f.tool || (SHP.indexOf(f.tool) >= 0 && SHP.indexOf(CH.tool) >= 0))) {
+      var msg = '';
+      if (CH.tool === 'pen' || CH.tool === 'hl') { var i = DASH.map(function (d) { return d[0]; }).indexOf(CH.dash || 'solid'), d = DASH[(i + 1) % DASH.length]; CH.dash = d[0]; msg = (CH_TN[CH.tool]) + ' · ' + d[1]; }
+      else if (CH.tool === 'eraser') { CH.em = CH.em === 'stroke' ? 'area' : 'stroke'; msg = '지우개 · ' + (CH.em === 'stroke' ? '선 통째로' : '문지른 곳만'); }
+      else if (CH.tool === 'laser') { CH.lz = CH.lz === 'rain' ? 'red' : 'rain'; try { chLzOff(); } catch (e) {} msg = '레이저 · ' + (CH.lz === 'rain' ? '무지개' : '고른 색'); }
+      else if (SHP.indexOf(CH.tool) >= 0) { var s = SHP[(SHP.indexOf(CH.tool) + 1) % SHP.length]; CH.tool = s; CH.shp = s; msg = '도형 · ' + CH_TN[s]; }
+      if (msg) { chUI(); toast(n + '번 → ' + msg + ' (한 번 더 누르면 바뀜)'); return; }
+    }
+    last = n; return FA.apply(this, arguments);
+  };
+  /* 다른 도구를 고르면 처음부터 */
+  document.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('[data-cht]')) last = 0; }, true);
+  document.addEventListener('keydown', function (e) { if (!e.ctrlKey && !e.metaKey && /^Key[VPHETL]$/.test(e.code || '')) last = 0; }, true);
+  /* 우클릭: 다음 색 (Shift+우클릭: 이전 색) */
+  var stage = document.getElementById('chStage'), dot = null;
+  stage.addEventListener('pointerdown', function (e) {
+    if (e.button !== 2) return; e.preventDefault(); e.stopImmediatePropagation();
+    var pal = CH_COLS[chDark() ? 'dark' : 'light'], lz = CH.tool === 'laser', cur = String(lz ? chCol() : (CH.col || pal[0])).toLowerCase(), i = pal.indexOf(cur), n = pal[(i < 0 ? 0 : i + (e.shiftKey ? pal.length - 1 : 1)) % pal.length];
+    if (lz) CH.lzc = n; else { CH.col = n; if (CH.tool === 'sel' || CH.tool === 'eraser' || CH.tool === 'text') { var o = CH.sel && chObjOf(CH.sel); if (o && chTL(o)) { var bf = chSnap(); o.c = n; chPush(bf); chObjs(); } } }
+    chUI();
+    if (!dot) { dot = document.createElement('div'); dot.style.cssText = 'position:fixed;z-index:9999;width:26px;height:26px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.35);pointer-events:none;transition:opacity .3s'; (document.getElementById('sec-chalk') || document.body).appendChild(dot); }
+    dot.style.background = n; dot.style.left = (e.clientX + 14) + 'px'; dot.style.top = (e.clientY - 34) + 'px'; dot.style.opacity = '1'; clearTimeout(dot.t); dot.t = setTimeout(function () { dot.style.opacity = '0'; }, 700);
+  }, true);
+  stage.addEventListener('contextmenu', function (e) { e.preventDefault(); }, true);
+})();
+</script>
 <script>(function(){var a=document.getElementById('siteHome');if(a&&window.SITE_NAME)a.textContent=window.SITE_NAME;})();</script>
 </body></html>
