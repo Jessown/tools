@@ -2,34 +2,34 @@
 
 > 설치·가입 없이 브라우저에서 바로 쓰는 무료 한국어 도구함. 학교·복지관·가족센터·기관 실무자와 강사가 수업·행사·보고서 작업에 씁니다. 사진·문서는 서버로 올리지 않고 사용자의 브라우저 안에서만 처리합니다.
 
-각 도구 소개 페이지에 기능·사용법·자주 묻는 질문이 있고, 「바로 쓰기」 링크는 도구를 바로 엽니다.
+링크를 누르면 도구가 바로 열립니다. 칠판·파일 형식 바꾸기는 소개 페이지(기능·사용법·자주 묻는 질문)가 따로 있습니다.
 
 ## 사진 · 개인정보
 
-- [사진·PDF 모자이크, 개인정보 가리기](https://sseuktool.com/mosaic.html): 사진 속 얼굴, 신청서·명단의 이름·연락처·주소를 끌어서 가리는 무료 모자이크 도구. PDF도 그대로 가려서 PDF로 저장합니다. 바로 쓰기: https://sseuktool.com/tools.html?m=mosaic
-- [사진 배경 지우기 (누끼 따기)](https://sseuktool.com/bgrm.html): 사진에서 사람·물건만 남기고 배경을 지우는 무료 누끼 도구. 투명 PNG나 원하는 배경색으로 내려받습니다. 바로 쓰기: https://sseuktool.com/tools.html?m=bgrm
-- [사진 용량 줄이기 (여러 장 한 번에)](https://sseuktool.com/resize.html): 메일·홈페이지·카톡 첨부 용량 제한에 맞게 사진 용량을 줄입니다. 눈으로는 거의 같고 용량만 줄어듭니다. 여러 장 한 번에. 바로 쓰기: https://sseuktool.com/tools.html?m=resize
-- [사진 크기(픽셀) 변경](https://sseuktool.com/px.html): 사진의 가로·세로 크기(픽셀)를 바꿉니다. 1080×1080 같은 자주 쓰는 크기를 버튼 하나로, 여러 장을 같은 크기로 한 번에. 바로 쓰기: https://sseuktool.com/tools.html?m=px
+- [사진·PDF 모자이크, 개인정보 가리기](https://sseuktool.com/tools.html?m=mosaic): 사진 속 얼굴, 신청서·명단의 이름·연락처·주소를 끌어서 가리는 무료 모자이크 도구. PDF도 그대로 가려서 PDF로 저장합니다.
+- [사진 배경 지우기 (누끼 따기)](https://sseuktool.com/tools.html?m=bgrm): 사진에서 사람·물건만 남기고 배경을 지우는 무료 누끼 도구. 투명 PNG나 원하는 배경색으로 내려받습니다.
+- [사진 용량 줄이기 (여러 장 한 번에)](https://sseuktool.com/tools.html?m=resize): 메일·홈페이지·카톡 첨부 용량 제한에 맞게 사진 용량을 줄입니다. 눈으로는 거의 같고 용량만 줄어듭니다. 여러 장 한 번에.
+- [사진 크기(픽셀) 변경](https://sseuktool.com/tools.html?m=px): 사진의 가로·세로 크기(픽셀)를 바꿉니다. 1080×1080 같은 자주 쓰는 크기를 버튼 하나로, 여러 장을 같은 크기로 한 번에.
 
 ## 문서 · 보고
 
-- [사진 대지 만들기 (보고서용 A4)](https://sseuktool.com/sheet.html): 활동사진을 넣으면 결과보고서용 A4 사진 대지를 만들어 PDF·JPG로 내려받습니다. 사진마다 설명을 쓰고 순서·방향을 바꿀 수 있습니다. 바로 쓰기: https://sseuktool.com/tools.html?m=sheet
-- [비스듬히 찍은 문서 반듯하게 펴기 (스캔)](https://sseuktool.com/scan.html): 휴대폰으로 비스듬히 찍은 서류 사진을 스캔한 것처럼 반듯하게 펴고 바깥을 잘라냅니다. 여러 장을 PDF 한 파일로. 바로 쓰기: https://sseuktool.com/tools.html?m=scan
+- [사진 대지 만들기 (보고서용 A4)](https://sseuktool.com/tools.html?m=sheet): 활동사진을 넣으면 결과보고서용 A4 사진 대지를 만들어 PDF·JPG로 내려받습니다. 사진마다 설명을 쓰고 순서·방향을 바꿀 수 있습니다.
+- [비스듬히 찍은 문서 반듯하게 펴기 (스캔)](https://sseuktool.com/tools.html?m=scan): 휴대폰으로 비스듬히 찍은 서류 사진을 스캔한 것처럼 반듯하게 펴고 바깥을 잘라냅니다. 여러 장을 PDF 한 파일로.
 - [파일 형식 변환 (사진·PDF·엑셀·워드·PPT·MP3)](https://sseuktool.com/conv.html): 사진·PDF·엑셀·워드·파워포인트·글·소리·동영상 파일의 형식을 바꿉니다. 여러 파일을 한 번에, PDF 합치기도. 파일은 서버로 보내지 않습니다. 바로 쓰기: https://sseuktool.com/tools.html?m=conv
-- [QR 코드 만들기](https://sseuktool.com/qr.html): 링크를 넣으면 바로 QR 코드를 만듭니다. 포스터·안내문에 넣을 수 있게 복사하거나 그림으로 내려받습니다. 무료, 기간 제한 없음. 바로 쓰기: https://sseuktool.com/tools.html?m=qr
+- [QR 코드 만들기](https://sseuktool.com/tools.html?m=qr): 링크를 넣으면 바로 QR 코드를 만듭니다. 포스터·안내문에 넣을 수 있게 복사하거나 그림으로 내려받습니다. 무료, 기간 제한 없음.
 
 ## 진행 · 참여
 
 - [온라인 칠판 (전자칠판·판서)](https://sseuktool.com/chalk.html): 설치 없이 바로 쓰는 무료 온라인 칠판. 펜·형광펜·글상자·레이저 포인터, PDF·PPT·사진 띄우고 판서, 전자칠판·태블릿 지원, 휴대폰으로 함께 보기. 바로 쓰기: https://sseuktool.com/tools.html?m=chalk
-- [실시간 투표·설문 (QR 응답)](https://sseuktool.com/vote.html): 질문을 만들고 투표를 시작하면 QR이 나옵니다. 참여자는 로그인 없이 휴대폰으로 응답하고, 결과가 바로 그래프·단어 구름으로 나옵니다. 엑셀 저장. 바로 쓰기: https://sseuktool.com/tools.html?m=vote
-- [다국어 실시간 공지 (자동 번역)](https://sseuktool.com/notice.html): 한국어로 공지를 쓰면 참여자 휴대폰에 각자 고른 언어(베트남어·중국어·영어·필리핀어 등 15개)로 번역되어 바로 보입니다. 다문화·외국인 행사에. 바로 쓰기: https://sseuktool.com/tools.html?m=notice
-- [큰 화면 타이머·스톱워치](https://sseuktool.com/timer.html): 회의·수업·활동 시간을 큰 화면으로 보여 주는 타이머와 스톱워치. 전체화면, 끝나면 알림 소리. 바로 쓰기: https://sseuktool.com/tools.html?m=timer
+- [실시간 투표·설문 (QR 응답)](https://sseuktool.com/tools.html?m=vote): 질문을 만들고 투표를 시작하면 QR이 나옵니다. 참여자는 로그인 없이 휴대폰으로 응답하고, 결과가 바로 그래프·단어 구름으로 나옵니다. 엑셀 저장.
+- [다국어 실시간 공지 (자동 번역)](https://sseuktool.com/tools.html?m=notice): 한국어로 공지를 쓰면 참여자 휴대폰에 각자 고른 언어(베트남어·중국어·영어·필리핀어 등 15개)로 번역되어 바로 보입니다. 다문화·외국인 행사에.
+- [큰 화면 타이머·스톱워치](https://sseuktool.com/tools.html?m=timer): 회의·수업·활동 시간을 큰 화면으로 보여 주는 타이머와 스톱워치. 전체화면, 끝나면 알림 소리.
 
 ## 뽑기 · 놀이
 
-- [돌림판 (룰렛 돌리기)](https://sseuktool.com/wheel.html): 항목을 넣고 돌리기를 누르면 하나가 뽑히는 돌림판. 발표 순서·모둠 정하기·경품 추첨에. 바로 쓰기: https://sseuktool.com/tools.html?m=wheel
-- [사다리타기](https://sseuktool.com/ladder.html): 참가자와 결과를 넣고 사다리를 만든 뒤, 이름을 누르면 한 명씩 내려가며 결과가 열립니다. 역할·순서 정하기에. 바로 쓰기: https://sseuktool.com/tools.html?m=ladder
-- [공 추첨기 (로또 추첨)](https://sseuktool.com/lotto.html): 로또 추첨기처럼 공이 섞이다가 하나씩 나옵니다. 번호나 이름을 넣고 경품별로 뽑을 개수를 정해 추첨하세요. 바로 쓰기: https://sseuktool.com/tools.html?m=lotto
+- [돌림판 (룰렛 돌리기)](https://sseuktool.com/tools.html?m=wheel): 항목을 넣고 돌리기를 누르면 하나가 뽑히는 돌림판. 발표 순서·모둠 정하기·경품 추첨에.
+- [사다리타기](https://sseuktool.com/tools.html?m=ladder): 참가자와 결과를 넣고 사다리를 만든 뒤, 이름을 누르면 한 명씩 내려가며 결과가 열립니다. 역할·순서 정하기에.
+- [공 추첨기 (로또 추첨)](https://sseuktool.com/tools.html?m=lotto): 로또 추첨기처럼 공이 섞이다가 하나씩 나옵니다. 번호나 이름을 넣고 경품별로 뽑을 개수를 정해 추첨하세요.
 
 ## 기타
 
