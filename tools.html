@@ -3336,5 +3336,50 @@ setMode(MODE);
   stage.addEventListener('contextmenu', function (e) { e.preventDefault(); }, true);
 })();
 </script>
+<script>/* 칠판 도구 막대 정리: 한 줄(그리기) + 고른 도구 옵션 줄, 나머지는 ☰ 메뉴 */
+(function () {
+  var bar = document.getElementById('chBar'), $i = function (id) { return document.getElementById(id); };
+  if (!bar || !$i('chCols') || bar.dataset.cx2) return; bar.dataset.cx2 = 1;
+  var css = document.createElement('style');
+  css.textContent = '#sec-chalk .chbar>.chrow:not(.chmain):not(.chsub){display:none!important}'
+    + '#sec-chalk .chmain{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}#sec-chalk .chmain .chsp{flex:1}'
+    + '#chMenuB{font-size:17px;line-height:1;padding:6px 11px}#chMenuB.on{background:#111;color:#fff;border-color:#111}'
+    + '#chMenuP{position:absolute;left:8px;top:50px;z-index:60;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.18);padding:14px;display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:14px 18px;max-width:calc(100% - 16px)}'
+    + '#chMenuP[hidden]{display:none}#chMenuP .mg{display:flex;flex-direction:column;gap:6px}#chMenuP .mg>b{font-size:12px;color:#8a918d;font-weight:600}#chMenuP .mr{display:flex;flex-wrap:wrap;gap:6px;align-items:center}'
+    + '#chMenuP .btn{padding:6px 11px}#chMenuP select{max-width:200px}#chMenuP .chlbl{margin:0}'
+    + '#sec-chalk .chmain .chdoc{max-width:200px}#sec-chalk .chsub{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;min-height:34px;padding-top:6px;border-top:1px dashed var(--line)}#sec-chalk .chsub .chsp{flex:1}#sec-chalk .chsub #chOpt{background:none!important;border:0!important;padding:0!important;margin:0!important}'
+    + '@media(max-width:700px){#chMenuP{grid-template-columns:1fr;left:4px;right:4px}}';
+  document.head.appendChild(css);
+  /* 위 줄: ☰ · 칠판 이름 · 도구 · 색 · 굵기 · 즐겨찾기 · 되돌리기 · 전체화면 */
+  var main = document.createElement('div'); main.className = 'chrow chmain';
+  main.innerHTML = '<button class="btn" type="button" id="chMenuB" title="메뉴: 파일 · 넣기 · 이 쪽 · 화면" aria-haspopup="true">☰</button>';
+  bar.insertBefore(main, bar.firstChild);
+  var mv = function (el) { if (el) main.appendChild(el); };
+  mv($i('chDoc'));
+  mv(bar.querySelector('.chtools')); mv($i('chShape'));
+  mv($i('chCols')); mv(bar.querySelector('.chsz'));
+  var sp = document.createElement('span'); sp.className = 'chsp'; main.appendChild(sp);
+  mv($i('chFs')); mv($i('chFsOff'));
+  /* 아래 줄: 고른 도구 옵션 · 즐겨찾기 */
+  var sub = document.createElement('div'); sub.className = 'chrow chsub'; main.after(sub);
+  if ($i('chOpt')) sub.appendChild($i('chOpt')); var sp2 = document.createElement('span'); sp2.className = 'chsp'; sub.appendChild(sp2); if ($i('chUndo')) sub.appendChild($i('chUndo').parentNode); if ($i('chFav')) sub.appendChild($i('chFav'));
+  /* ☰ 메뉴 */
+  var P = document.createElement('div'); P.id = 'chMenuP'; P.hidden = true; bar.appendChild(P);
+  var grp = function (title, els) { var g = document.createElement('div'); g.className = 'mg'; g.innerHTML = '<b>' + title + '</b>'; var r = document.createElement('div'); r.className = 'mr'; els.forEach(function (e) { if (e) r.appendChild(e); }); g.appendChild(r); P.appendChild(g); };
+  var bgl = $i('chBg') && $i('chBg').closest('label');
+  grp('파일', [$i('chNew'), $i('chOpen'), $i('chSv'), $i('chSvAs'), $i('chSave'), $i('chPrint')]);
+  grp('넣기', [$i('chImg'), $i('chImgF'), $i('chPdf'), $i('chPdfF'), $i('chTpl')]);
+  grp('이 쪽', [bgl, $i('chLyBtn'), $i('chClear'), $i('chDelPg')]);
+  grp('화면', [$i('chLay'), $i('chShare'), $i('chMemoAll')]);
+  var B = $i('chMenuB'), open = function (on) { P.hidden = !on; B.classList.toggle('on', on); };
+  B.addEventListener('click', function (e) { e.stopPropagation(); open(P.hidden); });
+  document.addEventListener('click', function (e) {
+    if (P.hidden) return; if (!P.contains(e.target)) { open(false); return; }
+    var b = e.target.closest('button'); if (b && !b.closest('#chLay')) setTimeout(function () { open(false); }, 0);
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !P.hidden) { open(false); } }, true);
+  try { chFit(); } catch (e) {}
+})();
+</script>
 <script>(function(){var a=document.getElementById('siteHome');if(a&&window.SITE_NAME)a.textContent=window.SITE_NAME;})();</script>
 </body></html>
