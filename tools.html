@@ -2051,10 +2051,10 @@ function chLzCol(rb, hue, a) { if (rb) return 'hsla(' + Math.round(hue % 360) + 
 function chLzDraw() {
   LZ.raf = 0; var c = $('#chLz'); if (!c || !c.width) return; var x = c.getContext('2d'), dpr = c.width / (c.clientWidth || c.width), now = performance.now(), k = (c.clientWidth || 800) / CH.W, rb = CH.lz === 'rain';
   x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, c.width, c.height); x.setTransform(dpr, 0, 0, dpr, 0, 0);
-  if (!LZ.down && LZ.st.length && now - (LZ.up || 0) >= LZ.hold + LZ.fade) LZ.st = [];
+  if (!LZ.pin && !LZ.down && LZ.st.length && now - (LZ.up || 0) >= LZ.hold + LZ.fade) LZ.st = [];
   x.lineCap = 'round'; x.lineJoin = 'round';
   LZ.st.forEach(function (s) {
-    var P = s.p, al = LZ.down ? 1 : Math.max(0, Math.min(1, 1 - (now - LZ.up - LZ.hold) / LZ.fade)); if (P.length < 2 || !al) return;
+    var P = s.p, al = (LZ.down || LZ.pin) ? 1 : Math.max(0, Math.min(1, 1 - (now - LZ.up - LZ.hold) / LZ.fade)); if (P.length < 2 || !al) return;
     x.lineWidth = Math.max(3, 11 * k); x.shadowBlur = 14 * k + 4;
     for (var i = 1; i < P.length; i += 4) { var j = Math.min(P.length - 1, i + 3), col = chLzCol(rb, P[j].t / 2.5, al.toFixed(3));
       x.strokeStyle = col; x.shadowColor = col; x.beginPath(); x.moveTo(P[i - 1].x, P[i - 1].y); for (var q = i; q <= j; q++) x.lineTo(P[q].x, P[q].y); x.stroke(); }
@@ -2129,7 +2129,7 @@ function chUI() {
   $('#chPg').textContent = (CH.i + 1) + ' / ' + CH.pages.length; $('#chPrev').disabled = CH.i === 0; $('#chNext').disabled = CH.i >= CH.pages.length - 1; $('#chDelPg').disabled = CH.pages.length < 2;
   $('#chUndo').disabled = !(CH.und[CH.i] || []).length; $('#chRedo').disabled = !(CH.red[CH.i] || []).length; $('#chBg').value = CH.bg; $('#chEm').hidden = CH.tool !== 'eraser'; $('#chEm').value = CH.em; $('#chClock').classList.toggle('on', CH.clock);
   $('#chCv').style.cursor = chCursor();
-  $('#chLzK').hidden = CH.tool !== 'laser'; $('#chLzK').value = CH.lz; $('#chLzT').hidden = CH.tool !== 'laser'; $('#chLzT').value = String(LZ.hold); if (CH.tool !== 'laser' && (LZ.head || LZ.st.length)) chLzOff();
+  $('#chLzK').hidden = CH.tool !== 'laser'; $('#chLzK').value = CH.lz; $('#chLzT').hidden = CH.tool !== 'laser'; $('#chLzT').value = String(LZ.hold); if (CH.tool !== 'laser' && (LZ.head || LZ.st.length)) { LZ.pin = false; chLzOff(); }
   chCol(); chCols(); chOptUI(); chLyUI(); chPagesUI();
 }
 /* 도구별 설정 (지우개 방식 / 레이저 색·남는 시간) */
@@ -2138,7 +2138,7 @@ function chOptUI() {
   var seg = function (name, items, val, act) { return '<span class="chsegl">' + name + '</span><span class="chseg" role="group" aria-label="' + name + '">' + items.map(function (it) { return '<button type="button" class="' + (String(it[0]) === String(val) ? 'on' : '') + '" data-cho="' + act + '" data-v="' + it[0] + '">' + it[1] + '</button>'; }).join('') + '</span>'; };
   if (/^(line|arrow|rect|ellipse)$/.test(CH.tool)) h = seg('도형', [['arrow', '화살표'], ['rect', '네모'], ['ellipse', '원']], CH.tool, 'shp') + '<span class="chsegl" style="font-weight:400">Shift 누르면 정사각형·정원·반듯한 선</span>';
   else if (CH.tool === 'eraser') h = seg('지우개', [['area', '문지른 곳만'], ['stroke', '선 통째로']], CH.em, 'em');
-  else if (CH.tool === 'laser') h = seg('색', [['red', '<i class="chdot" style="background:' + chCol() + '"></i>고른 색'], ['rain', '<i class="chdot rb"></i>무지개']], CH.lz, 'lz') + seg('선 남는 시간', [[0, '바로'], [500, '0.5초'], [800, '0.8초'], [1200, '1.2초'], [2000, '2초'], [3000, '3초']], LZ.hold, 'lt');
+  else if (CH.tool === 'laser') h = seg('색', [['red', '<i class="chdot" style="background:' + chCol() + '"></i>고른 색'], ['rain', '<i class="chdot rb"></i>무지개']], CH.lz, 'lz') + seg('선 남는 시간', [[0, '바로'], [500, '0.5초'], [800, '0.8초'], [1200, '1.2초'], [2000, '2초'], [3000, '3초']], LZ.hold, 'lt') + seg('고정 (L)', [['0', '끔'], ['1', '켬']], LZ.pin ? '1' : '0', 'lp');
   var ckc = $('#chClkCol'); if (ckc) { ckc.hidden = !CH.clock; if (CH.clock && !(document.activeElement && document.activeElement.id === 'chClkP')) { var cpal = ['#ffffff', '#ffe066', '#ff4d4d', '#74c0fc', '#8ce99a', '#ffa94d', '#222222']; ckc.innerHTML = '<button type="button" class="chcka' + (!CH.clkc ? ' on' : '') + '" data-ckc="" title="배경에 맞춰 자동">자동</button>' + cpal.map(function (c) { return '<button type="button" class="chmc' + (CH.clkc === c ? ' on' : '') + '" data-ckc="' + c + '" style="background:' + c + '" title="시계 색 ' + c + '" aria-label="시계 색 ' + c + '"></button>'; }).join('') + '<input type="color" class="chmcp" id="chClkP" value="' + (CH.clkc || '#ffffff') + '" title="다른 시계 색">'; } }
   [].forEach.call(document.querySelectorAll('#chClkSeg [data-ck]'), function (b) { b.classList.toggle('on', CH.clock ? b.dataset.ck === (CH.clockPos || 'corner') : b.dataset.ck === 'off'); });
   if (/^(pen|hl|line|arrow|rect|ellipse)$/.test(CH.tool)) { h = (CH.tool === 'pen' || CH.tool === 'hl' ? '' : h) + seg('선 모양', [['solid', '실선'], ['dash', '파선'], ['dot', '점선'], ['dashdot', '일점쇄선']], CH.dash || 'solid', 'dash') + (CH.tool === 'pen' || CH.tool === 'hl' ? '<span class="chsegl" style="font-weight:400">Shift로 직선 · 휠로 굵기</span>' : ''); }
@@ -2305,7 +2305,7 @@ function chOptUI() {
     if ((k === 'delete' || k === 'backspace') && CH.sel) { e.preventDefault(); $('#chMini').querySelector('[data-chm=del]').click(); return; }
     if ((k === ' ' || code === 'Space') && CH.sel) { var tq = chObjOf(CH.sel); if (tq && tq.t === 'clock' && tq.md === 'tmr') { e.preventDefault(); $('#chMini').querySelector('[data-chm=t-run]').click(); return; } }
     if (k === 'enter' && CH.sel) { var o = chObjOf(CH.sel); if (o && o.t === 'text') { e.preventDefault(); CH.edit = o.id; CH.editBefore = chSnap(); chObjs(); } return; }
-    var m = { v: 'sel', p: 'pen', h: 'hl', e: 'eraser', t: 'text', l: 'laser' }[/^Key[A-Z]$/.test(code) ? code.slice(3).toLowerCase() : k]; if (m) { CH.tool = m; if (m !== 'sel' && m !== 'text') { CH.sel = null; chObjs(); } chUI(); }
+    var m = { v: 'sel', p: 'pen', h: 'hl', e: 'eraser', t: 'text', l: 'laser' }[/^Key[A-Z]$/.test(code) ? code.slice(3).toLowerCase() : k]; if (m === 'laser' && CH.tool === 'laser') { LZ.pin = !LZ.pin; if (!LZ.pin) chLzOff(); toast(LZ.pin ? '레이저 고정: 그은 선이 남습니다 · L을 한 번 더 누르면 지워지고 끝' : '레이저 고정 끝'); chUI(); return; } if (m) { CH.tool = m; if (m !== 'sel' && m !== 'text') { CH.sel = null; chObjs(); } chUI(); }
     else if (k === 'arrowright' || k === 'pagedown') $('#chNext').click(); else if (k === 'arrowleft' || k === 'pageup') $('#chPrev').click();
   });
   window.addEventListener('resize', function () { if (MODE === 'chalk') chFit(); });
@@ -2333,7 +2333,7 @@ $('#chOpt').addEventListener('click', function (e) {
   var b = e.target.closest('[data-cho]'); if (!b) return; var v = b.dataset.v, a = b.dataset.cho;
   if (a === 'ckm' || a === 'ckt') { var mb = $('#chMini').querySelector('[data-chm="' + (a === 'ckm' ? 'm-' + v : v) + '"]'); if (mb) mb.click(); chOptUI(); return; }
   if (a === 'ckp') { var co = CH.sel && chObjOf(CH.sel); if (!co || co.t !== 'clock') return; if (co.lk) { toast('고정된 시계입니다. 자물쇠 버튼으로 고정을 풀어 주세요'); return; } var cb4 = chSnap(); co.pos = v; if (v !== 'free') { var cel2 = $('#chObj').querySelector('[data-oid="' + co.id + '"]'), ch2 = co.md === 'ana' ? co.w : (cel2 ? cel2.offsetHeight / chR() : co.fs * 1.3); if (v === 'center') { co.x = Math.round((CH.W - co.w) / 2); co.y = Math.round((CH.H - ch2) / 2); if (co.md !== 'ana') co.al = 'center'; } else { if (co.md === 'ana') { if (co.w > 320) co.w = 320; } else if (co.fs > 150) { var kk2 = 150 / co.fs; co.fs = 150; co.w = Math.max(300, Math.round(co.w * kk2)); } co.x = Math.round(CH.W - co.w - 30); co.y = 25; if (co.md !== 'ana') co.al = 'right'; } } chPush(cb4); chObjs(); return; }
-  if (a === 'dash') CH.dash = v; else if (a === 'em') CH.em = v; else if (a === 'lz') { CH.lz = v; chLzOff(); } else if (a === 'shp') { CH.tool = v; CH.shp = v; } else if (a === 'ck') { CH.clockPos = v; try { localStorage.setItem('dg_chalk_clk', v); } catch (x) {} chClockDraw(); } else if (a === 'lt') { LZ.hold = +v; try { localStorage.setItem('dg_chalk_lzt', v); } catch (x) {} }
+  if (a === 'dash') CH.dash = v; else if (a === 'em') CH.em = v; else if (a === 'lz') { CH.lz = v; chLzOff(); } else if (a === 'shp') { CH.tool = v; CH.shp = v; } else if (a === 'ck') { CH.clockPos = v; try { localStorage.setItem('dg_chalk_clk', v); } catch (x) {} chClockDraw(); } else if (a === 'lp') { LZ.pin = v === '1'; if (!LZ.pin) chLzOff(); } else if (a === 'lt') { LZ.hold = +v; try { localStorage.setItem('dg_chalk_lzt', v); } catch (x) {} }
   chUI();
 });
 /* 칠판 위에서 마우스 휠 = 굵기 조절 */
@@ -2914,38 +2914,205 @@ setMode(MODE);
       var cx = cv.getContext('2d'); cx.drawImage(im, 0, 0, cv.width, cv.height);
       X.bg = { id: o.id, src: cx.getImageData(0, 0, cv.width, cv.height), cv: cv, before: chSnap(), t: 0 };
       var p = document.createElement('div'); p.className = 'chbgx'; p.id = 'chBgx';
-      p.innerHTML = '<span>배경 지우기</span><span style="color:#888">약하게</span><input type="range" min="4" max="120" value="36" id="chBgxR"><span style="color:#888">강하게</span><button class="btn" type="button" data-bgx="no">취소</button><button class="btn p" type="button" data-bgx="ok" style="background:var(--brand);border-color:var(--brand);color:#fff">적용</button>';
-      document.body.appendChild(p); bgPos();
+      p.innerHTML = '<span>배경 지우기 <small style="color:#888">덜 지워진 곳은 그림을 눌러 추가</small></span><span style="color:#888">약하게</span><input type="range" min="4" max="120" value="22" id="chBgxR"><span style="color:#888">강하게</span><button class="btn" type="button" data-bgx="no">취소</button><button class="btn p" type="button" data-bgx="ok" style="background:var(--brand);border-color:var(--brand);color:#fff">적용</button>';
+      (document.getElementById('sec-chalk') || document.body).appendChild(p); bgPos();
       p.addEventListener('input', function () { clearTimeout(X.bg.t); X.bg.t = setTimeout(bgRun, 90); });
       p.addEventListener('click', function (e) { var b = e.target.closest('[data-bgx]'); if (b) bgClose(b.dataset.bgx === 'ok'); });
       bgRun();
     }).catch(function () { toast('그림을 불러오지 못했습니다'); });
   }
   function bgRun() {
-    var B = X.bg; if (!B) return; var tol = +document.getElementById('chBgxR').value, S = B.src, w = S.width, h = S.height, d = S.data, n = w * h;
-    var bgm = new Uint8Array(n), q = new Int32Array(n), qh = 0, qt = 0, t2 = tol * tol * 3, E = [], H = {}, C = [];
-    for (var x = 0; x < w; x++) { E.push(x, (h - 1) * w + x); } for (var y = 1; y < h - 1; y++) { E.push(y * w, y * w + w - 1); }
-    E.forEach(function (i) { var a = i * 4, key = (d[a] >> 5) + '_' + (d[a + 1] >> 5) + '_' + (d[a + 2] >> 5), z = H[key] || (H[key] = [0, 0, 0, 0]); z[0]++; z[1] += d[a]; z[2] += d[a + 1]; z[3] += d[a + 2]; });
-    Object.keys(H).map(function (k) { return H[k]; }).sort(function (a, b) { return b[0] - a[0]; }).forEach(function (z, i) { if (i < 4 && z[0] >= E.length * .06) C.push([z[1] / z[0], z[2] / z[0], z[3] / z[0]]); });
+    var B = X.bg; if (!B) return; var tol = +document.getElementById('chBgxR').value, S = B.src, w = S.width, h = S.height, d = S.data, n = w * h, t2 = tol * tol * 3, C = [];
+    [[0, 0], [w - 4, 0], [0, h - 4], [w - 4, h - 4]].forEach(function (c) { var r = 0, g = 0, bl = 0, k = 0; for (var yy = Math.max(0, c[1]); yy < Math.min(h, c[1] + 4); yy++) for (var xx = Math.max(0, c[0]); xx < Math.min(w, c[0] + 4); xx++) { var a = (yy * w + xx) * 4; if (d[a + 3] < 8) continue; r += d[a]; g += d[a + 1]; bl += d[a + 2]; k++; } if (k) C.push([r / k, g / k, bl / k]); });
+    C = C.concat(B.ex || []);
     var near = function (i) { var a = i * 4; if (d[a + 3] < 8) return true; for (var k = 0; k < C.length; k++) { var r = d[a] - C[k][0], g = d[a + 1] - C[k][1], bl = d[a + 2] - C[k][2]; if (r * r + g * g + bl * bl <= t2) return true; } return false; };
-    var push = function (i) { if (!bgm[i] && near(i)) { bgm[i] = 1; q[qt++] = i; } };
-    E.forEach(push);
+    var bgm = new Uint8Array(n), q = new Int32Array(n), qh = 0, qt = 0, push = function (i) { if (!bgm[i] && near(i)) { bgm[i] = 1; q[qt++] = i; } };
+    for (var x = 0; x < w; x++) { push(x); push((h - 1) * w + x); } for (var y = 1; y < h - 1; y++) { push(y * w); push(y * w + w - 1); }
+    (B.pts || []).forEach(function (i) { if (!bgm[i]) { bgm[i] = 1; q[qt++] = i; } });
     while (qh < qt) { var i = q[qh++], px = i % w; if (px > 0) push(i - 1); if (px < w - 1) push(i + 1); if (i >= w) push(i - w); if (i < n - w) push(i + w); }
+    if (qt > n * .92 && !(B.pts || []).length && tol > 6) { document.getElementById('chBgxR').value = Math.max(4, Math.round(tol * .6)); return bgRun(); }
     var out = new ImageData(new Uint8ClampedArray(d), w, h), o = out.data;
     for (var j = 0; j < n; j++) {
       if (bgm[j]) { o[j * 4 + 3] = 0; continue; }
-      var px2 = j % w, bg = (px2 > 0 && bgm[j - 1]) + (px2 < w - 1 && bgm[j + 1]) + (j >= w && bgm[j - w]) + (j < n - w && bgm[j + w]);
-      if (bg) o[j * 4 + 3] = Math.round(d[j * 4 + 3] * (1 - bg * .2));
+      var px2 = j % w, nb = (px2 > 0 && bgm[j - 1]) + (px2 < w - 1 && bgm[j + 1]) + (j >= w && bgm[j - w]) + (j < n - w && bgm[j + w]);
+      if (nb) o[j * 4 + 3] = Math.round(d[j * 4 + 3] * (1 - nb * .2));
     }
-    B.cv.getContext('2d').putImageData(out, 0, 0); X.pv[B.id] = B.cv; chRender();
+    B.fail = 0; B.cv.getContext('2d').putImageData(out, 0, 0); X.pv[B.id] = B.cv; chRender();
   }
+  /* 배경 지우기 중: 그림을 누르면 그 색 부분도 지움 */
+  document.getElementById('chObj').addEventListener('pointerdown', function (e) {
+    var B = X.bg; if (!B || (e.target.dataset && (e.target.dataset.hd || e.target.dataset.cx))) return; var el = e.target.closest && e.target.closest('.cho'); if (!el || el.dataset.oid !== B.id) return;
+    e.preventDefault(); e.stopPropagation(); var rc = el.getBoundingClientRect(), w = B.src.width, h = B.src.height, x = Math.max(0, Math.min(w - 1, Math.floor((e.clientX - rc.left) / rc.width * w))), y = Math.max(0, Math.min(h - 1, Math.floor((e.clientY - rc.top) / rc.height * h))), i = y * w + x, a = i * 4, d = B.src.data;
+    (B.ex = B.ex || []).push([d[a], d[a + 1], d[a + 2]]); (B.pts = B.pts || []).push(i); bgRun();
+  }, true);
   function bgClose(ok) {
     var B = X.bg, p = document.getElementById('chBgx'); X.bg = null; if (p) p.remove(); if (!B) return; clearTimeout(B.t);
     var o = chObjOf(B.id); delete X.pv[B.id];
-    if (ok && o) { put(o, B.cv, true); chPush(B.before); chObjs(); toast('배경을 지웠습니다 (되돌리기: Ctrl+Z)'); } else chRender();
+    if (ok && o && !B.fail) { put(o, B.cv, true); chPush(B.before); chObjs(); toast('배경을 지웠습니다 (되돌리기: Ctrl+Z)'); } else chRender();
   }
   document.addEventListener('keydown', function (e) { if (X.bg && e.key === 'Escape') { e.preventDefault(); bgClose(false); } if (X.bg && e.key === 'Enter') { e.preventDefault(); bgClose(true); } }, true);
   try { chObjs(); } catch (e) {}
+})();
+</script>
+<script>/* 칠판 보관함: 브라우저 보관함(폴더) · 내 폴더(PC 폴더 연결) · 파일 내려받기/불러오기 */
+(function () {
+  if (typeof CH === 'undefined' || !document.getElementById('chSave')) return;
+  var L = { tab: 'b', fd: '', dir: null, path: [], name: '', from: null, sig: '' };
+  var css = document.createElement('style');
+  css.textContent = '#chLibP{position:fixed;inset:0;z-index:9500;background:rgba(15,20,18,.42);display:flex;justify-content:center;align-items:flex-start;padding:40px 16px;overflow:auto}'
+    + '#chLibP .lw{background:#fff;color:#222;border-radius:14px;width:100%;max-width:760px;box-shadow:0 18px 50px rgba(0,0,0,.25);padding:16px 18px}'
+    + '#chLibP .lh{display:flex;gap:8px;align-items:center;margin-bottom:12px}#chLibP .lh b{font-size:16px}#chLibP .lh input{flex:1;min-width:120px;padding:7px 10px;border:1px solid #d9dedb;border-radius:8px;font:inherit}'
+    + '#chLibP .ltab{display:flex;gap:4px;border-bottom:1px solid #e6e9e7;margin-bottom:12px}#chLibP .ltab button{border:0;background:none;padding:8px 12px;font:inherit;color:#667;border-bottom:2px solid transparent;cursor:pointer}#chLibP .ltab button.on{color:#111;font-weight:700;border-color:#1f7a5c}'
+    + '#chLibP .lb{display:grid;grid-template-columns:170px 1fr;gap:14px;min-height:240px}#chLibP .fl{display:flex;flex-direction:column;gap:2px;border-right:1px solid #eef0ef;padding-right:10px}'
+    + '#chLibP .fl button{text-align:left;border:0;background:none;padding:7px 9px;border-radius:7px;font:inherit;cursor:pointer;display:flex;justify-content:space-between}#chLibP .fl button.on{background:#e9f3ee;font-weight:700}#chLibP .fl small{color:#889}'
+    + '#chLibP .it{display:flex;gap:8px;align-items:center;padding:8px 6px;border-bottom:1px solid #f1f3f2}#chLibP .it .nm{flex:1;min-width:0;cursor:pointer}#chLibP .it .nm b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#chLibP .it .nm small{color:#889}'
+    + '#chLibP .it select{font:inherit;font-size:12px;padding:3px 4px;border:1px solid #d9dedb;border-radius:6px;background:#fff}#chLibP .btn{padding:5px 11px;font-size:13px}#chLibP .btn.pri{background:#1f7a5c;border-color:#1f7a5c;color:#fff}'
+    + '#chLibP .lf{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid #eef0ef}#chLibP .em{color:#889;padding:22px 6px;text-align:center}#chLibP .crumb{display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin-bottom:8px;font-size:13px}#chLibP .crumb button{border:0;background:none;color:#1f7a5c;cursor:pointer;font:inherit;padding:2px}'
+    + '@media(max-width:640px){#chLibP .lb{grid-template-columns:1fr}#chLibP .fl{border-right:0;flex-direction:row;flex-wrap:wrap;padding:0}}';
+  document.head.appendChild(css);
+  var sb = document.getElementById('chSave'); sb.insertAdjacentHTML('beforebegin', '<button class="btn" type="button" id="chLib" title="칠판 보관함: 저장·불러오기·폴더">보관함</button>');
+  var esc2 = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var when = function (t) { var d = new Date(t || 0); return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); };
+
+  /* ----- 브라우저 보관함 (IndexedDB) ----- */
+  var DB = null;
+  function db() { if (DB) return DB; DB = new Promise(function (ok, no) { var r = indexedDB.open('sseukChalkLib', 1); r.onupgradeneeded = function () { var d = r.result; d.createObjectStore('boards', { keyPath: 'id' }); d.createObjectStore('folders', { keyPath: 'id' }); d.createObjectStore('meta'); }; r.onsuccess = function () { ok(r.result); }; r.onerror = function () { no(r.error); }; }); return DB; }
+  function tx(st, mode, fn) { return db().then(function (d) { return new Promise(function (ok, no) { var t = d.transaction(st, mode), s = t.objectStore(st), r = fn(s); t.oncomplete = function () { ok(r && 'result' in r ? r.result : undefined); }; t.onerror = function () { no(t.error); }; t.onabort = function () { no(t.error); }; }); }); }
+  var all = function (st) { return tx(st, 'readonly', function (s) { return s.getAll(); }); };
+
+  /* ----- 칠판 → 파일 내용 (그림 포함) ----- */
+  function toData(u) { return fetch(u).then(function (r) { return r.blob(); }).then(function (b) { return new Promise(function (ok) { var f = new FileReader(); f.onload = function () { ok(f.result); }; f.onerror = function () { ok(''); }; f.readAsDataURL(b); }); }); }
+  function pack() {
+    if (CH.edit && typeof chEndEdit === 'function') chEndEdit();
+    var pages = JSON.parse(JSON.stringify(CH.pages)), jobs = [];
+    pages.forEach(function (p) { [p].concat(p.memo ? [p.memo] : []).forEach(function (q) { (q.o || []).forEach(function (o) { if (o.t !== 'img') return; delete o.th; if (/^ib:/.test(o.src || '')) jobs.push(chSrcAsync(o.src).then(function (u) { return u ? toData(u) : ''; }).then(function (d) { o.src = d; })); }); }); });
+    return Promise.all(jobs).then(function () { return { app: 'sseuk-chalk', v: 1, name: L.name || '칠판', at: Date.now(), bg: CH.bg, pages: pages }; });
+  }
+  function unpack(d, from) {
+    if (!d || !d.pages || !d.pages.length) { toast('칠판 파일이 아닙니다'); return; }
+    CH.pages = d.pages.map(function (p) { return { s: p.s || [], o: p.o || [], ly: p.ly, cur: p.cur, bg: p.bg, memo: p.memo }; });
+    CH.i = 0; CH.bg = d.bg || CH.bg || 'green'; CH.und = CH.pages.map(function () { return []; }); CH.red = CH.pages.map(function () { return []; }); CH.sel = null; CH.edit = null;
+    L.name = d.name || ''; L.from = from || null;
+    try { chRebuild(); } catch (e) {} try { chFit(); } catch (e) {} try { chRender(); chObjs(); chUI(); chPagesUI(); } catch (e) {} try { chLyUI(); } catch (e) {}
+    chStore(); setTimeout(function () { try { chIbMigrate(); } catch (e) {} }, 800);
+    L.sig = sig(); close(); toast('「' + (L.name || '칠판') + '」을 열었습니다');
+  }
+  function sig() { try { return JSON.stringify(CH.pages).length + ':' + CH.pages.length; } catch (e) { return ''; } }
+  function blank() { return CH.pages.length === 1 && !(CH.pages[0].s || []).length && !(CH.pages[0].o || []).length; }
+  /* 열기 전에: 지금 칠판이 저장 안 된 채 바뀌었으면 한 번 더 누르게 */
+  function guard(btn) { if (blank() || sig() === L.sig || btn.dataset.arm) return true; btn.dataset.arm = 1; var t0 = btn.textContent; btn.textContent = '지금 칠판은 저장 안 됨 · 한 번 더'; setTimeout(function () { if (btn.isConnected) { btn.dataset.arm = ''; btn.textContent = t0; } }, 4000); return false; }
+
+  /* ----- 화면 ----- */
+  function close() { var p = document.getElementById('chLibP'); if (p) p.remove(); }
+  function open() { close(); var p = document.createElement('div'); p.id = 'chLibP'; (document.getElementById('sec-chalk') || document.body).appendChild(p); draw(); }
+  function draw() {
+    var p = document.getElementById('chLibP'); if (!p) return;
+    var fs = !!window.showDirectoryPicker;
+    var h = '<div class="lw"><div class="lh"><b>보관함</b><input id="chLibN" placeholder="칠판 이름" value="' + esc2(L.name) + '"><button class="btn" type="button" data-lb="x">닫기</button></div>'
+      + '<div class="ltab"><button type="button" class="' + (L.tab === 'b' ? 'on' : '') + '" data-lb="tb">이 브라우저</button><button type="button" class="' + (L.tab === 'd' ? 'on' : '') + '" data-lb="td">내 폴더' + (fs ? '' : ' (크롬·엣지)') + '</button></div><div id="chLibB"><div class="em">불러오는 중…</div></div>'
+      + '<div class="lf"><button class="btn" type="button" data-lb="dl">파일로 내려받기</button><button class="btn" type="button" data-lb="up">파일 불러오기</button><input type="file" id="chLibF" accept=".chalk,.json,application/json" hidden></div></div>';
+    p.innerHTML = h; (L.tab === 'b' ? drawB : drawD)();
+  }
+  function drawB() {
+    Promise.all([all('folders'), all('boards')]).then(function (r) {
+      var F = r[0].sort(function (a, b) { return a.name.localeCompare(b.name); }), B = r[1].sort(function (a, b) { return b.at - a.at; }), el = document.getElementById('chLibB'); if (!el) return;
+      if (L.fd && L.fd !== '*' && !F.some(function (f) { return f.id === L.fd; })) L.fd = '';
+      var cnt = function (id) { return B.filter(function (b) { return (b.folder || '') === id; }).length; };
+      var V = B.filter(function (b) { return L.fd === '*' || (b.folder || '') === L.fd; });
+      var fopt = function (cur) { return '<option value="">폴더 없음</option>' + F.map(function (f) { return '<option value="' + f.id + '"' + (f.id === cur ? ' selected' : '') + '>' + esc2(f.name) + '</option>'; }).join(''); };
+      el.innerHTML = '<div class="lb"><div class="fl"><button type="button" class="' + (L.fd === '*' ? 'on' : '') + '" data-lf="*">전체 <small>' + B.length + '</small></button><button type="button" class="' + (L.fd === '' ? 'on' : '') + '" data-lf="">폴더 없음 <small>' + cnt('') + '</small></button>'
+        + F.map(function (f) { return '<button type="button" class="' + (L.fd === f.id ? 'on' : '') + '" data-lf="' + f.id + '">📁 ' + esc2(f.name) + ' <small>' + cnt(f.id) + '</small></button>'; }).join('')
+        + '<button type="button" data-lb="nf" style="color:#1f7a5c">+ 새 폴더</button>' + (L.fd && L.fd !== '*' ? '<button type="button" data-lb="rf" style="color:#889;font-size:12px">폴더 이름 바꾸기</button><button type="button" data-lb="df" style="color:#c92a2a;font-size:12px">폴더 삭제</button>' : '') + '</div>'
+        + '<div><div style="display:flex;gap:6px;margin-bottom:6px"><button class="btn pri" type="button" data-lb="sb">지금 칠판 저장' + (L.fd && L.fd !== '*' ? ' (이 폴더)' : '') + '</button>' + (L.from && L.from.k === 'b' ? '<button class="btn" type="button" data-lb="sbn">새로 저장</button>' : '') + '</div>'
+        + (V.length ? V.map(function (b) { return '<div class="it"><div class="nm" data-lo="' + b.id + '"><b>' + esc2(b.name) + (L.from && L.from.k === 'b' && L.from.id === b.id ? ' <small>· 지금 열린 칠판</small>' : '') + '</b><small>' + when(b.at) + ' · ' + (b.n || 1) + '쪽</small></div><select data-lm="' + b.id + '" title="폴더 옮기기">' + fopt(b.folder || '') + '</select><button class="btn" type="button" data-lo="' + b.id + '">열기</button><button class="btn" type="button" data-ld="' + b.id + '" style="color:#c92a2a">삭제</button></div>'; }).join('') : '<div class="em">저장된 칠판이 없습니다</div>')
+        + '</div></div>';
+    }).catch(function () { var el = document.getElementById('chLibB'); if (el) el.innerHTML = '<div class="em">이 브라우저에서는 보관함을 쓸 수 없습니다. 「파일로 내려받기」를 써 주세요</div>'; });
+  }
+  function saveB(asNew) {
+    var nm = (document.getElementById('chLibN').value || '').trim() || ('칠판 ' + when(Date.now())); L.name = nm;
+    busy('저장 중…');
+    pack().then(function (d) {
+      var id = !asNew && L.from && L.from.k === 'b' ? L.from.id : 'b' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+      return tx('boards', 'readonly', function (s) { return s.get(id); }).then(function (old) {
+        var fd = old ? (old.folder || '') : (L.fd && L.fd !== '*' ? L.fd : '');
+        return tx('boards', 'readwrite', function (s) { return s.put({ id: id, name: nm, folder: fd, at: d.at, n: d.pages.length, data: JSON.stringify(d) }); }).then(function () { L.from = { k: 'b', id: id }; L.sig = sig(); busy(''); toast('「' + nm + '」 저장했습니다'); drawB(); });
+      });
+    }).catch(function (e) { busy(''); toast('저장하지 못했습니다: ' + (e && e.message || '')); });
+  }
+
+  /* ----- 내 폴더 (File System Access) ----- */
+  function drawD() {
+    var el = document.getElementById('chLibB'); if (!el) return;
+    if (!window.showDirectoryPicker) { el.innerHTML = '<div class="em">이 브라우저는 폴더 연결을 지원하지 않습니다. 크롬이나 엣지에서 열거나, 아래 「파일로 내려받기 / 파일 불러오기」를 써 주세요</div>'; return; }
+    if (!L.dir) {
+      tx('meta', 'readonly', function (s) { return s.get('dir'); }).catch(function () { return null; }).then(function (h) {
+        el.innerHTML = '<div class="em"><button class="btn pri" type="button" data-lb="pick">폴더 고르기</button>' + (h ? ' <button class="btn" type="button" data-lb="re">「' + esc2(h.name) + '」 다시 열기</button>' : '') + '<div style="margin-top:10px;font-size:12.5px">고른 폴더 안에 칠판이 파일(.chalk)로 저장됩니다</div></div>';
+        L.last = h || null;
+      });
+      return;
+    }
+    var cur = L.path.length ? L.path[L.path.length - 1] : L.dir, D2 = [], F2 = [];
+    el.innerHTML = '<div class="em">불러오는 중…</div>';
+    (async function () { for await (var e of cur.values()) { if (e.kind === 'directory') D2.push(e); else if (/\.(chalk|json)$/i.test(e.name)) F2.push(e); } })().then(function () {
+      return Promise.all(F2.map(function (f) { return f.getFile().then(function (x) { return { h: f, at: x.lastModified, size: x.size }; }); }));
+    }).then(function (FS) {
+      D2.sort(function (a, b) { return a.name.localeCompare(b.name); }); FS.sort(function (a, b) { return b.at - a.at; });
+      var crumb = '<div class="crumb"><button type="button" data-lp="-1">📁 ' + esc2(L.dir.name) + '</button>' + L.path.map(function (d, i) { return '› <button type="button" data-lp="' + i + '">' + esc2(d.name) + '</button>'; }).join('') + '<span style="flex:1"></span><button type="button" data-lb="pick" style="color:#889">다른 폴더</button></div>';
+      el.innerHTML = crumb + '<div style="display:flex;gap:6px;margin-bottom:6px"><button class="btn pri" type="button" data-lb="sd">지금 칠판 여기에 저장</button><button class="btn" type="button" data-lb="nd">+ 새 폴더</button></div>'
+        + D2.map(function (d, i) { return '<div class="it"><div class="nm" data-li="' + i + '"><b>📁 ' + esc2(d.name) + '</b></div></div>'; }).join('')
+        + (FS.length ? FS.map(function (f, i) { return '<div class="it"><div class="nm" data-lr="' + i + '"><b>' + esc2(f.h.name.replace(/\.(chalk|json)$/i, '')) + (L.from && L.from.k === 'd' && L.from.h && f.h.name === L.from.h.name && L.from.dir === cur ? ' <small>· 지금 열린 칠판</small>' : '') + '</b><small>' + when(f.at) + ' · ' + Math.max(1, Math.round(f.size / 1024)) + 'KB</small></div><button class="btn" type="button" data-lr="' + i + '">열기</button><button class="btn" type="button" data-lx="' + i + '" style="color:#c92a2a">삭제</button></div>'; }).join('') : (D2.length ? '' : '<div class="em">이 폴더에 칠판 파일이 없습니다</div>'));
+      L.D2 = D2; L.F2 = FS; L.cur = cur;
+    }).catch(function (e) { el.innerHTML = '<div class="em">폴더를 읽지 못했습니다. 「폴더 고르기」로 다시 골라 주세요<br><button class="btn" type="button" data-lb="pick" style="margin-top:8px">폴더 고르기</button></div>'; L.dir = null; });
+  }
+  function useDir(h) { L.dir = h; L.path = []; tx('meta', 'readwrite', function (s) { return s.put(h, 'dir'); }).catch(function () {}); drawD(); }
+  function fileName(nm) { return nm.replace(/[\\/:*?"<>|]/g, '').trim().slice(0, 80) || '칠판'; }
+  function saveD() {
+    var nm = (document.getElementById('chLibN').value || '').trim() || ('칠판 ' + when(Date.now()).replace(/[/:]/g, '-')); L.name = nm; var dir = L.cur || L.dir;
+    busy('저장 중…');
+    pack().then(function (d) { return dir.getFileHandle(fileName(nm) + '.chalk', { create: true }).then(function (fh) { return fh.createWritable().then(function (w) { return w.write(JSON.stringify(d)).then(function () { return w.close(); }); }).then(function () { L.from = { k: 'd', h: fh, dir: dir }; L.sig = sig(); }); }); })
+      .then(function () { busy(''); toast('「' + nm + '」 폴더에 저장했습니다'); drawD(); }).catch(function (e) { busy(''); toast('저장하지 못했습니다: ' + (e && e.message || '')); });
+  }
+  var readJson = function (file) { return file.text().then(function (t) { return JSON.parse(t); }); };
+
+  /* ----- 이벤트 ----- */
+  document.addEventListener('click', function (e) {
+    if (e.target.id === 'chLib') { if (CH.edit && typeof chEndEdit === 'function') chEndEdit(); open(); return; }
+    var p = document.getElementById('chLibP'); if (!p || !p.contains(e.target)) return;
+    if (e.target === p) { close(); return; }
+    var t = e.target.closest('[data-lb],[data-lf],[data-lo],[data-ld],[data-lp],[data-li],[data-lr],[data-lx]'); if (!t) return; e.preventDefault();
+    var ds = t.dataset, a = ds.lb;
+    if (a === 'x') return close();
+    if (a === 'tb' || a === 'td') { L.name = document.getElementById('chLibN').value; L.tab = a === 'tb' ? 'b' : 'd'; return draw(); }
+    if (ds.lf != null) { L.fd = ds.lf; return drawB(); }
+    if (a === 'sb' || a === 'sbn') return saveB(a === 'sbn');
+    if (a === 'nf') { var fn = prompt('새 폴더 이름'); if (!fn || !fn.trim()) return; var id = 'f' + Date.now().toString(36); return tx('folders', 'readwrite', function (s) { return s.put({ id: id, name: fn.trim().slice(0, 40) }); }).then(function () { L.fd = id; drawB(); }); }
+    if (a === 'rf') { all('folders').then(function (F) { var f = F.filter(function (x) { return x.id === L.fd; })[0]; if (!f) return; var nn = prompt('폴더 이름', f.name); if (!nn || !nn.trim()) return; f.name = nn.trim().slice(0, 40); return tx('folders', 'readwrite', function (s) { return s.put(f); }).then(drawB); }); return; }
+    if (a === 'df') { if (!t.dataset.arm) { t.dataset.arm = 1; t.textContent = '한 번 더 (칠판은 「폴더 없음」으로)'; return; } var fid = L.fd; all('boards').then(function (B) { return Promise.all(B.filter(function (b) { return b.folder === fid; }).map(function (b) { b.folder = ''; return tx('boards', 'readwrite', function (s) { return s.put(b); }); })); }).then(function () { return tx('folders', 'readwrite', function (s) { return s.delete(fid); }); }).then(function () { L.fd = ''; drawB(); }); return; }
+    if (ds.lo) { if (!guard(t)) return; return tx('boards', 'readonly', function (s) { return s.get(ds.lo); }).then(function (b) { if (b) unpack(JSON.parse(b.data), { k: 'b', id: b.id }); }); }
+    if (ds.ld) { if (!t.dataset.arm) { t.dataset.arm = 1; t.textContent = '한 번 더'; setTimeout(function () { if (t.isConnected) { t.dataset.arm = ''; t.textContent = '삭제'; } }, 4000); return; } return tx('boards', 'readwrite', function (s) { return s.delete(ds.ld); }).then(function () { if (L.from && L.from.id === ds.ld) L.from = null; drawB(); }); }
+    if (a === 'dl') { L.name = document.getElementById('chLibN').value.trim(); busy('파일 만드는 중…'); return pack().then(function (d) { busy(''); L.sig = sig(); save(new Blob([JSON.stringify(d)], { type: 'application/json' }), fileName(L.name || '칠판') + '.chalk'); }).catch(function () { busy(''); toast('파일을 만들지 못했습니다'); }); }
+    if (a === 'up') { if (!guard(t)) return; return document.getElementById('chLibF').click(); }
+    if (a === 'pick') { return window.showDirectoryPicker({ id: 'sseukchalk', mode: 'readwrite' }).then(useDir).catch(function () {}); }
+    if (a === 're') { var h = L.last; if (!h) return; return h.requestPermission({ mode: 'readwrite' }).then(function (st) { if (st === 'granted') useDir(h); else toast('폴더 사용을 허용해 주세요'); }).catch(function () { toast('폴더를 다시 골라 주세요'); }); }
+    if (ds.lp != null) { L.path = L.path.slice(0, +ds.lp + 1); return drawD(); }
+    if (ds.li != null) { L.path.push(L.D2[+ds.li]); return drawD(); }
+    if (a === 'sd') return saveD();
+    if (a === 'nd') { var dn = prompt('새 폴더 이름'); if (!dn || !dn.trim()) return; return (L.cur || L.dir).getDirectoryHandle(fileName(dn), { create: true }).then(function () { drawD(); }).catch(function (er) { toast('폴더를 만들지 못했습니다'); }); }
+    if (ds.lr != null) { if (!guard(t)) return; var f = L.F2[+ds.lr]; return f.h.getFile().then(readJson).then(function (d) { if (!d.name) d.name = f.h.name.replace(/\.(chalk|json)$/i, ''); unpack(d, { k: 'd', h: f.h, dir: L.cur }); }).catch(function () { toast('파일을 열지 못했습니다'); }); }
+    if (ds.lx != null) { if (!t.dataset.arm) { t.dataset.arm = 1; t.textContent = '한 번 더'; setTimeout(function () { if (t.isConnected) { t.dataset.arm = ''; t.textContent = '삭제'; } }, 4000); return; } var fx = L.F2[+ds.lx]; return (L.cur || L.dir).removeEntry(fx.h.name).then(drawD).catch(function () { toast('지우지 못했습니다'); }); }
+  });
+  document.addEventListener('change', function (e) {
+    if (e.target.id === 'chLibF') { var f = e.target.files && e.target.files[0]; e.target.value = ''; if (!f) return; readJson(f).then(function (d) { if (!d.name) d.name = f.name.replace(/\.(chalk|json)$/i, ''); unpack(d, null); }).catch(function () { toast('칠판 파일을 읽지 못했습니다'); }); return; }
+    var m = e.target.dataset && e.target.dataset.lm; if (!m) return;
+    tx('boards', 'readonly', function (s) { return s.get(m); }).then(function (b) { if (!b) return; b.folder = e.target.value; return tx('boards', 'readwrite', function (s) { return s.put(b); }); }).then(drawB);
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && document.getElementById('chLibP')) { e.stopPropagation(); close(); } }, true);
+  /* .chalk 파일을 칠판에 끌어다 놓아도 열기 */
+  document.addEventListener('drop', function (e) {
+    var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if (!f || !/\.chalk$/i.test(f.name) || !(e.target.closest && e.target.closest('#sec-chalk'))) return;
+    e.preventDefault(); e.stopPropagation(); readJson(f).then(function (d) { if (!d.name) d.name = f.name.replace(/\.chalk$/i, ''); unpack(d, null); }).catch(function () { toast('칠판 파일을 읽지 못했습니다'); });
+  }, true);
+  setTimeout(function () { L.sig = sig(); }, 1500);
 })();
 </script>
 <script>(function(){var a=document.getElementById('siteHome');if(a&&window.SITE_NAME)a.textContent=window.SITE_NAME;})();</script>
