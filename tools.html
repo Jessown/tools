@@ -607,7 +607,7 @@ main{padding-top:20px}
           <button class="btn" type="button" data-cht="sel" title="선택·이동 (V)">선택</button><button class="btn on" type="button" data-cht="pen" title="펜 (P) · Shift 누른 채 그으면 직선">펜</button><button class="btn" type="button" data-cht="hl" title="형광펜 (H) · Shift 누른 채 그으면 직선">형광펜</button><button class="btn" type="button" data-cht="eraser" title="지우개 (E) · 글상자에 닿으면 글상자도 지워집니다">지우개</button><button class="btn" type="button" data-cht="shape" title="도형: 직선·화살표·네모·원 (Shift 누르면 반듯하게)">도형</button><button class="btn" type="button" data-cht="text" title="글상자 (T)">글상자</button><button class="btn" type="button" data-cht="laser" title="레이저 포인터 (L) · 그냥 움직이면 점, 누른 채 끌면 선(떼면 정한 시간 뒤 사라짐). 칠판에 남지 않습니다">레이저</button><button class="btn" type="button" id="chClkAdd" title="이 쪽에 시계 넣기 (글상자처럼 옮기기·크기·색 변경)">시계</button>
         </span>
         <select id="chShape" hidden aria-label="도형" title="도형 · Shift 누르면 정사각형·정원·반듯한 선"><option value="">도형…</option><option value="line">／ 직선</option><option value="arrow">→ 화살표</option><option value="rect">▭ 네모</option><option value="ellipse">◯ 원</option></select>
-        <button class="btn" type="button" id="chImg" title="그림 넣기 (끌어다 놓기·Ctrl+V도 됨)">그림</button><input type="file" id="chImgF" accept="image/*" hidden><button class="btn" type="button" id="chPdf" title="PDF 펼치기: PPT에서 「PDF로 저장」한 파일을 올리면 슬라이드마다 한 쪽씩 펼쳐집니다 (끌어다 놓기도 됨)">PDF</button><input type="file" id="chPdfF" accept="application/pdf,.pdf" hidden>
+        <button class="btn" type="button" id="chImg" title="그림 넣기 (끌어다 놓기·Ctrl+V도 됨)">그림</button><input type="file" id="chImgF" accept="image/*" hidden><button class="btn" type="button" id="chPdf" title="PDF·PPT 펼치기: 슬라이드마다 한 쪽씩 펼쳐집니다 (끌어다 놓기도 됨)">PDF·PPT</button><input type="file" id="chPdfF" accept="application/pdf,.pdf,.pptx,.ppt,application/vnd.openxmlformats-officedocument.presentationml.presentation" hidden>
         <span class="chseg chlay" id="chLay" role="group" aria-label="화면 배치"><button type="button" data-lay="one" title="한 쪽만 크게">한 쪽</button><button type="button" data-lay="two" title="이어진 두 쪽을 나란히 (안 쓰는 쪽을 누르면 그쪽에 씁니다)">두 쪽</button><button type="button" data-lay="memo" title="왼쪽은 자료(PDF·판서), 오른쪽은 이 쪽의 메모장">자료+메모</button></span>
         <button class="btn" type="button" id="chMemoAll" title="메모장에 쓴 필기만 모아 글로 바꾸고 내려받기">메모 모아보기</button>
         <span class="chsp"></span>
@@ -625,7 +625,7 @@ main{padding-top:20px}
         <button class="btn" type="button" id="chShare" title="QR로 다른 사람 화면에 이 칠판을 보여 주기 (보기 전용)">다같이 보기</button>
         <button class="btn" type="button" id="chLyBtn" title="레이어: 여러 장을 겹쳐 쌓고, 장마다 보이기/숨기기">레이어 <b id="chLyN" class="chlybadge">1</b></button>
         <span class="chsep"></span>
-        <button class="btn" type="button" id="chSave" title="이 쪽을 그림(PNG)으로 저장">저장</button>
+        <button class="btn" type="button" id="chSave" title="지금 보이는 쪽을 그림 파일(PNG)로 내려받기 · 다시 고쳐 쓰려면 「보관함」에 저장">그림으로 저장</button>
         <button class="btn" type="button" id="chPrint" title="보고 있는 쪽 인쇄 (Ctrl+P)">인쇄</button>
         <span class="chsp"></span>
         <button class="btn chdanger" type="button" id="chClear" title="이 쪽 전체 지우기 (되돌리기로 살릴 수 있음)">전체 지우기</button>
@@ -2274,7 +2274,7 @@ function chOptUI() {
     var r = $('#chCv').getBoundingClientRect(), inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom, pt = inside ? chPt(e) : [CH.W / 2, CH.H / 2];
     var fs = [].slice.call(e.dataTransfer.files || []).filter(function (f) { return /^image\//.test(f.type); });
     if (fs.length) { fs.slice(0, 10).forEach(function (f, i) { chImgFile(f, [pt[0] + i * 40, pt[1] + i * 40]); }); return; }
-    var pdfF = [].slice.call(e.dataTransfer.files || []).filter(function (f) { return f.type === 'application/pdf' || /\.pdf$/i.test(f.name); })[0]; if (pdfF) { chPdfImport(pdfF); return; }
+    var pdfF = [].slice.call(e.dataTransfer.files || []).filter(function (f) { return f.type === 'application/pdf' || /\.(pdf|pptx?)$/i.test(f.name); })[0]; if (pdfF) { chPdfImport(pdfF); return; }
     if (e.dataTransfer.files && e.dataTransfer.files.length) { toast('그림 파일(jpg·png 등)이나 PDF만 넣을 수 있습니다'); return; }
     var tx = e.dataTransfer.getData('text/plain'); if (tx && tx.trim()) chAddText(pt[0], pt[1], tx.trim(), 64, { w: 1000 });
   });
@@ -2483,6 +2483,7 @@ setInterval(function () { if (!CH.sh || MODE !== 'chalk') return; var hasClk = c
 window.addEventListener('beforeunload', function () { if (CH.sh) { try { google.script.run.chalkShareClose(CH.sh.id, CH.sh.key); } catch (x) {} } });
 /* PDF 펼치기: PPT를 PDF로 저장해 올리면 슬라이드마다 한 쪽씩 (슬라이드는 고정 그림, 위에 필기) */
 function chPdfImport(f) {
+  if (f && /\.pptx$/i.test(f.name)) return chPptImport(f); if (f && /\.ppt$/i.test(f.name)) { toast('예전 PPT(.ppt)는 열 수 없습니다. 파워포인트에서 .pptx나 PDF로 저장해 올려 주세요'); return; }
   if (!f) return; if (CH.edit) chEndEdit(); busy('PDF 여는 중…');
   Promise.all([pdfLib(), f.arrayBuffer()]).then(function (a) { return a[0].getDocument({ data: a[1], cMapUrl: PDFDATA + 'cmaps/', cMapPacked: true, standardFontDataUrl: PDFDATA + 'standard_fonts/' }).promise; }).then(function (doc) {
     var MAXP = CHIB.ok ? 300 : 40, n = Math.min(doc.numPages, MAXP), out = [], i = 1;
@@ -2507,6 +2508,41 @@ function chPdfImport(f) {
       toast('PDF ' + n + '쪽을 펼쳤습니다' + (doc.numPages > n ? ' (앞 ' + n + '쪽까지)' : '') + '. 슬라이드는 고정되어 있어 위에 바로 쓸 수 있습니다');
     });
   }).catch(function (e) { busy(''); toast('PDF를 열지 못했습니다: ' + ((e && e.message) || e)); });
+}
+/* PPT(.pptx): 브라우저 안에서 슬라이드를 그림으로 바꿔 한 쪽씩 펼침 (파일은 밖으로 나가지 않음) */
+var CHPPT = null;
+function chPptLib() { if (!CHPPT) CHPPT = Promise.all([import(window.PPTX_LIB || 'https://cdn.jsdelivr.net/npm/@aiden0z/pptx-renderer@1.4.0/dist/aiden0z-pptx-renderer.browser.es.js'), import(window.HTI_LIB || 'https://cdn.jsdelivr.net/npm/html-to-image@1.11.13/+esm')]).catch(function (e) { CHPPT = null; throw e; }); return CHPPT; }
+function chPptImport(f) {
+  if (CH.edit) chEndEdit(); busy('PPT 여는 중…');
+  var host = null, R = null, H = null;
+  Promise.all([chPptLib(), f.arrayBuffer()]).then(function (a) { R = a[0][0]; H = a[0][1]; return R.parseZip(a[1], R.RECOMMENDED_ZIP_LIMITS); }).then(function (files) {
+    var pres = R.buildPresentation(files), S = pres.slides || [], MAXP = CHIB.ok ? 300 : 40, n = Math.min(S.length, MAXP), out = [], i = 0, cache = new Map();
+    host = document.createElement('div'); host.style.cssText = 'position:fixed;left:-30000px;top:0;pointer-events:none'; document.body.appendChild(host);
+    var step = function () {
+      if (i >= n) return Promise.resolve();
+      busy('PPT 펼치는 중… ' + (i + 1) + ' / ' + n);
+      var hd = R.renderSlide(pres, S[i], { mediaUrlCache: cache }), el = hd.element; host.appendChild(el);
+      return Promise.resolve(hd.ready).then(function () { return document.fonts && document.fonts.ready; }).then(function () {
+        var w = el.offsetWidth || 960, h = el.offsetHeight || 540;
+        return H.toCanvas(el, { pixelRatio: 1600 / w, width: w, height: h, backgroundColor: '#ffffff', cacheBust: false, skipFonts: true });
+      }).then(function (c) {
+        try { hd.dispose(); } catch (e) {} if (el.parentNode) el.parentNode.removeChild(el);
+        return chStoreCv(c).then(function (r) {
+          var ar = c.width / c.height, w = Math.round(Math.min(CH.W, CH.H * ar)), h = Math.round(w / ar);
+          out.push({ s: [], o: [{ id: chNewId() + i, ly: 'L1', t: 'img', x: Math.round((CH.W - w) / 2), y: Math.round((CH.H - h) / 2), w: w, h: h, src: r.src, th: r.th, lk: true }], bg: 'white', ly: [{ id: 'L1', name: '레이어 1', vis: true }], cur: 'L1' });
+          c.width = c.height = 1; i++; return step();
+        });
+      });
+    };
+    return step().then(function () {
+      busy(''); if (host && host.parentNode) host.parentNode.removeChild(host); if (!out.length) { toast('PPT에 슬라이드가 없습니다'); return; }
+      var cur = CH.pages[CH.i], empty = !cur.s.length && !cur.o.length && !chMemoHas(cur), pos = empty ? CH.i : CH.i + 1;
+      if (empty) { CH.pages.splice(CH.i, 1); CH.und.splice(CH.i, 1); CH.red.splice(CH.i, 1); }
+      Array.prototype.splice.apply(CH.pages, [pos, 0].concat(out)); out.forEach(function () { CH.und.splice(pos, 0, []); CH.red.splice(pos, 0, []); });
+      CH.i = pos; CH.sel = null; CH.tool = 'pen'; chRebuild(); chRender(); chObjs(); chUI(); chStore();
+      toast('PPT ' + n + '쪽을 펼쳤습니다' + (S.length > n ? ' (앞 ' + n + '쪽까지)' : '') + '. 모양이 원본과 다르면 파워포인트에서 PDF로 저장해 올려 주세요');
+    });
+  }).catch(function (e) { busy(''); if (host && host.parentNode) host.parentNode.removeChild(host); toast('PPT를 열지 못했습니다. 파워포인트에서 PDF로 저장해 올려 주세요' + (e && e.message ? ' (' + e.message + ')' : '')); });
 }
 $('#chPdf').addEventListener('click', function () { $('#chPdfF').click(); });
 $('#chPdfF').addEventListener('change', function () { var f = this.files[0]; this.value = ''; if (f) chPdfImport(f); });
@@ -2954,165 +2990,315 @@ setMode(MODE);
   try { chObjs(); } catch (e) {}
 })();
 </script>
-<script>/* 칠판 보관함: 브라우저 보관함(폴더) · 내 폴더(PC 폴더 연결) · 파일 내려받기/불러오기 */
+<script>/* 칠판 보관함 v2: 새 칠판 · 열기 · 저장(Ctrl+S) · 다른 이름으로 저장 · 최근 · 이 브라우저(폴더) · 내 PC 폴더 · 파일 내려받기/불러오기 */
 (function () {
   if (typeof CH === 'undefined' || !document.getElementById('chSave')) return;
-  var L = { tab: 'b', fd: '', dir: null, path: [], name: '', from: null, sig: '' };
+  /* cur: 지금 칠판이 저장된 곳 {k:'b',id} 또는 {k:'d',h(파일),dir(폴더)} */
+  var L = { name: '', cur: null, dirty: false, loading: false, place: 'recent', fd: '', root: null, path: [], q: '', mode: 'open', items: [], dirs: [] };
   var css = document.createElement('style');
-  css.textContent = '#chLibP{position:fixed;inset:0;z-index:9500;background:rgba(15,20,18,.42);display:flex;justify-content:center;align-items:flex-start;padding:40px 16px;overflow:auto}'
-    + '#chLibP .lw{background:#fff;color:#222;border-radius:14px;width:100%;max-width:760px;box-shadow:0 18px 50px rgba(0,0,0,.25);padding:16px 18px}'
-    + '#chLibP .lh{display:flex;gap:8px;align-items:center;margin-bottom:12px}#chLibP .lh b{font-size:16px}#chLibP .lh input{flex:1;min-width:120px;padding:7px 10px;border:1px solid #d9dedb;border-radius:8px;font:inherit}'
-    + '#chLibP .ltab{display:flex;gap:4px;border-bottom:1px solid #e6e9e7;margin-bottom:12px}#chLibP .ltab button{border:0;background:none;padding:8px 12px;font:inherit;color:#667;border-bottom:2px solid transparent;cursor:pointer}#chLibP .ltab button.on{color:#111;font-weight:700;border-color:#1f7a5c}'
-    + '#chLibP .lb{display:grid;grid-template-columns:170px 1fr;gap:14px;min-height:240px}#chLibP .fl{display:flex;flex-direction:column;gap:2px;border-right:1px solid #eef0ef;padding-right:10px}'
-    + '#chLibP .fl button{text-align:left;border:0;background:none;padding:7px 9px;border-radius:7px;font:inherit;cursor:pointer;display:flex;justify-content:space-between}#chLibP .fl button.on{background:#e9f3ee;font-weight:700}#chLibP .fl small{color:#889}'
-    + '#chLibP .it{display:flex;gap:8px;align-items:center;padding:8px 6px;border-bottom:1px solid #f1f3f2}#chLibP .it .nm{flex:1;min-width:0;cursor:pointer}#chLibP .it .nm b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#chLibP .it .nm small{color:#889}'
-    + '#chLibP .it select{font:inherit;font-size:12px;padding:3px 4px;border:1px solid #d9dedb;border-radius:6px;background:#fff}#chLibP .btn{padding:5px 11px;font-size:13px}#chLibP .btn.pri{background:#1f7a5c;border-color:#1f7a5c;color:#fff}'
-    + '#chLibP .lf{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid #eef0ef}#chLibP .em{color:#889;padding:22px 6px;text-align:center}#chLibP .crumb{display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin-bottom:8px;font-size:13px}#chLibP .crumb button{border:0;background:none;color:#1f7a5c;cursor:pointer;font:inherit;padding:2px}'
-    + '@media(max-width:640px){#chLibP .lb{grid-template-columns:1fr}#chLibP .fl{border-right:0;flex-direction:row;flex-wrap:wrap;padding:0}}';
+  css.textContent = '.chdoc{display:inline-flex;align-items:center;gap:6px;max-width:260px;font-size:13px;padding:0 4px}.chdoc b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.chdoc i{font-style:normal;font-size:11.5px;color:#1f7a5c;white-space:nowrap}.chdoc i.dt{color:#c47f00}'
+    + '#chLibP{position:fixed;inset:0;z-index:9500;background:rgba(15,20,18,.45);display:flex;justify-content:center;align-items:flex-start;padding:36px 14px;overflow:auto;color:#222}'
+    + '#chLibP .lw{background:#fff;border-radius:14px;width:100%;max-width:820px;box-shadow:0 18px 50px rgba(0,0,0,.28);display:flex;flex-direction:column;max-height:calc(100vh - 72px)}'
+    + '#chLibP .lh{display:flex;align-items:center;gap:8px;padding:14px 18px;border-bottom:1px solid #eceeed}#chLibP .lh b{font-size:16px;flex:1}'
+    + '#chLibP .lm{display:grid;grid-template-columns:170px 1fr;min-height:330px;flex:1;overflow:hidden}'
+    + '#chLibP .cl-side{border-right:1px solid #eceeed;padding:10px 8px;display:flex;flex-direction:column;gap:2px;background:#fafbfa}#chLibP .cl-side button{text-align:left;border:0;background:none;padding:8px 10px;border-radius:8px;font:inherit;font-size:14px;cursor:pointer;color:#333}#chLibP .cl-side button.on{background:#e3f0ea;font-weight:700;color:#14563f}'
+    + '#chLibP .cl-main{display:flex;flex-direction:column;min-width:0;overflow:hidden}#chLibP .cl-bar{display:flex;gap:6px;align-items:center;padding:10px 14px;border-bottom:1px solid #f1f2f1;flex-wrap:wrap}#chLibP .cl-crumb{flex:1;min-width:0;display:flex;gap:2px;align-items:center;flex-wrap:wrap;font-size:13.5px}#chLibP .cl-crumb button{border:0;background:none;padding:3px 5px;border-radius:5px;cursor:pointer;font:inherit;color:#1f7a5c}#chLibP .cl-crumb b{padding:3px 5px}'
+    + '#chLibP .cl-bar input[type=search]{width:150px;padding:6px 9px;border:1px solid #d9dedb;border-radius:8px;font:inherit;font-size:13px}#chLibP .cl-list{overflow:auto;flex:1;padding:4px 8px 10px}'
+    + '#chLibP .cl-row{display:flex;align-items:center;gap:10px;padding:9px 8px;border-radius:8px;cursor:pointer;position:relative}#chLibP .cl-row:hover{background:#f3f6f4}#chLibP .cl-row.cl-cur{background:#eef6f1}#chLibP .cl-row .cl-ic{width:22px;text-align:center;font-size:17px}#chLibP .cl-row .cl-nm{flex:1;min-width:0}#chLibP .cl-row .cl-nm b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#chLibP .cl-row .cl-nm small{color:#8a918d;font-size:12px}'
+    + '#chLibP .cl-row .cl-mn{border:0;background:none;font-size:18px;line-height:1;padding:4px 8px;border-radius:6px;cursor:pointer;color:#666}#chLibP .cl-row .cl-mn:hover{background:#e6ebe8}'
+    + '#chLibP .cl-pop{position:absolute;right:8px;top:38px;z-index:3;background:#fff;border:1px solid #dfe3e1;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.14);padding:4px;display:flex;flex-direction:column;min-width:140px}#chLibP .cl-pop button{text-align:left;border:0;background:none;padding:8px 12px;border-radius:7px;font:inherit;font-size:13.5px;cursor:pointer}#chLibP .cl-pop button:hover{background:#f1f4f2}#chLibP .cl-pop .cl-del{color:#c92a2a}'
+    + '#chLibP .cl-em{color:#8a918d;text-align:center;padding:40px 10px;font-size:13.5px}#chLibP .cl-ft{display:flex;gap:8px;align-items:center;padding:12px 18px;border-top:1px solid #eceeed;flex-wrap:wrap}#chLibP .cl-ft input{flex:1;min-width:160px;padding:8px 10px;border:1px solid #cfd6d2;border-radius:8px;font:inherit;font-size:14px}#chLibP .cl-ft .cl-lk{border:0;background:none;color:#5d6b66;font:inherit;font-size:13px;cursor:pointer;padding:4px 6px}#chLibP .cl-ft .cl-lk:hover{color:#1f7a5c}'
+    + '#chLibP .btn{padding:7px 14px;font-size:13.5px;border-radius:8px}#chLibP .btn.cl-pri{background:#1f7a5c;border-color:#1f7a5c;color:#fff}#chLibP .btn.cl-pri:disabled{opacity:.45}'
+    + '#chLibP .cl-ask{position:absolute;inset:0;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;border-radius:14px;z-index:5}#chLibP .cl-ask div{background:#fff;border:1px solid #e0e4e2;border-radius:12px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.15);max-width:360px}#chLibP .cl-ask p{margin:0 0 14px;font-size:14.5px;line-height:1.5}#chLibP .cl-ask .cl-bs{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}'
+    + '@media(max-width:640px){#chLibP .lm{grid-template-columns:1fr}#chLibP .cl-side{flex-direction:row;overflow:auto;border-right:0;border-bottom:1px solid #eceeed}}';
   document.head.appendChild(css);
-  var sb = document.getElementById('chSave'); sb.insertAdjacentHTML('beforebegin', '<button class="btn" type="button" id="chLib" title="칠판 보관함: 저장·불러오기·폴더">보관함</button>');
+  /* 도구 막대: [이름 · 상태] [새 칠판] [열기] [저장] [그림으로 저장] */
+  var sv = document.getElementById('chSave');
+  sv.insertAdjacentHTML('beforebegin', '<span class="chdoc" id="chDoc" title="지금 칠판"><b id="chDocN">새 칠판</b><i id="chDocS"></i></span><button class="btn" type="button" id="chNew" title="새 칠판">새 칠판</button><button class="btn" type="button" id="chOpen" title="보관함에서 열기 (Ctrl+O)">열기</button><button class="btn" type="button" id="chSv" title="저장 (Ctrl+S)">저장</button>');
   var esc2 = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
-  var when = function (t) { var d = new Date(t || 0); return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); };
+  var when = function (t) { var d = new Date(t || 0), n = new Date(); return (d.toDateString() === n.toDateString() ? '오늘 ' : (d.getMonth() + 1) + '/' + d.getDate() + ' ') + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); };
+  var fname = function (nm) { return String(nm || '').replace(/[\\/:*?"<>|]/g, '').trim().slice(0, 80) || '칠판'; };
+  var hasDir = !!window.showDirectoryPicker;
 
-  /* ----- 브라우저 보관함 (IndexedDB) ----- */
+  /* ----- 저장소 (IndexedDB) ----- */
   var DB = null;
-  function db() { if (DB) return DB; DB = new Promise(function (ok, no) { var r = indexedDB.open('sseukChalkLib', 1); r.onupgradeneeded = function () { var d = r.result; d.createObjectStore('boards', { keyPath: 'id' }); d.createObjectStore('folders', { keyPath: 'id' }); d.createObjectStore('meta'); }; r.onsuccess = function () { ok(r.result); }; r.onerror = function () { no(r.error); }; }); return DB; }
-  function tx(st, mode, fn) { return db().then(function (d) { return new Promise(function (ok, no) { var t = d.transaction(st, mode), s = t.objectStore(st), r = fn(s); t.oncomplete = function () { ok(r && 'result' in r ? r.result : undefined); }; t.onerror = function () { no(t.error); }; t.onabort = function () { no(t.error); }; }); }); }
+  function db() { if (DB) return DB; DB = new Promise(function (ok, no) { var r = indexedDB.open('sseukChalkLib', 1); r.onupgradeneeded = function () { var d = r.result; if (!d.objectStoreNames.contains('boards')) d.createObjectStore('boards', { keyPath: 'id' }); if (!d.objectStoreNames.contains('folders')) d.createObjectStore('folders', { keyPath: 'id' }); if (!d.objectStoreNames.contains('meta')) d.createObjectStore('meta'); }; r.onsuccess = function () { ok(r.result); }; r.onerror = function () { DB = null; no(r.error); }; }); return DB; }
+  function tx(st, mode, fn) { return db().then(function (d) { return new Promise(function (ok, no) { var t = d.transaction(st, mode), r = fn(t.objectStore(st)); t.oncomplete = function () { ok(r && 'result' in r ? r.result : undefined); }; t.onerror = function () { no(t.error); }; t.onabort = function () { no(t.error || new Error('저장 공간이 부족합니다')); }; }); }); }
   var all = function (st) { return tx(st, 'readonly', function (s) { return s.getAll(); }); };
+  var get = function (st, k) { return tx(st, 'readonly', function (s) { return s.get(k); }); };
+  var put = function (st, v, k) { return tx(st, 'readwrite', function (s) { return k == null ? s.put(v) : s.put(v, k); }); };
+  var del = function (st, k) { return tx(st, 'readwrite', function (s) { return s.delete(k); }); };
+  var uid = function (p) { return p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); };
 
-  /* ----- 칠판 → 파일 내용 (그림 포함) ----- */
+  /* ----- 칠판 ↔ 저장 내용 (그림까지 한 파일에) ----- */
   function toData(u) { return fetch(u).then(function (r) { return r.blob(); }).then(function (b) { return new Promise(function (ok) { var f = new FileReader(); f.onload = function () { ok(f.result); }; f.onerror = function () { ok(''); }; f.readAsDataURL(b); }); }); }
-  function pack() {
+  function pack(nm) {
     if (CH.edit && typeof chEndEdit === 'function') chEndEdit();
     var pages = JSON.parse(JSON.stringify(CH.pages)), jobs = [];
     pages.forEach(function (p) { [p].concat(p.memo ? [p.memo] : []).forEach(function (q) { (q.o || []).forEach(function (o) { if (o.t !== 'img') return; delete o.th; if (/^ib:/.test(o.src || '')) jobs.push(chSrcAsync(o.src).then(function (u) { return u ? toData(u) : ''; }).then(function (d) { o.src = d; })); }); }); });
-    return Promise.all(jobs).then(function () { return { app: 'sseuk-chalk', v: 1, name: L.name || '칠판', at: Date.now(), bg: CH.bg, pages: pages }; });
+    return Promise.all(jobs).then(function () { return { app: 'sseuk-chalk', v: 1, name: nm, at: Date.now(), bg: CH.bg, pages: pages }; });
   }
-  function unpack(d, from) {
-    if (!d || !d.pages || !d.pages.length) { toast('칠판 파일이 아닙니다'); return; }
-    CH.pages = d.pages.map(function (p) { return { s: p.s || [], o: p.o || [], ly: p.ly, cur: p.cur, bg: p.bg, memo: p.memo }; });
-    CH.i = 0; CH.bg = d.bg || CH.bg || 'green'; CH.und = CH.pages.map(function () { return []; }); CH.red = CH.pages.map(function () { return []; }); CH.sel = null; CH.edit = null;
-    L.name = d.name || ''; L.from = from || null;
+  function apply(d) {
+    L.loading = true;
+    CH.pages = (d && d.pages && d.pages.length ? d.pages : [{ s: [], o: [] }]).map(function (p) { return { s: p.s || [], o: p.o || [], ly: p.ly, cur: p.cur, bg: p.bg || (d && d.bg) || CH.bg, memo: p.memo }; });
+    CH.i = 0; CH.und = CH.pages.map(function () { return []; }); CH.red = CH.pages.map(function () { return []; }); CH.sel = null; CH.edit = null;
     try { chRebuild(); } catch (e) {} try { chFit(); } catch (e) {} try { chRender(); chObjs(); chUI(); chPagesUI(); } catch (e) {} try { chLyUI(); } catch (e) {}
     chStore(); setTimeout(function () { try { chIbMigrate(); } catch (e) {} }, 800);
-    L.sig = sig(); close(); toast('「' + (L.name || '칠판') + '」을 열었습니다');
+    setTimeout(function () { L.loading = false; }, 50);
   }
-  function sig() { try { return JSON.stringify(CH.pages).length + ':' + CH.pages.length; } catch (e) { return ''; } }
-  function blank() { return CH.pages.length === 1 && !(CH.pages[0].s || []).length && !(CH.pages[0].o || []).length; }
-  /* 열기 전에: 지금 칠판이 저장 안 된 채 바뀌었으면 한 번 더 누르게 */
-  function guard(btn) { if (blank() || sig() === L.sig || btn.dataset.arm) return true; btn.dataset.arm = 1; var t0 = btn.textContent; btn.textContent = '지금 칠판은 저장 안 됨 · 한 번 더'; setTimeout(function () { if (btn.isConnected) { btn.dataset.arm = ''; btn.textContent = t0; } }, 4000); return false; }
+  function setCur(name, cur, dirty) { L.name = name || ''; L.cur = cur || null; L.dirty = !!dirty; meta(); status(); }
+  function meta() {
+    try { localStorage.setItem('sseuk_chalk_cur', JSON.stringify({ name: L.name, k: L.cur ? L.cur.k : '', id: L.cur && L.cur.k === 'b' ? L.cur.id : '', dirty: L.dirty })); } catch (e) {}
+    if (L.cur && L.cur.k === 'd') put('meta', { h: L.cur.h, dir: L.cur.dir }, 'curfile').catch(function () {});
+  }
+  function status() {
+    var n = document.getElementById('chDocN'), s = document.getElementById('chDocS'); if (!n) return;
+    n.textContent = L.name || '새 칠판';
+    s.className = L.dirty ? 'dt' : ''; s.textContent = !L.cur ? (L.dirty ? '· 저장 안 됨' : '') : L.dirty ? '· 저장 안 한 변경' : '· 저장됨 ✓';
+    s.title = L.cur ? (L.cur.k === 'b' ? '이 브라우저에 저장' : '내 PC 폴더에 저장') : '';
+  }
+  /* 바뀌면 「저장 안 한 변경」 */
+  var S0 = chStore; chStore = function () { var r = S0.apply(this, arguments); if (!L.loading && !L.dirty) { L.dirty = true; meta(); status(); } return r; };
+  /* 다시 열었을 때 이어서 */
+  try { var m0 = JSON.parse(localStorage.getItem('sseuk_chalk_cur') || 'null'); if (m0) { L.name = m0.name || ''; L.dirty = !!m0.dirty; if (m0.k === 'b' && m0.id) L.cur = { k: 'b', id: m0.id }; } } catch (e) {}
+  try { var mk = JSON.parse(localStorage.getItem('sseuk_chalk_cur') || 'null'); if (mk && mk.k === 'd') get('meta', 'curfile').then(function (v) { if (v && v.h) { L.cur = { k: 'd', h: v.h, dir: v.dir }; status(); } }).catch(function () {}); } catch (e) {}
+  setTimeout(status, 0);
 
-  /* ----- 화면 ----- */
-  function close() { var p = document.getElementById('chLibP'); if (p) p.remove(); }
-  function open() { close(); var p = document.createElement('div'); p.id = 'chLibP'; (document.getElementById('sec-chalk') || document.body).appendChild(p); draw(); }
+  /* ----- 저장 ----- */
+  function perm(h) { if (!h || !h.queryPermission) return Promise.resolve(true); return h.queryPermission({ mode: 'readwrite' }).then(function (s) { return s === 'granted' ? true : h.requestPermission({ mode: 'readwrite' }).then(function (s2) { return s2 === 'granted'; }); }).catch(function () { return false; }); }
+  function writeB(id, name, folder) {
+    return pack(name).then(function (d) { return get('boards', id).then(function (old) { return put('boards', { id: id, name: name, folder: folder != null ? folder : (old ? old.folder || '' : ''), at: d.at, n: d.pages.length, data: JSON.stringify(d) }); }); })
+      .then(function () { try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {} });
+  }
+  function writeD(dir, name, fh) {
+    return perm(dir).then(function (ok) { if (!ok) throw new Error('폴더 사용을 허용해 주세요'); return pack(name); }).then(function (d) {
+      return (fh ? Promise.resolve(fh) : dir.getFileHandle(fname(name) + '.chalk', { create: true })).then(function (h) { return h.createWritable().then(function (w) { return w.write(JSON.stringify(d)).then(function () { return w.close(); }); }).then(function () { return h; }); });
+    });
+  }
+  function recentD(h, dir, name) { get('meta', 'recent').then(function (R) { R = (R || []).filter(function (x) { return x.name !== name || x.dirName !== dir.name; }); R.unshift({ h: h, dir: dir, name: name, dirName: dir.name, at: Date.now() }); return put('meta', R.slice(0, 12), 'recent'); }).catch(function () {}); }
+  /* 저장(Ctrl+S): 저장한 적 있으면 그 자리에, 없으면 저장 창 */
+  function saveNow() {
+    if (!L.cur) return openP('save');
+    busy('저장 중…'); var c = L.cur, nm = L.name || '칠판';
+    (c.k === 'b' ? writeB(c.id, nm) : writeD(c.dir, nm, c.h).then(function (h) { recentD(h, c.dir, nm); }))
+      .then(function () { busy(''); setCur(nm, c, false); toast('저장했습니다 · ' + (c.k === 'b' ? '이 브라우저' : '내 PC 폴더')); })
+      .catch(function (e) { busy(''); toast('저장하지 못했습니다' + (e && e.message ? ': ' + e.message : '') + ' · 「다른 이름으로 저장」을 써 보세요'); });
+  }
+  function saveAs(name) {
+    name = String(name || '').trim(); if (!name) { toast('이름을 적어 주세요'); return; }
+    if (L.place === 'pc') {
+      var dir = L.path.length ? L.path[L.path.length - 1] : L.root; if (!dir) { toast('저장할 폴더를 먼저 고르세요'); return; }
+      var ex = L.items.filter(function (x) { return x.name === name; })[0];
+      var go = function () { busy('저장 중…'); writeD(dir, name, ex ? ex.h : null).then(function (h) { busy(''); recentD(h, dir, name); setCur(name, { k: 'd', h: h, dir: dir }, false); closeP(); toast('「' + name + '」 저장했습니다'); }).catch(function (e) { busy(''); toast('저장하지 못했습니다: ' + (e && e.message || '')); }); };
+      return ex ? ask('같은 이름의 칠판이 이 폴더에 있습니다. 바꿔 저장할까요?', [['덮어쓰기', go, 1], ['취소']]) : go();
+    }
+    var fd = L.place === 'b' ? L.fd : '';
+    all('boards').then(function (B) {
+      var ex = B.filter(function (b) { return b.name === name && (b.folder || '') === fd; })[0];
+      var go = function (id) { busy('저장 중…'); writeB(id, name, fd).then(function () { busy(''); setCur(name, { k: 'b', id: id }, false); closeP(); toast('「' + name + '」 저장했습니다'); }).catch(function (e) { busy(''); toast('저장하지 못했습니다: ' + (e && e.message || '')); }); };
+      if (ex) ask('같은 이름의 칠판이 있습니다. 바꿔 저장할까요?', [['덮어쓰기', function () { go(ex.id); }, 1], ['새로 따로 저장', function () { go(uid('b')); }], ['취소']]); else go(uid('b'));
+    });
+  }
+  /* 저장 안 한 변경이 있을 때 */
+  function guard(next) {
+    if (!L.dirty || blank()) return next();
+    var g = function () { if (!document.getElementById('chLibP')) openP('open', true); ask('지금 칠판에 저장 안 한 변경이 있습니다.', [['저장하고 계속', function () { if (!L.cur) { toast('먼저 저장할 곳을 정해 주세요'); openP('save'); return; } busy('저장 중…'); var c = L.cur; (c.k === 'b' ? writeB(c.id, L.name || '칠판') : writeD(c.dir, L.name || '칠판', c.h)).then(function () { busy(''); L.dirty = false; next(); }).catch(function () { busy(''); toast('저장하지 못했습니다'); }); }, 1], ['저장 안 함', next], ['취소']]); };
+    g();
+  }
+  function blank() { return CH.pages.length === 1 && !(CH.pages[0].s || []).length && !(CH.pages[0].o || []).length; }
+  function newBoard() { guard(function () { closeP(); apply({ pages: [{ s: [], o: [] }] }); setCur('', null, false); toast('새 칠판'); }); }
+  function openB(id) { guard(function () { get('boards', id).then(function (b) { if (!b) { toast('칠판을 찾지 못했습니다'); return; } apply(JSON.parse(b.data)); setCur(b.name, { k: 'b', id: b.id }, false); closeP(); toast('「' + b.name + '」 열었습니다'); }).catch(function () { toast('열지 못했습니다'); }); }); }
+  function openD(h, dir) { guard(function () { perm(h).then(function () { return h.getFile(); }).then(function (f) { return f.text(); }).then(function (t) { var d = JSON.parse(t), nm = d.name || h.name.replace(/\.(chalk|json)$/i, ''); apply(d); setCur(nm, dir ? { k: 'd', h: h, dir: dir } : null, false); if (dir) recentD(h, dir, nm); closeP(); toast('「' + nm + '」 열었습니다'); }).catch(function () { toast('파일을 열지 못했습니다. 폴더를 다시 골라 주세요'); }); }); }
+  function openFile(f) { guard(function () { f.text().then(function (t) { var d = JSON.parse(t); if (!d.pages) throw 0; var nm = d.name || f.name.replace(/\.(chalk|json)$/i, ''); apply(d); setCur(nm, null, true); closeP(); toast('「' + nm + '」 불러왔습니다 · 보관하려면 저장하세요'); }).catch(function () { toast('칠판 파일(.chalk)이 아닙니다'); }); }); }
+
+  /* ----- 보관함 창 ----- */
+  function closeP() { var p = document.getElementById('chLibP'); if (p) p.remove(); }
+  function openP(mode, keep) {
+    if (CH.edit && typeof chEndEdit === 'function') chEndEdit();
+    L.mode = mode; L.q = ''; if (!keep) { if (mode === 'save') L.place = L.place === 'recent' ? 'b' : L.place; }
+    closeP(); var p = document.createElement('div'); p.id = 'chLibP'; (document.getElementById('sec-chalk') || document.body).appendChild(p);
+    var sv = mode === 'save';
+    p.innerHTML = '<div class="lw" style="position:relative"><div class="lh"><b>' + (sv ? '저장할 곳 고르기' : '열기') + '</b><button class="btn" type="button" data-a="x">닫기</button></div>'
+      + '<div class="lm"><div class="cl-side">' + (sv ? '' : '<button type="button" data-pl="recent">🕘 최근</button>') + '<button type="button" data-pl="b">🗂 이 브라우저</button><button type="button" data-pl="pc">💻 내 PC 폴더</button></div>'
+      + '<div class="cl-main"><div class="cl-bar"><div class="cl-crumb" id="chLibC"></div><input type="search" id="chLibQ" placeholder="검색"><button class="btn" type="button" data-a="nf" id="chLibNF">+ 새 폴더</button></div><div class="cl-list" id="chLibL"></div></div></div>'
+      + '<div class="cl-ft">' + (sv ? '<input id="chLibN" placeholder="칠판 이름 (예: 1회기 수업)" value="' + esc2(L.name) + '"><button class="btn cl-pri" type="button" data-a="save">저장</button>' : '<button class="btn" type="button" data-a="new">새 칠판</button><span style="flex:1"></span><button class="cl-lk" type="button" data-a="up">파일 불러오기</button><button class="cl-lk" type="button" data-a="upd">폴더 불러오기</button><button class="cl-lk" type="button" data-a="dl">파일로 내려받기</button><input type="file" id="chLibF" accept=".chalk,.json" multiple hidden><input type="file" id="chLibD" webkitdirectory hidden>') + '</div></div>';
+    if (sv && L.place === 'recent') L.place = 'b';
+    draw(); var n = document.getElementById('chLibN'); if (n) { n.focus(); n.select(); }
+  }
+  function ask(msg, bs) {
+    var p = document.getElementById('chLibP'); if (!p) { openP('open', true); p = document.getElementById('chLibP'); }
+    var w = p.querySelector('.lw'), a = document.createElement('div'); a.className = 'cl-ask';
+    a.innerHTML = '<div><p>' + esc2(msg) + '</p><div class="cl-bs">' + bs.map(function (b, i) { return '<button class="btn' + (b[2] ? ' cl-pri' : '') + '" type="button" data-k="' + i + '">' + esc2(b[0]) + '</button>'; }).join('') + '</div></div>';
+    w.appendChild(a); a.addEventListener('click', function (e) { var b = e.target.closest('[data-k]'); if (!b) return; e.stopPropagation(); a.remove(); var f = bs[+b.dataset.k][1]; if (f) f(); });
+  }
   function draw() {
     var p = document.getElementById('chLibP'); if (!p) return;
-    var fs = !!window.showDirectoryPicker;
-    var h = '<div class="lw"><div class="lh"><b>보관함</b><input id="chLibN" placeholder="칠판 이름" value="' + esc2(L.name) + '"><button class="btn" type="button" data-lb="x">닫기</button></div>'
-      + '<div class="ltab"><button type="button" class="' + (L.tab === 'b' ? 'on' : '') + '" data-lb="tb">이 브라우저</button><button type="button" class="' + (L.tab === 'd' ? 'on' : '') + '" data-lb="td">내 폴더' + (fs ? '' : ' (크롬·엣지)') + '</button></div><div id="chLibB"><div class="em">불러오는 중…</div></div>'
-      + '<div class="lf"><button class="btn" type="button" data-lb="dl">파일로 내려받기</button><button class="btn" type="button" data-lb="up">파일 불러오기</button><input type="file" id="chLibF" accept=".chalk,.json,application/json" hidden></div></div>';
-    p.innerHTML = h; (L.tab === 'b' ? drawB : drawD)();
-  }
-  function drawB() {
-    Promise.all([all('folders'), all('boards')]).then(function (r) {
-      var F = r[0].sort(function (a, b) { return a.name.localeCompare(b.name); }), B = r[1].sort(function (a, b) { return b.at - a.at; }), el = document.getElementById('chLibB'); if (!el) return;
-      if (L.fd && L.fd !== '*' && !F.some(function (f) { return f.id === L.fd; })) L.fd = '';
-      var cnt = function (id) { return B.filter(function (b) { return (b.folder || '') === id; }).length; };
-      var V = B.filter(function (b) { return L.fd === '*' || (b.folder || '') === L.fd; });
-      var fopt = function (cur) { return '<option value="">폴더 없음</option>' + F.map(function (f) { return '<option value="' + f.id + '"' + (f.id === cur ? ' selected' : '') + '>' + esc2(f.name) + '</option>'; }).join(''); };
-      el.innerHTML = '<div class="lb"><div class="fl"><button type="button" class="' + (L.fd === '*' ? 'on' : '') + '" data-lf="*">전체 <small>' + B.length + '</small></button><button type="button" class="' + (L.fd === '' ? 'on' : '') + '" data-lf="">폴더 없음 <small>' + cnt('') + '</small></button>'
-        + F.map(function (f) { return '<button type="button" class="' + (L.fd === f.id ? 'on' : '') + '" data-lf="' + f.id + '">📁 ' + esc2(f.name) + ' <small>' + cnt(f.id) + '</small></button>'; }).join('')
-        + '<button type="button" data-lb="nf" style="color:#1f7a5c">+ 새 폴더</button>' + (L.fd && L.fd !== '*' ? '<button type="button" data-lb="rf" style="color:#889;font-size:12px">폴더 이름 바꾸기</button><button type="button" data-lb="df" style="color:#c92a2a;font-size:12px">폴더 삭제</button>' : '') + '</div>'
-        + '<div><div style="display:flex;gap:6px;margin-bottom:6px"><button class="btn pri" type="button" data-lb="sb">지금 칠판 저장' + (L.fd && L.fd !== '*' ? ' (이 폴더)' : '') + '</button>' + (L.from && L.from.k === 'b' ? '<button class="btn" type="button" data-lb="sbn">새로 저장</button>' : '') + '</div>'
-        + (V.length ? V.map(function (b) { return '<div class="it"><div class="nm" data-lo="' + b.id + '"><b>' + esc2(b.name) + (L.from && L.from.k === 'b' && L.from.id === b.id ? ' <small>· 지금 열린 칠판</small>' : '') + '</b><small>' + when(b.at) + ' · ' + (b.n || 1) + '쪽</small></div><select data-lm="' + b.id + '" title="폴더 옮기기">' + fopt(b.folder || '') + '</select><button class="btn" type="button" data-lo="' + b.id + '">열기</button><button class="btn" type="button" data-ld="' + b.id + '" style="color:#c92a2a">삭제</button></div>'; }).join('') : '<div class="em">저장된 칠판이 없습니다</div>')
-        + '</div></div>';
-    }).catch(function () { var el = document.getElementById('chLibB'); if (el) el.innerHTML = '<div class="em">이 브라우저에서는 보관함을 쓸 수 없습니다. 「파일로 내려받기」를 써 주세요</div>'; });
-  }
-  function saveB(asNew) {
-    var nm = (document.getElementById('chLibN').value || '').trim() || ('칠판 ' + when(Date.now())); L.name = nm;
-    busy('저장 중…');
-    pack().then(function (d) {
-      var id = !asNew && L.from && L.from.k === 'b' ? L.from.id : 'b' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
-      return tx('boards', 'readonly', function (s) { return s.get(id); }).then(function (old) {
-        var fd = old ? (old.folder || '') : (L.fd && L.fd !== '*' ? L.fd : '');
-        return tx('boards', 'readwrite', function (s) { return s.put({ id: id, name: nm, folder: fd, at: d.at, n: d.pages.length, data: JSON.stringify(d) }); }).then(function () { L.from = { k: 'b', id: id }; L.sig = sig(); busy(''); toast('「' + nm + '」 저장했습니다'); drawB(); });
-      });
-    }).catch(function (e) { busy(''); toast('저장하지 못했습니다: ' + (e && e.message || '')); });
-  }
-
-  /* ----- 내 폴더 (File System Access) ----- */
-  function drawD() {
-    var el = document.getElementById('chLibB'); if (!el) return;
-    if (!window.showDirectoryPicker) { el.innerHTML = '<div class="em">이 브라우저는 폴더 연결을 지원하지 않습니다. 크롬이나 엣지에서 열거나, 아래 「파일로 내려받기 / 파일 불러오기」를 써 주세요</div>'; return; }
-    if (!L.dir) {
-      tx('meta', 'readonly', function (s) { return s.get('dir'); }).catch(function () { return null; }).then(function (h) {
-        el.innerHTML = '<div class="em"><button class="btn pri" type="button" data-lb="pick">폴더 고르기</button>' + (h ? ' <button class="btn" type="button" data-lb="re">「' + esc2(h.name) + '」 다시 열기</button>' : '') + '<div style="margin-top:10px;font-size:12.5px">고른 폴더 안에 칠판이 파일(.chalk)로 저장됩니다</div></div>';
-        L.last = h || null;
-      });
+    [].forEach.call(p.querySelectorAll('[data-pl]'), function (b) { b.classList.toggle('on', b.dataset.pl === L.place); });
+    var C = document.getElementById('chLibC'), LS = document.getElementById('chLibL'), nf = document.getElementById('chLibNF');
+    nf.hidden = L.place === 'recent' || (L.place === 'b' && !!L.fd) || (L.place === 'pc' && !L.root);
+    var q = L.q.toLowerCase(), hit = function (s) { return !q || String(s).toLowerCase().indexOf(q) >= 0; };
+    var row = function (o) { return '<div class="cl-row' + (o.cur ? ' cl-cur' : '') + '" data-r="' + o.r + '"><span class="cl-ic">' + o.ic + '</span><div class="cl-nm"><b>' + esc2(o.nm) + '</b><small>' + o.sub + '</small></div>' + (o.menu ? '<button type="button" class="cl-mn" data-m="' + o.r + '" title="더 보기">⋯</button>' : '') + '</div>'; };
+    if (L.place === 'recent') {
+      C.innerHTML = '<b>최근</b>';
+      Promise.all([all('boards'), get('meta', 'recent').catch(function () { return []; })]).then(function (r) {
+        var A = r[0].map(function (b) { return { k: 'b', b: b, at: b.at, nm: b.name }; }).concat((r[1] || []).map(function (x) { return { k: 'd', x: x, at: x.at, nm: x.name }; })).filter(function (x) { return hit(x.nm); }).sort(function (a, b) { return b.at - a.at; }).slice(0, 20);
+        L.items = A.map(function (x) { return x.k === 'b' ? { k: 'b', id: x.b.id, name: x.b.name } : { k: 'd', h: x.x.h, dir: x.x.dir, name: x.x.name }; });
+        LS.innerHTML = A.length ? A.map(function (x, i) { return row({ r: i, ic: x.k === 'b' ? '📄' : '💾', nm: x.nm, sub: when(x.at) + ' · ' + (x.k === 'b' ? '이 브라우저' + (x.b.n ? ' · ' + x.b.n + '쪽' : '') : '내 PC · ' + esc2(x.x.dirName)), cur: x.k === 'b' && L.cur && L.cur.k === 'b' && L.cur.id === x.b.id, menu: x.k === 'b' }); }).join('') : '<div class="cl-em">' + (q ? '찾는 칠판이 없습니다' : '아직 저장한 칠판이 없습니다') + '</div>';
+      }).catch(fail);
       return;
     }
-    var cur = L.path.length ? L.path[L.path.length - 1] : L.dir, D2 = [], F2 = [];
-    el.innerHTML = '<div class="em">불러오는 중…</div>';
-    (async function () { for await (var e of cur.values()) { if (e.kind === 'directory') D2.push(e); else if (/\.(chalk|json)$/i.test(e.name)) F2.push(e); } })().then(function () {
-      return Promise.all(F2.map(function (f) { return f.getFile().then(function (x) { return { h: f, at: x.lastModified, size: x.size }; }); }));
-    }).then(function (FS) {
-      D2.sort(function (a, b) { return a.name.localeCompare(b.name); }); FS.sort(function (a, b) { return b.at - a.at; });
-      var crumb = '<div class="crumb"><button type="button" data-lp="-1">📁 ' + esc2(L.dir.name) + '</button>' + L.path.map(function (d, i) { return '› <button type="button" data-lp="' + i + '">' + esc2(d.name) + '</button>'; }).join('') + '<span style="flex:1"></span><button type="button" data-lb="pick" style="color:#889">다른 폴더</button></div>';
-      el.innerHTML = crumb + '<div style="display:flex;gap:6px;margin-bottom:6px"><button class="btn pri" type="button" data-lb="sd">지금 칠판 여기에 저장</button><button class="btn" type="button" data-lb="nd">+ 새 폴더</button></div>'
-        + D2.map(function (d, i) { return '<div class="it"><div class="nm" data-li="' + i + '"><b>📁 ' + esc2(d.name) + '</b></div></div>'; }).join('')
-        + (FS.length ? FS.map(function (f, i) { return '<div class="it"><div class="nm" data-lr="' + i + '"><b>' + esc2(f.h.name.replace(/\.(chalk|json)$/i, '')) + (L.from && L.from.k === 'd' && L.from.h && f.h.name === L.from.h.name && L.from.dir === cur ? ' <small>· 지금 열린 칠판</small>' : '') + '</b><small>' + when(f.at) + ' · ' + Math.max(1, Math.round(f.size / 1024)) + 'KB</small></div><button class="btn" type="button" data-lr="' + i + '">열기</button><button class="btn" type="button" data-lx="' + i + '" style="color:#c92a2a">삭제</button></div>'; }).join('') : (D2.length ? '' : '<div class="em">이 폴더에 칠판 파일이 없습니다</div>'));
-      L.D2 = D2; L.F2 = FS; L.cur = cur;
-    }).catch(function (e) { el.innerHTML = '<div class="em">폴더를 읽지 못했습니다. 「폴더 고르기」로 다시 골라 주세요<br><button class="btn" type="button" data-lb="pick" style="margin-top:8px">폴더 고르기</button></div>'; L.dir = null; });
+    if (L.place === 'b') {
+      Promise.all([all('folders'), all('boards')]).then(function (r) {
+        var F = r[0].sort(function (a, b) { return a.name.localeCompare(b.name); }), B = r[1].sort(function (a, b) { return b.at - a.at; });
+        if (L.fd && !F.some(function (f) { return f.id === L.fd; })) L.fd = '';
+        var cf = F.filter(function (f) { return f.id === L.fd; })[0];
+        C.innerHTML = '<button type="button" data-a="home">이 브라우저</button>' + (cf ? ' › <b>' + esc2(cf.name) + '</b>' : '');
+        var Fs = cf || q ? [] : F.filter(function (f) { return hit(f.name); }), Bs = B.filter(function (b) { return q ? hit(b.name) : (b.folder || '') === L.fd; });
+        L.dirs = Fs; L.items = Bs.map(function (b) { return { k: 'b', id: b.id, name: b.name, folder: b.folder || '' }; }); L.F = F;
+        var cnt = function (id) { return B.filter(function (b) { return b.folder === id; }).length; };
+        LS.innerHTML = Fs.map(function (f, i) { return row({ r: 'f' + i, ic: '📁', nm: f.name, sub: cnt(f.id) + '개', menu: true }); }).join('')
+          + Bs.map(function (b, i) { var fo = q && b.folder ? (F.filter(function (f) { return f.id === b.folder; })[0] || {}).name : ''; return row({ r: i, ic: '📄', nm: b.name, sub: when(b.at) + ' · ' + (b.n || 1) + '쪽' + (fo ? ' · 📁 ' + esc2(fo) : ''), cur: L.cur && L.cur.k === 'b' && L.cur.id === b.id, menu: true }); }).join('')
+          || '<div class="cl-em">' + (q ? '찾는 칠판이 없습니다' : cf ? '이 폴더는 비어 있습니다' : '아직 저장한 칠판이 없습니다' + (L.mode === 'save' ? '. 아래에 이름을 적고 저장하세요' : '')) + '</div>';
+      }).catch(fail);
+      return;
+    }
+    /* 내 PC 폴더 */
+    if (!hasDir) { C.innerHTML = '<b>내 PC 폴더</b>'; LS.innerHTML = '<div class="cl-em">이 브라우저는 PC 폴더 연결을 지원하지 않습니다.<br>크롬이나 엣지에서 열거나, 「파일로 내려받기 / 파일 불러오기」를 써 주세요</div>'; return; }
+    if (!L.root) {
+      C.innerHTML = '<b>내 PC 폴더</b>';
+      get('meta', 'dir').catch(function () { return null; }).then(function (h) { L.last = h || null; LS.innerHTML = '<div class="cl-em"><button class="btn cl-pri" type="button" data-a="pick">폴더 고르기</button>' + (h ? '<div style="margin-top:10px"><button class="btn" type="button" data-a="re">📁 ' + esc2(h.name) + ' 다시 열기</button></div>' : '') + '<div style="margin-top:12px">고른 폴더에 칠판이 .chalk 파일로 저장됩니다. 사람마다 자기 폴더를 쓰면 섞이지 않습니다</div></div>'; });
+      return;
+    }
+    var dir = L.path.length ? L.path[L.path.length - 1] : L.root, D2 = [], F2 = [];
+    C.innerHTML = '<button type="button" data-a="pr" data-i="-1">📁 ' + esc2(L.root.name) + '</button>' + L.path.map(function (d, i) { return ' › <button type="button" data-a="pr" data-i="' + i + '">' + esc2(d.name) + '</button>'; }).join('') + ' <button type="button" data-a="pick" style="color:#8a918d">바꾸기</button>';
+    LS.innerHTML = '<div class="cl-em">불러오는 중…</div>';
+    perm(L.root).then(function (ok) { if (!ok) throw new Error('perm'); return (async function () { for await (var e of dir.values()) { if (e.kind === 'directory') D2.push(e); else if (/\.chalk$/i.test(e.name)) F2.push(e); } })(); })
+      .then(function () { return Promise.all(F2.map(function (f) { return f.getFile().then(function (x) { return { h: f, name: f.name.replace(/\.chalk$/i, ''), at: x.lastModified, kb: Math.max(1, Math.round(x.size / 1024)) }; }); })); })
+      .then(function (FS) {
+        D2.sort(function (a, b) { return a.name.localeCompare(b.name); }); FS.sort(function (a, b) { return b.at - a.at; });
+        var Ds = D2.filter(function (d) { return hit(d.name); }), Fs = FS.filter(function (f) { return hit(f.name); });
+        L.dirs = Ds; L.items = Fs.map(function (f) { return { k: 'd', h: f.h, dir: dir, name: f.name }; });
+        LS.innerHTML = Ds.map(function (d, i) { return row({ r: 'f' + i, ic: '📁', nm: d.name, sub: '폴더' }); }).join('')
+          + Fs.map(function (f, i) { return row({ r: i, ic: '💾', nm: f.name, sub: when(f.at) + ' · ' + f.kb + 'KB', cur: L.cur && L.cur.k === 'd' && L.cur.h && L.cur.h.name === f.h.name && L.cur.dir && L.cur.dir.name === dir.name, menu: true }); }).join('')
+          || '<div class="cl-em">' + (q ? '찾는 칠판이 없습니다' : '이 폴더에 칠판 파일이 없습니다') + '</div>';
+      }).catch(function () { L.root = null; draw(); });
   }
-  function useDir(h) { L.dir = h; L.path = []; tx('meta', 'readwrite', function (s) { return s.put(h, 'dir'); }).catch(function () {}); drawD(); }
-  function fileName(nm) { return nm.replace(/[\\/:*?"<>|]/g, '').trim().slice(0, 80) || '칠판'; }
-  function saveD() {
-    var nm = (document.getElementById('chLibN').value || '').trim() || ('칠판 ' + when(Date.now()).replace(/[/:]/g, '-')); L.name = nm; var dir = L.cur || L.dir;
-    busy('저장 중…');
-    pack().then(function (d) { return dir.getFileHandle(fileName(nm) + '.chalk', { create: true }).then(function (fh) { return fh.createWritable().then(function (w) { return w.write(JSON.stringify(d)).then(function () { return w.close(); }); }).then(function () { L.from = { k: 'd', h: fh, dir: dir }; L.sig = sig(); }); }); })
-      .then(function () { busy(''); toast('「' + nm + '」 폴더에 저장했습니다'); drawD(); }).catch(function (e) { busy(''); toast('저장하지 못했습니다: ' + (e && e.message || '')); });
+  function fail() { var LS = document.getElementById('chLibL'); if (LS) LS.innerHTML = '<div class="cl-em">이 브라우저에서는 보관함을 쓸 수 없습니다 (사생활 보호 창 등). 「파일로 내려받기」를 써 주세요</div>'; }
+  function useDir(h) { L.root = h; L.path = []; put('meta', h, 'dir').catch(function () {}); draw(); }
+  /* ⋯ 메뉴 */
+  function menu(btn, r) {
+    var old = document.querySelector('#chLibP .cl-pop'); if (old) { var same = old.dataset.r === r; old.remove(); if (same) return; }
+    var row = btn.closest('.cl-row'), isF = /^f/.test(r), it = isF ? L.dirs[+r.slice(1)] : L.items[+r], A = [];
+    if (!it) return;
+    if (L.place === 'b' || L.place === 'recent') {
+      if (isF) A = [['이름 바꾸기', 'frn'], ['폴더 삭제', 'fdel', 1]];
+      else A = [['열기', 'open'], ['이름 바꾸기', 'rn'], ['옮기기', 'mv'], ['복제', 'dup'], ['삭제', 'del', 1]];
+    } else if (!isF) A = [['열기', 'open'], ['이름 바꾸기', 'rn'], ['복제', 'dup'], ['삭제', 'del', 1]];
+    if (!A.length) return;
+    row.insertAdjacentHTML('beforeend', '<div class="cl-pop" data-r="' + r + '">' + A.map(function (a) { return '<button type="button" data-act="' + a[1] + '"' + (a[2] ? ' class="cl-del"' : '') + '>' + a[0] + '</button>'; }).join('') + '</div>');
   }
-  var readJson = function (file) { return file.text().then(function (t) { return JSON.parse(t); }); };
+  function act(a, r) {
+    var isF = /^f/.test(r), it = isF ? L.dirs[+r.slice(1)] : L.items[+r]; if (!it) return;
+    if (a === 'open') return it.k === 'b' ? openB(it.id) : openD(it.h, it.dir);
+    if (a === 'frn') { var fn = prompt('폴더 이름', it.name); if (!fn || !fn.trim()) return; it.name = fn.trim().slice(0, 40); return put('folders', it).then(draw); }
+    if (a === 'fdel') return ask('「' + it.name + '」 폴더를 지울까요? 안의 칠판은 지우지 않고 맨 위로 옮깁니다.', [['폴더 삭제', function () { all('boards').then(function (B) { return Promise.all(B.filter(function (b) { return b.folder === it.id; }).map(function (b) { b.folder = ''; return put('boards', b); })); }).then(function () { return del('folders', it.id); }).then(draw); }, 1], ['취소']]);
+    if (a === 'rn') {
+      var nn = prompt('새 이름', it.name); if (!nn || !nn.trim() || nn.trim() === it.name) return; nn = nn.trim().slice(0, 80);
+      if (it.k === 'b') return get('boards', it.id).then(function (b) { b.name = nn; var d = JSON.parse(b.data); d.name = nn; b.data = JSON.stringify(d); return put('boards', b); }).then(function () { if (L.cur && L.cur.k === 'b' && L.cur.id === it.id) { L.name = nn; meta(); status(); } draw(); });
+      return it.h.getFile().then(function (f) { return f.text(); }).then(function (t) { var d = JSON.parse(t); d.name = nn; return it.dir.getFileHandle(fname(nn) + '.chalk', { create: true }).then(function (h) { return h.createWritable().then(function (w) { return w.write(JSON.stringify(d)).then(function () { return w.close(); }); }).then(function () { return it.dir.removeEntry(it.h.name); }).then(function () { if (L.cur && L.cur.k === 'd' && L.cur.h.name === it.h.name) setCur(nn, { k: 'd', h: h, dir: it.dir }, L.dirty); }); }); }).then(draw).catch(function () { toast('이름을 바꾸지 못했습니다'); });
+    }
+    if (a === 'mv') {
+      var F = L.F || []; if (!F.length) { toast('먼저 「+ 새 폴더」로 폴더를 만드세요'); return; }
+      return ask('어디로 옮길까요?', [['맨 위', function () { mv(it.id, ''); }]].concat(F.filter(function (f) { return f.id !== it.folder; }).map(function (f) { return ['📁 ' + f.name, function () { mv(it.id, f.id); }]; })).concat([['취소']]));
+    }
+    if (a === 'dup') {
+      if (it.k === 'b') return get('boards', it.id).then(function (b) { var c = JSON.parse(JSON.stringify(b)); c.id = uid('b'); c.name = b.name + ' (사본)'; c.at = Date.now(); return put('boards', c); }).then(draw);
+      return it.h.getFile().then(function (f) { return f.text(); }).then(function (t) { var d = JSON.parse(t); d.name = it.name + ' (사본)'; return it.dir.getFileHandle(fname(d.name) + '.chalk', { create: true }).then(function (h) { return h.createWritable().then(function (w) { return w.write(JSON.stringify(d)).then(function () { return w.close(); }); }); }); }).then(draw).catch(function () { toast('복제하지 못했습니다'); });
+    }
+    if (a === 'del') return ask('「' + it.name + '」을 지울까요? 되돌릴 수 없습니다.', [['삭제', function () {
+      (it.k === 'b' ? del('boards', it.id) : it.dir.removeEntry(it.h.name)).then(function () { if (L.cur && ((it.k === 'b' && L.cur.k === 'b' && L.cur.id === it.id) || (it.k === 'd' && L.cur.k === 'd' && L.cur.h.name === it.h.name))) setCur(L.name, null, true); draw(); }).catch(function () { toast('지우지 못했습니다'); });
+    }, 1], ['취소']]);
+  }
+  function mv(id, fd) { get('boards', id).then(function (b) { b.folder = fd; return put('boards', b); }).then(draw); }
 
   /* ----- 이벤트 ----- */
   document.addEventListener('click', function (e) {
-    if (e.target.id === 'chLib') { if (CH.edit && typeof chEndEdit === 'function') chEndEdit(); open(); return; }
+    var id = e.target.id;
+    if (id === 'chNew') return newBoard();
+    if (id === 'chOpen') return openP('open');
+    if (id === 'chSv') return saveNow();
     var p = document.getElementById('chLibP'); if (!p || !p.contains(e.target)) return;
-    if (e.target === p) { close(); return; }
-    var t = e.target.closest('[data-lb],[data-lf],[data-lo],[data-ld],[data-lp],[data-li],[data-lr],[data-lx]'); if (!t) return; e.preventDefault();
-    var ds = t.dataset, a = ds.lb;
-    if (a === 'x') return close();
-    if (a === 'tb' || a === 'td') { L.name = document.getElementById('chLibN').value; L.tab = a === 'tb' ? 'b' : 'd'; return draw(); }
-    if (ds.lf != null) { L.fd = ds.lf; return drawB(); }
-    if (a === 'sb' || a === 'sbn') return saveB(a === 'sbn');
-    if (a === 'nf') { var fn = prompt('새 폴더 이름'); if (!fn || !fn.trim()) return; var id = 'f' + Date.now().toString(36); return tx('folders', 'readwrite', function (s) { return s.put({ id: id, name: fn.trim().slice(0, 40) }); }).then(function () { L.fd = id; drawB(); }); }
-    if (a === 'rf') { all('folders').then(function (F) { var f = F.filter(function (x) { return x.id === L.fd; })[0]; if (!f) return; var nn = prompt('폴더 이름', f.name); if (!nn || !nn.trim()) return; f.name = nn.trim().slice(0, 40); return tx('folders', 'readwrite', function (s) { return s.put(f); }).then(drawB); }); return; }
-    if (a === 'df') { if (!t.dataset.arm) { t.dataset.arm = 1; t.textContent = '한 번 더 (칠판은 「폴더 없음」으로)'; return; } var fid = L.fd; all('boards').then(function (B) { return Promise.all(B.filter(function (b) { return b.folder === fid; }).map(function (b) { b.folder = ''; return tx('boards', 'readwrite', function (s) { return s.put(b); }); })); }).then(function () { return tx('folders', 'readwrite', function (s) { return s.delete(fid); }); }).then(function () { L.fd = ''; drawB(); }); return; }
-    if (ds.lo) { if (!guard(t)) return; return tx('boards', 'readonly', function (s) { return s.get(ds.lo); }).then(function (b) { if (b) unpack(JSON.parse(b.data), { k: 'b', id: b.id }); }); }
-    if (ds.ld) { if (!t.dataset.arm) { t.dataset.arm = 1; t.textContent = '한 번 더'; setTimeout(function () { if (t.isConnected) { t.dataset.arm = ''; t.textContent = '삭제'; } }, 4000); return; } return tx('boards', 'readwrite', function (s) { return s.delete(ds.ld); }).then(function () { if (L.from && L.from.id === ds.ld) L.from = null; drawB(); }); }
-    if (a === 'dl') { L.name = document.getElementById('chLibN').value.trim(); busy('파일 만드는 중…'); return pack().then(function (d) { busy(''); L.sig = sig(); save(new Blob([JSON.stringify(d)], { type: 'application/json' }), fileName(L.name || '칠판') + '.chalk'); }).catch(function () { busy(''); toast('파일을 만들지 못했습니다'); }); }
-    if (a === 'up') { if (!guard(t)) return; return document.getElementById('chLibF').click(); }
-    if (a === 'pick') { return window.showDirectoryPicker({ id: 'sseukchalk', mode: 'readwrite' }).then(useDir).catch(function () {}); }
-    if (a === 're') { var h = L.last; if (!h) return; return h.requestPermission({ mode: 'readwrite' }).then(function (st) { if (st === 'granted') useDir(h); else toast('폴더 사용을 허용해 주세요'); }).catch(function () { toast('폴더를 다시 골라 주세요'); }); }
-    if (ds.lp != null) { L.path = L.path.slice(0, +ds.lp + 1); return drawD(); }
-    if (ds.li != null) { L.path.push(L.D2[+ds.li]); return drawD(); }
-    if (a === 'sd') return saveD();
-    if (a === 'nd') { var dn = prompt('새 폴더 이름'); if (!dn || !dn.trim()) return; return (L.cur || L.dir).getDirectoryHandle(fileName(dn), { create: true }).then(function () { drawD(); }).catch(function (er) { toast('폴더를 만들지 못했습니다'); }); }
-    if (ds.lr != null) { if (!guard(t)) return; var f = L.F2[+ds.lr]; return f.h.getFile().then(readJson).then(function (d) { if (!d.name) d.name = f.h.name.replace(/\.(chalk|json)$/i, ''); unpack(d, { k: 'd', h: f.h, dir: L.cur }); }).catch(function () { toast('파일을 열지 못했습니다'); }); }
-    if (ds.lx != null) { if (!t.dataset.arm) { t.dataset.arm = 1; t.textContent = '한 번 더'; setTimeout(function () { if (t.isConnected) { t.dataset.arm = ''; t.textContent = '삭제'; } }, 4000); return; } var fx = L.F2[+ds.lx]; return (L.cur || L.dir).removeEntry(fx.h.name).then(drawD).catch(function () { toast('지우지 못했습니다'); }); }
+    if (e.target === p) return closeP();
+    if (e.target.closest('.cl-ask')) return;
+    var pop = p.querySelector('.cl-pop');
+    var ab = e.target.closest('[data-act]'); if (ab) { var r0 = ab.closest('.cl-pop').dataset.r; ab.closest('.cl-pop').remove(); return act(ab.dataset.act, r0); }
+    if (pop && !e.target.closest('.cl-pop') && !e.target.closest('.cl-mn')) pop.remove();
+    var mb = e.target.closest('.cl-mn'); if (mb) { e.stopPropagation(); return menu(mb, mb.dataset.m); }
+    var pl = e.target.closest('[data-pl]'); if (pl) { L.place = pl.dataset.pl; L.q = ''; var qi = document.getElementById('chLibQ'); if (qi) qi.value = ''; return draw(); }
+    var b = e.target.closest('[data-a]'), a = b && b.dataset.a;
+    if (a === 'x') return closeP();
+    if (a === 'home') { L.fd = ''; return draw(); }
+    if (a === 'new') return newBoard();
+    if (a === 'save') return saveAs(document.getElementById('chLibN').value);
+    if (a === 'nf') {
+      var fn = prompt('새 폴더 이름'); if (!fn || !fn.trim()) return; fn = fn.trim().slice(0, 40);
+      if (L.place === 'pc') return (L.path.length ? L.path[L.path.length - 1] : L.root).getDirectoryHandle(fname(fn), { create: true }).then(draw).catch(function () { toast('폴더를 만들지 못했습니다'); });
+      return put('folders', { id: uid('f'), name: fn }).then(draw);
+    }
+    if (a === 'pick') return window.showDirectoryPicker({ id: 'sseukchalk', mode: 'readwrite' }).then(useDir).catch(function () {});
+    if (a === 're') { var h = L.last; return perm(h).then(function (ok) { if (ok) useDir(h); else toast('폴더 사용을 허용해 주세요'); }); }
+    if (a === 'pr') { L.path = L.path.slice(0, +b.dataset.i + 1); return draw(); }
+    if (a === 'up') return document.getElementById('chLibF').click();
+    if (a === 'upd') return document.getElementById('chLibD').click();
+    if (a === 'dl') { busy('파일 만드는 중…'); return pack(L.name || '칠판').then(function (d) { busy(''); save(new Blob([JSON.stringify(d)], { type: 'application/json' }), fname(L.name || '칠판') + '.chalk'); }).catch(function () { busy(''); toast('파일을 만들지 못했습니다'); }); }
+    var rw = e.target.closest('.cl-row'); if (!rw) return;
+    var r = rw.dataset.r;
+    if (/^f/.test(r)) { var d = L.dirs[+r.slice(1)]; if (!d) return; if (L.place === 'pc') L.path.push(d); else L.fd = d.id; L.q = ''; var q2 = document.getElementById('chLibQ'); if (q2) q2.value = ''; return draw(); }
+    var it = L.items[+r]; if (!it) return;
+    if (L.mode === 'save') { var n = document.getElementById('chLibN'); if (n) { n.value = it.name; n.focus(); } return; }
+    return it.k === 'b' ? openB(it.id) : openD(it.h, it.dir);
   });
+  document.addEventListener('input', function (e) { if (e.target.id !== 'chLibQ') return; L.q = e.target.value.trim(); clearTimeout(L.qt); L.qt = setTimeout(draw, 150); });
   document.addEventListener('change', function (e) {
-    if (e.target.id === 'chLibF') { var f = e.target.files && e.target.files[0]; e.target.value = ''; if (!f) return; readJson(f).then(function (d) { if (!d.name) d.name = f.name.replace(/\.(chalk|json)$/i, ''); unpack(d, null); }).catch(function () { toast('칠판 파일을 읽지 못했습니다'); }); return; }
-    var m = e.target.dataset && e.target.dataset.lm; if (!m) return;
-    tx('boards', 'readonly', function (s) { return s.get(m); }).then(function (b) { if (!b) return; b.folder = e.target.value; return tx('boards', 'readwrite', function (s) { return s.put(b); }); }).then(drawB);
+    if (e.target.id === 'chLibF') { var fs = [].slice.call(e.target.files || []); e.target.value = ''; if (fs.length === 1) openFile(fs[0]); else if (fs.length) importMany(fs.map(function (f) { return { f: f, dir: '' }; })); return; }
+    if (e.target.id === 'chLibD') { var ds = [].slice.call(e.target.files || []); e.target.value = ''; importMany(ds.map(function (f) { var pp = (f.webkitRelativePath || '').split('/'); return { f: f, dir: pp.length > 1 ? pp[0] : '' }; })); }
   });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && document.getElementById('chLibP')) { e.stopPropagation(); close(); } }, true);
+  /* 여러 개 · 폴더째 불러오기 → 이 브라우저 보관함에 (폴더 이름 그대로) */
+  function importMany(L2) {
+    var list = L2.filter(function (x) { return /\.(chalk|json)$/i.test(x.f.name); }); if (!list.length) { toast('칠판 파일(.chalk)이 없습니다'); return; }
+    busy('불러오는 중… 0 / ' + list.length); var ok = 0, bad = 0, fmap = {};
+    all('folders').then(function (F) { F.forEach(function (f) { fmap[f.name] = f.id; }); var need = {}; list.forEach(function (x) { if (x.dir && !fmap[x.dir]) need[x.dir] = 1; }); return Promise.all(Object.keys(need).map(function (n) { var id = uid('f'); fmap[n] = id; return put('folders', { id: id, name: n.slice(0, 40) }); })); })
+      .then(function () { return list.reduce(function (pr, x, i) { return pr.then(function () { busy('불러오는 중… ' + (i + 1) + ' / ' + list.length); return x.f.text().then(function (t) { var d = JSON.parse(t); if (!d.pages || !d.pages.length) throw 0; var nm = d.name || x.f.name.replace(/\.(chalk|json)$/i, ''); return put('boards', { id: uid('b'), name: nm, folder: x.dir ? fmap[x.dir] : (L.place === 'b' ? L.fd : ''), at: d.at || x.f.lastModified || Date.now(), n: d.pages.length, data: t }); }).then(function () { ok++; }).catch(function () { bad++; }); }); }, Promise.resolve()); })
+      .then(function () { busy(''); var dn = list[0].dir; L.place = 'b'; if (dn && fmap[dn]) L.fd = fmap[dn]; if (!document.getElementById('chLibP')) openP('open', true); else draw(); toast(ok + '개 불러왔습니다' + (bad ? ' (칠판 파일이 아닌 ' + bad + '개 제외)' : '')); })
+      .catch(function () { busy(''); toast('불러오지 못했습니다'); });
+  }
+  /* 보관함 창에 파일·폴더를 끌어다 놓기 */
+  function walk(en, dir, out) { if (en.isFile) return new Promise(function (ok) { en.file(function (f) { out.push({ f: f, dir: dir }); ok(); }, function () { ok(); }); }); if (!en.isDirectory) return Promise.resolve(); var rd = en.createReader(), acc = []; return new Promise(function (ok) { var more = function () { rd.readEntries(function (es) { if (!es.length) { Promise.all(acc.map(function (c) { return walk(c, dir || en.name, out); })).then(ok); return; } acc = acc.concat(es); more(); }, function () { ok(); }); }; more(); }); }
+  document.addEventListener('dragover', function (e) { var p = document.getElementById('chLibP'); if (p && p.contains(e.target)) { e.preventDefault(); var w = p.querySelector('.lw'); if (w) w.style.outline = '3px dashed #1f7a5c'; } }, true);
+  document.addEventListener('dragleave', function (e) { var p = document.getElementById('chLibP'); if (p && e.target === p) { var w = p.querySelector('.lw'); if (w) w.style.outline = ''; } }, true);
+  document.addEventListener('drop', function (e) {
+    var p = document.getElementById('chLibP'); if (!p || !p.contains(e.target)) return; e.preventDefault(); e.stopPropagation(); var w = p.querySelector('.lw'); if (w) w.style.outline = '';
+    var its = [].slice.call((e.dataTransfer && e.dataTransfer.items) || []), out = [];
+    if (its.length && its[0].webkitGetAsEntry) { Promise.all(its.map(function (it) { var en = it.webkitGetAsEntry && it.webkitGetAsEntry(); return en ? walk(en, '', out) : Promise.resolve(); })).then(function () { importMany(out); }); }
+    else importMany([].slice.call(e.dataTransfer.files || []).map(function (f) { return { f: f, dir: '' }; }));
+  }, true);
+  document.addEventListener('keydown', function (e) {
+    var p = document.getElementById('chLibP');
+    if (p && e.key === 'Escape') { e.stopPropagation(); e.preventDefault(); var ak = p.querySelector('.cl-ask'); if (ak) ak.remove(); else closeP(); return; }
+    if (p && e.key === 'Enter' && e.target.id === 'chLibN') { e.preventDefault(); saveAs(e.target.value); return; }
+    if (typeof MODE !== 'undefined' && MODE !== 'chalk') return;
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.code === 'KeyS' || e.key === 's')) { e.preventDefault(); e.stopPropagation(); saveNow(); }
+    else if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.code === 'KeyS' || e.key === 'S')) { e.preventDefault(); e.stopPropagation(); openP('save'); }
+    else if ((e.ctrlKey || e.metaKey) && (e.code === 'KeyO' || e.key === 'o')) { e.preventDefault(); e.stopPropagation(); openP('open'); }
+  }, true);
   /* .chalk 파일을 칠판에 끌어다 놓아도 열기 */
   document.addEventListener('drop', function (e) {
-    var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if (!f || !/\.chalk$/i.test(f.name) || !(e.target.closest && e.target.closest('#sec-chalk'))) return;
-    e.preventDefault(); e.stopPropagation(); readJson(f).then(function (d) { if (!d.name) d.name = f.name.replace(/\.chalk$/i, ''); unpack(d, null); }).catch(function () { toast('칠판 파일을 읽지 못했습니다'); });
+    if (document.getElementById('chLibP')) return; var fs = [].slice.call((e.dataTransfer && e.dataTransfer.files) || []).filter(function (f) { return /\.chalk$/i.test(f.name); }); if (!fs.length || !(e.target.closest && e.target.closest('#sec-chalk'))) return;
+    e.preventDefault(); e.stopPropagation(); if (fs.length === 1) openFile(fs[0]); else importMany(fs.map(function (f) { return { f: f, dir: '' }; }));
   }, true);
-  setTimeout(function () { L.sig = sig(); }, 1500);
+  /* 「다른 이름으로 저장」: 저장 창 아래 */
+  document.addEventListener('click', function (e) { if (e.target.id === 'chSvAs') openP('save'); });
+  var svb = document.getElementById('chSv'); svb.insertAdjacentHTML('afterend', '<button class="btn" type="button" id="chSvAs" title="다른 이름으로 저장 (Ctrl+Shift+S)">다른 이름으로</button>');
 })();
 </script>
 <script>(function(){var a=document.getElementById('siteHome');if(a&&window.SITE_NAME)a.textContent=window.SITE_NAME;})();</script>
