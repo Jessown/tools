@@ -3036,10 +3036,11 @@ setMode(MODE);
     if (CH.edit && typeof chEndEdit === 'function') chEndEdit();
     var pages = JSON.parse(JSON.stringify(CH.pages)), jobs = [];
     pages.forEach(function (p) { [p].concat(p.memo ? [p.memo] : []).forEach(function (q) { (q.o || []).forEach(function (o) { if (o.t !== 'img') return; delete o.th; if (/^ib:/.test(o.src || '')) jobs.push(chSrcAsync(o.src).then(function (u) { return u ? toData(u) : ''; }).then(function (d) { o.src = d; })); }); }); });
-    return Promise.all(jobs).then(function () { return { app: 'sseuk-chalk', v: 1, name: nm, at: Date.now(), bg: CH.bg, pages: pages }; });
+    return Promise.all(jobs).then(function () { var fav = null; try { fav = JSON.parse(localStorage.getItem('dg_chalk_fav') || 'null'); } catch (e) {} return { app: 'sseuk-chalk', v: 1, name: nm, at: Date.now(), bg: CH.bg, pages: pages, fav: fav }; });
   }
   function apply(d) {
     L.loading = true;
+    if (d && d.fav && d.fav.length === 5) { try { localStorage.setItem('dg_chalk_fav', JSON.stringify(d.fav)); chFavUI(); } catch (e) {} }
     CH.pages = (d && d.pages && d.pages.length ? d.pages : [{ s: [], o: [] }]).map(function (p) { return { s: p.s || [], o: p.o || [], ly: p.ly, cur: p.cur, bg: p.bg || (d && d.bg) || CH.bg, memo: p.memo }; });
     CH.i = 0; CH.und = CH.pages.map(function () { return []; }); CH.red = CH.pages.map(function () { return []; }); CH.sel = null; CH.edit = null;
     try { chRebuild(); } catch (e) {} try { chFit(); } catch (e) {} try { chRender(); chObjs(); chUI(); chPagesUI(); } catch (e) {} try { chLyUI(); } catch (e) {}
