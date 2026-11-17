@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /v/
+
+User-agent: Yeti
+Allow: /
+Disallow: /v/
+
+Sitemap: https://sseuktool.com/sitemap.xml
