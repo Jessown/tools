@@ -3927,11 +3927,18 @@ if (new URLSearchParams(location.search).get('m') === 'conv') setMode('conv');
   var css = document.createElement('style');
   css.textContent = '@media (display-mode: standalone){header{display:none!important}#desc{display:none!important}body.chmanon{padding-right:284px}main{padding-top:6px!important}}'
     + '#chInstD{position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;padding:16px}#chInstD[hidden]{display:none}'
-    + '#chInstD .b{background:#fff;color:#111;border-radius:14px;max-width:440px;width:100%;padding:20px 22px;box-shadow:0 12px 40px rgba(0,0,0,.25);font-size:14px;line-height:1.65}#chInstD h3{margin:0 0 8px;font-size:18px}#chInstD ol{margin:6px 0 12px;padding-left:20px}#chInstD .r{text-align:right}#chInstD .nt{background:#fff8e6;border:1px solid #f1d28a;border-radius:10px;padding:8px 12px;margin:0 0 10px;font-size:13px}#chInstD .nt ul{margin:4px 0 0;padding-left:18px}';
+    + '#chInstD .b{background:#fff;color:#111;border-radius:14px;max-width:440px;width:100%;max-height:calc(100vh - 32px);overflow:auto;padding:20px 22px;box-shadow:0 12px 40px rgba(0,0,0,.25);font-size:14px;line-height:1.65}#chInstD h3{margin:0 0 8px;font-size:18px}#chInstD ol{margin:6px 0 12px;padding-left:20px}#chInstD .r{text-align:right}#chInstD .nt{background:#fff8e6;border:1px solid #f1d28a;border-radius:10px;padding:8px 12px;margin:0 0 10px;font-size:13px}#chInstD .nt ul{margin:4px 0 0;padding-left:18px}';
   document.head.appendChild(css);
   if (standalone) { try { if (typeof setMode === 'function' && MODE !== 'chalk') setMode('chalk'); } catch (e) {} document.title = '쓱툴 칠판'; return; }
   var dp = null; window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); dp = e; });
   window.addEventListener('appinstalled', function () { dp = null; try { toast('설치했습니다. 바탕화면·시작 메뉴의 「쓱툴 칠판」으로 여세요'); } catch (e) {} });
+  /* 다른 프로그램 위에 그리는 플로팅 펜 (Windows 시험판) 내려받기 */
+  var PEN_URL = 'https://github.com/Jessown/tools/releases/latest/download/SseukPen_win64.zip', PEN_PAGE = 'https://github.com/Jessown/tools/releases/latest';
+  var PEN = '<div id="chPenSec" style="border-top:1px solid #e5e5e5;margin-top:14px;padding-top:12px"><h3 style="font-size:16px">플로팅 펜 <small style="font-weight:400;color:#888">Windows 시험판</small></h3>'
+    + '<p style="margin:0 0 8px">PPT·영상·웹페이지 등 <b>어떤 화면 위에서도</b> 바로 그리는 프로그램입니다. 칠판 없이 화면에 펜·형광펜·레이저·도형·글상자를 씁니다.</p>'
+    + '<div class="nt"><b>내려받기 전에</b><ul><li>Windows 10·11 (64비트) 전용 · 약 150MB 압축 파일 · 설치 없이 압축을 풀고 SseukPen.exe 실행</li><li>시험판이라 아직 정식 서명이 없어 「Windows의 PC 보호」 창이 뜰 수 있습니다. 「추가 정보」 → 「실행」을 누르세요.</li><li>웹 칠판보다 <b>새 기능이 늦게 반영됩니다.</b> 새 버전은 이 메뉴에서 다시 내려받으세요.</li><li>인터넷에 접속하지 않고, 그린 내용·화면 저장은 이 컴퓨터에만 남습니다.</li><li>받은 파일이 원본인지는 압축 안 「사용법_먼저읽기.txt」나 <a href="' + PEN_PAGE + '" target="_blank" rel="noopener">배포 페이지</a>의 SHA256 값으로 확인할 수 있습니다.</li></ul></div>'
+    + '<div class="r"><a class="btn pri" href="' + PEN_URL + '" rel="noopener" style="text-decoration:none">플로팅 펜 내려받기 (.zip)</a></div></div>';
+  var only = false;
   var help = function () {
     var d = document.getElementById('chInstD');
     if (!d) { d = document.createElement('div'); d.id = 'chInstD'; document.body.appendChild(d); d.addEventListener('click', function (e) { if (e.target === d || e.target.closest('[data-x]')) d.hidden = true; if (e.target.closest('[data-inst]') && dp) { d.hidden = true; dp.prompt(); dp.userChoice.then(function () { dp = null; }); } }); }
@@ -3941,19 +3948,24 @@ if (new URLSearchParams(location.search).get('m') === 'conv') setMode('conv');
       + (dp ? '<div class="r" style="margin:4px 0 10px"><button class="btn pri" type="button" data-inst>지금 설치하기</button></div><p style="font-size:13px;color:#666">버튼이 안 되면 아래 방법으로 설치하세요.</p>' : '')
       + (ok ? '<ol>' + (edge ? '<li>오른쪽 위 「…」 메뉴를 누릅니다</li><li>「앱」 › 「이 사이트를 앱으로 설치」를 누릅니다</li>' : '<li>주소창 오른쪽 끝의 설치 아이콘(모니터 모양)을 누릅니다<br><small>없으면 오른쪽 위 「⋮」 메뉴 › 「전송, 저장, 공유」 › 「페이지를 앱으로 설치」</small></li>') + '<li>「설치」를 누르면 바탕화면과 시작 메뉴에 「쓱툴 칠판」이 생깁니다</li></ol><p>이미 설치했다면 바탕화면의 「쓱툴 칠판」 아이콘으로 여세요. 크롬·엣지를 닫아도 열리고, 인터넷이 끊겨도 쓸 수 있습니다.</p>'
         : '<p>칠판 앱 설치는 PC의 <b>크롬</b>이나 <b>엣지</b>에서 할 수 있습니다. 크롬이나 엣지로 sseuktool.com/tools.html?m=chalk 를 열어 주세요.</p>')
+      + PEN
       + '<div class="r"><button class="btn" type="button" data-x>닫기</button></div></div>';
-    d.hidden = false;
+    d.hidden = false; if (only) { var pe = d.querySelector('#chPenSec'); if (pe) pe.scrollIntoView(); }
   };
   var add = function () {
     var P = document.getElementById('chMenuP'); if (!P) { setTimeout(add, 600); return; } if (document.getElementById('chInst')) return;
     var g = [].filter.call(P.querySelectorAll('.mg'), function (x) { var t = x.querySelector('b'); return t && t.textContent === '화면'; })[0];
     var b = document.createElement('button'); b.className = 'btn'; b.type = 'button'; b.id = 'chInst'; b.textContent = '설치하기'; b.title = '칠판을 프로그램처럼 설치 (크롬·엣지)';
     (g ? g.querySelector('.mr') : P).appendChild(b);
-    b.addEventListener('click', function () { help(); });
+    b.addEventListener('click', function () { only = false; help(); });
+    var b2 = document.createElement('button'); b2.className = 'btn'; b2.type = 'button'; b2.id = 'chPenDl'; b2.textContent = '플로팅 펜 (Windows)'; b2.title = '다른 프로그램 위에서도 그리는 쓱툴 플로팅 펜 내려받기';
+    (g ? g.querySelector('.mr') : P).appendChild(b2);
+    b2.addEventListener('click', function () { only = true; help(); });
   };
   add();
   window.chAppInstall = function () { help(); };
   if (/[?&]install=1/.test(location.search)) setTimeout(help, 800);
+  if (/[?&]pen=1/.test(location.search)) setTimeout(function () { only = true; help(); }, 800);
 })();
 </script>
 <script>/* 칠판: 쪽 목록을 왼쪽에 띄우기(끌어서 옮기기) · 쪽 순서 끌어서 바꾸기 · 도구 막대 높이 고정 */
