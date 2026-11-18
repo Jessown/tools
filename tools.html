@@ -4020,4 +4020,23 @@ if (new URLSearchParams(location.search).get('m') === 'conv') setMode('conv');
 })();
 </script>
 <script>(function(){var a=document.getElementById('siteHome');if(a&&window.SITE_NAME)a.textContent=window.SITE_NAME;})();</script>
+<script>/* 칠판 커서 끝에 지금 선 모양(실선·파선·점선·일점쇄선) 표시 */
+(function () {
+  if (typeof chCursor !== 'function') return;
+  var base = chCursor, DA = { dash: '6 3', dot: '0.1 3.4', dashdot: '7 3 0.1 3' };
+  chCursor = function () {
+    var c = base(); if (!/^(pen|hl|line|arrow|rect|ellipse)$/.test(CH.tool)) return c;
+    var m = /^url\("data:image\/svg\+xml;utf8,([^"]+)"\) (\d+) (\d+), (.+)$/.exec(c); if (!m) return c;
+    var svg = decodeURIComponent(m[1]), col = chCol(), da = DA[CH.dash] || '', dd = da ? " stroke-dasharray='" + da + "'" : '';
+    svg = svg.replace(/width='\d+' height='\d+' viewBox='0 0 \d+ \d+'/, "width='32' height='32' viewBox='0 0 32 32'")
+      .replace('</svg>', "<path d='M2 30H31' stroke='#222' stroke-width='4.6' stroke-linecap='round'" + dd + "/><path d='M2 30H31' stroke='" + col + "' stroke-width='2.6' stroke-linecap='round'" + dd + "/></svg>");
+    return 'url("data:image/svg+xml;utf8,' + encodeURIComponent(svg) + '") ' + m[2] + ' ' + m[3] + ', ' + m[4];
+  };
+  var sig = '';
+  setInterval(function () {
+    if (typeof MODE === 'undefined' || MODE !== 'chalk') return; var cv = document.getElementById('chCv'); if (!cv) return;
+    var s = CH.tool + '|' + chCol() + '|' + CH.size + '|' + CH.dash; if (s === sig) return; sig = s; cv.style.cursor = chCursor();
+  }, 250);
+})();
+</script>
 </body></html>
