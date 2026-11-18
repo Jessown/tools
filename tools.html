@@ -3020,6 +3020,7 @@ setMode(MODE);
     + '#chLibP .cl-row{display:flex;align-items:center;gap:10px;padding:9px 8px;border-radius:8px;cursor:pointer;position:relative}#chLibP .cl-row:hover{background:#f3f6f4}#chLibP .cl-row.cl-cur{background:#eef6f1}#chLibP .cl-row .cl-ic{width:22px;text-align:center;font-size:17px}#chLibP .cl-row .cl-nm{flex:1;min-width:0}#chLibP .cl-row .cl-nm b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#chLibP .cl-row .cl-nm small{color:#8a918d;font-size:12px}'
     + '#chLibP .cl-row .cl-mn{border:0;background:none;font-size:18px;line-height:1;padding:4px 8px;border-radius:6px;cursor:pointer;color:#666}#chLibP .cl-row .cl-mn:hover{background:#e6ebe8}'
     + '#chLibP .cl-pop{position:absolute;right:8px;top:38px;z-index:3;background:#fff;border:1px solid #dfe3e1;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.14);padding:4px;display:flex;flex-direction:column;min-width:140px}#chLibP .cl-pop button{text-align:left;border:0;background:none;padding:8px 12px;border-radius:7px;font:inherit;font-size:13.5px;cursor:pointer}#chLibP .cl-pop button:hover{background:#f1f4f2}#chLibP .cl-pop .cl-del{color:#c92a2a}'
+    + '#chLibP .cl-dirb{margin-left:auto;display:inline-flex;gap:6px}#chLibP .cl-dirb button{border:1px solid #d4d4d4!important;background:#fff;border-radius:7px;padding:3px 9px;font-size:12.5px;color:#333;cursor:pointer}#chLibP .cl-dirb button[data-a=unpick]{color:#c92a2a;border-color:#f1b0b0!important}'
     + '#chLibP .cl-em{color:#8a918d;text-align:center;padding:40px 10px;font-size:13.5px}#chLibP .cl-ft{display:flex;gap:8px;align-items:center;padding:12px 18px;border-top:1px solid #eceeed;flex-wrap:wrap}#chLibP .cl-ft input{flex:1;min-width:160px;padding:8px 10px;border:1px solid #cfd6d2;border-radius:8px;font:inherit;font-size:14px}#chLibP .cl-ft .cl-lk{border:0;background:none;color:#5d6b66;font:inherit;font-size:13px;cursor:pointer;padding:4px 6px}#chLibP .cl-ft .cl-lk:hover{color:#1f7a5c}'
     + '#chLibP .btn{padding:7px 14px;font-size:13.5px;border-radius:8px}#chLibP .btn.cl-pri{background:#1f7a5c;border-color:#1f7a5c;color:#fff}#chLibP .btn.cl-pri:disabled{opacity:.45}'
     + '#chLibP .cl-ask{position:absolute;inset:0;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;border-radius:14px;z-index:5}#chLibP .cl-ask div{background:#fff;border:1px solid #e0e4e2;border-radius:12px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.15);max-width:360px}#chLibP .cl-ask p{margin:0 0 14px;font-size:14.5px;line-height:1.5}#chLibP .cl-ask .cl-bs{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}'
@@ -3121,6 +3122,19 @@ setMode(MODE);
   }
   function blank() { return CH.pages.length === 1 && !(CH.pages[0].s || []).length && !(CH.pages[0].o || []).length; }
   function newBoard() { guard(function () { closeP(); apply({ pages: [{ s: [], o: [] }] }); setCur('', null, false); toast('새 칠판'); }); }
+  /* 칠판 끝내기: 저장할지 · 모두 지울지 묻기 */
+  var ending = false;
+  function finish(msg) { ending = true; closeP(); try { window.close(); } catch (e) {} setTimeout(function () { toast(msg); }, 250); }
+  window.chEnd = function () {
+    if (blank()) return finish('끝냈습니다 · 이 창(탭)을 닫아도 됩니다');
+    ask('칠판을 끝낼까요? 지금 쓴 내용은 어떻게 할까요?', [
+      ['저장하고 끝내기', function () { if (!L.cur) { toast('이름과 저장할 곳을 정해 저장한 뒤 「끝내기」를 다시 눌러 주세요'); openP('save'); return; } busy('저장 중…'); var c = L.cur, nm = L.name || '칠판'; (c.k === 'b' ? writeB(c.id, nm) : writeD(c.dir, nm, c.h)).then(function () { busy(''); setCur(nm, c, false); finish('저장하고 끝냈습니다 · 이 창(탭)을 닫아도 됩니다'); }).catch(function () { busy(''); toast('저장하지 못했습니다 · 「다른 이름으로 저장」을 써 보세요'); }); }, 1],
+      ['모두 지우고 끝내기', function () { apply({ pages: [{ s: [], o: [] }] }); setCur('', null, false); finish('모두 지우고 끝냈습니다 · 이 창(탭)을 닫아도 됩니다'); }],
+      ['그대로 두기 (다음에 이어서)', function () { finish('그대로 두었습니다 · 다음에 열면 이어서 씁니다'); }],
+      ['취소']]);
+  };
+  document.addEventListener('pointerdown', function (e) { if (ending && e.target.closest && e.target.closest('#chWrap')) ending = false; }, true);
+  window.addEventListener('beforeunload', function (e) { if (ending || typeof MODE === 'undefined' || MODE !== 'chalk' || !L.dirty || blank()) return; e.preventDefault(); e.returnValue = ''; });
   function openB(id) { guard(function () { get('boards', id).then(function (b) { if (!b) { toast('칠판을 찾지 못했습니다'); return; } apply(JSON.parse(b.data)); setCur(b.name, { k: 'b', id: b.id }, false); closeP(); toast('「' + b.name + '」 열었습니다'); }).catch(function () { toast('열지 못했습니다'); }); }); }
   function openD(h, dir) { guard(function () { perm(h).then(function () { return h.getFile(); }).then(function (f) { return f.text(); }).then(function (t) { var d = JSON.parse(t), nm = d.name || h.name.replace(/\.(chalk|json)$/i, ''); apply(d); setCur(nm, dir ? { k: 'd', h: h, dir: dir } : null, false); if (dir) recentD(h, dir, nm); closeP(); toast('「' + nm + '」 열었습니다'); }).catch(function () { toast('파일을 열지 못했습니다. 폴더를 다시 골라 주세요'); }); }); }
   function openFile(f) { guard(function () { f.text().then(function (t) { var d = JSON.parse(t); if (!d.pages) throw 0; var nm = d.name || f.name.replace(/\.(chalk|json)$/i, ''); apply(d); setCur(nm, null, true); closeP(); toast('「' + nm + '」 불러왔습니다 · 보관하려면 저장하세요'); }).catch(function () { toast('칠판 파일(.chalk)이 아닙니다'); }); }); }
@@ -3180,11 +3194,11 @@ setMode(MODE);
     if (!hasDir) { C.innerHTML = '<b>내 PC 폴더</b>'; LS.innerHTML = '<div class="cl-em">이 브라우저는 PC 폴더 연결을 지원하지 않습니다.<br>크롬이나 엣지에서 열거나, 「파일로 내려받기 / 파일 불러오기」를 써 주세요</div>'; return; }
     if (!L.root) {
       C.innerHTML = '<b>내 PC 폴더</b>';
-      get('meta', 'dir').catch(function () { return null; }).then(function (h) { L.last = h || null; LS.innerHTML = '<div class="cl-em"><button class="btn cl-pri" type="button" data-a="pick">폴더 고르기</button>' + (h ? '<div style="margin-top:10px"><button class="btn" type="button" data-a="re">📁 ' + esc2(h.name) + ' 다시 열기</button></div>' : '') + '<div style="margin-top:12px">고른 폴더에 칠판이 .chalk 파일로 저장됩니다. 사람마다 자기 폴더를 쓰면 섞이지 않습니다</div></div>'; });
+      get('meta', 'dir').catch(function () { return null; }).then(function (h) { L.last = h || null; LS.innerHTML = '<div class="cl-em"><button class="btn cl-pri" type="button" data-a="pick">폴더 고르기</button>' + (h ? '<div style="margin-top:10px"><button class="btn" type="button" data-a="re">📁 ' + esc2(h.name) + ' 다시 열기</button> <button class="btn" type="button" data-a="forget" title="기억한 폴더를 지웁니다 (폴더와 파일은 그대로)">이 폴더 잊기</button></div>' : '') + '<div style="margin-top:12px">고른 폴더에 칠판이 .chalk 파일로 저장됩니다. 사람마다 자기 폴더를 쓰면 섞이지 않습니다</div></div>'; });
       return;
     }
     var dir = L.path.length ? L.path[L.path.length - 1] : L.root, D2 = [], F2 = [];
-    C.innerHTML = '<button type="button" data-a="pr" data-i="-1">📁 ' + esc2(L.root.name) + '</button>' + L.path.map(function (d, i) { return ' › <button type="button" data-a="pr" data-i="' + i + '">' + esc2(d.name) + '</button>'; }).join('') + ' <button type="button" data-a="pick" style="color:#8a918d">바꾸기</button>';
+    C.innerHTML = '<button type="button" data-a="pr" data-i="-1">📁 ' + esc2(L.root.name) + '</button>' + L.path.map(function (d, i) { return ' › <button type="button" data-a="pr" data-i="' + i + '">' + esc2(d.name) + '</button>'; }).join('') + ' <span class="cl-dirb"><button type="button" data-a="pick" title="다른 폴더로 바꾸기">폴더 바꾸기</button><button type="button" data-a="unpick" title="이 폴더 연결을 끊습니다 (파일은 지워지지 않음)">연결 끊기</button></span>';
     LS.innerHTML = '<div class="cl-em">불러오는 중…</div>';
     perm(L.root).then(function (ok) { if (!ok) throw new Error('perm'); return (async function () { for await (var e of dir.values()) { if (e.kind === 'directory') D2.push(e); else if (/\.chalk$/i.test(e.name)) F2.push(e); } })(); })
       .then(function () { return Promise.all(F2.map(function (f) { return f.getFile().then(function (x) { return { h: f, name: f.name.replace(/\.chalk$/i, ''), at: x.lastModified, kb: Math.max(1, Math.round(x.size / 1024)) }; }); })); })
@@ -3260,6 +3274,8 @@ setMode(MODE);
       return put('folders', { id: uid('f'), name: fn }).then(draw);
     }
     if (a === 'pick') return window.showDirectoryPicker({ id: 'sseukchalk', mode: 'readwrite' }).then(useDir).catch(function () {});
+    if (a === 'unpick') { L.root = null; L.path = []; L.last = null; del('meta', 'dir').catch(function () {}); toast('폴더 연결을 끊었습니다 · 폴더 안 파일은 그대로 있습니다'); return draw(); }
+    if (a === 'forget') { L.last = null; del('meta', 'dir').catch(function () {}); toast('기억한 폴더를 지웠습니다'); return draw(); }
     if (a === 're') { var h = L.last; return perm(h).then(function (ok) { if (ok) useDir(h); else toast('폴더 사용을 허용해 주세요'); }); }
     if (a === 'pr') { L.path = L.path.slice(0, +b.dataset.i + 1); return draw(); }
     if (a === 'up') return document.getElementById('chLibF').click();
@@ -3379,7 +3395,8 @@ setMode(MODE);
   var P = document.createElement('div'); P.id = 'chMenuP'; P.hidden = true; bar.appendChild(P);
   var grp = function (title, els) { var g = document.createElement('div'); g.className = 'mg'; g.innerHTML = '<b>' + title + '</b>'; var r = document.createElement('div'); r.className = 'mr'; els.forEach(function (e) { if (e) r.appendChild(e); }); g.appendChild(r); P.appendChild(g); };
   var bgl = $i('chBg') && $i('chBg').closest('label');
-  grp('파일', [$i('chNew'), $i('chOpen'), $i('chSv'), $i('chSvAs'), $i('chSave'), $i('chPrint')]);
+  var endB = document.createElement('button'); endB.className = 'btn'; endB.type = 'button'; endB.id = 'chEndB'; endB.textContent = '끝내기'; endB.title = '칠판 끝내기 · 저장할지, 모두 지울지 고릅니다'; endB.addEventListener('click', function () { P.hidden = true; var mb = $i('chMenuB'); if (mb) mb.classList.remove('on'); if (window.chEnd) window.chEnd(); });
+  grp('파일', [$i('chNew'), $i('chOpen'), $i('chSv'), $i('chSvAs'), $i('chSave'), $i('chPrint'), endB]);
   grp('넣기', [$i('chImg'), $i('chImgF'), $i('chPdf'), $i('chPdfF'), $i('chTpl')]);
   grp('이 쪽', [bgl, $i('chLyBtn'), $i('chClear'), $i('chDelPg')]);
   grp('화면', [$i('chLay'), $i('chShare'), $i('chMemoAll')]);
