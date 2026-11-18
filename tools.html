@@ -3911,5 +3911,12 @@ if (new URLSearchParams(location.search).get('m') === 'conv') setMode('conv');
   draw(true);
 })();
 </script>
+<script>/* 글상자 쓰기를 바깥을 눌러 끝내면 선택도 풀기 (크기 점·작은 메뉴 안 보이게) */
+(function () {
+  if (typeof chEndEdit !== 'function') return; var lastDown = '';
+  document.addEventListener('pointerdown', function (e) { var c = e.target.closest && e.target.closest('#chObj .cho[data-oid], #chMini'); lastDown = c ? (c.id === 'chMini' ? '__mini' : c.dataset.oid) : ''; }, true);
+  var oe = chEndEdit; chEndEdit = function () { var id = CH.edit, r = oe.apply(this, arguments); if (id && CH.sel === id && lastDown !== id && lastDown !== '__mini') { CH.sel = null; chObjs(); } return r; };
+})();
+</script>
 <script>(function(){var a=document.getElementById('siteHome');if(a&&window.SITE_NAME)a.textContent=window.SITE_NAME;})();</script>
 </body></html>
