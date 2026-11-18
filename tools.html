@@ -3743,6 +3743,8 @@ if (new URLSearchParams(location.search).get('m') === 'conv') setMode('conv');
       '레이저 상태에서 L을 한 번 더 누르면 레이저가 고정됩니다. 다시 L을 누르면 풀립니다.',
       '즐겨찾기: 원하는 펜을 고른 뒤 Shift+숫자(1~5)로 저장하고, 숫자 키로 불러옵니다. 같은 숫자를 다시 누르면 모양이 바뀝니다.',
       '칠판에서 마우스 오른쪽을 누르면 색을 바로 바꿀 수 있습니다.',
+      '글상자는 고른 뒤(쓰는 중에도) 마우스 휠로 글자 크기를 조금씩 바꿀 수 있습니다.',
+      '칠판 오른쪽 위 「사용법」 상자에서 지금 고른 도구의 사용법을 보며 연습할 수 있습니다. 「숨기기」로 끄고 「사용법 보기」로 다시 켭니다.',
       'Ctrl+Z 되돌리기 · Ctrl+Y 다시 하기 · ←/→ 앞뒤 쪽 · Ctrl+P 인쇄.',
       'Ctrl+S 저장 · Ctrl+Shift+S 다른 이름으로 저장 · Ctrl+O 열기. 보관함에 폴더를 만들어 정리할 수 있고, .chalk 파일로 USB에 옮겨 다른 컴퓨터에서 열 수 있습니다. 펜 즐겨찾기도 함께 저장됩니다.',
       '☰ 메뉴의 「넣기」로 사진·PDF·PPT를 칠판에 펼칠 수 있습니다. PPT 모양이 다르면 파워포인트에서 PDF로 저장해 넣으세요.']],
@@ -3805,6 +3807,108 @@ if (new URLSearchParams(location.search).get('m') === 'conv') setMode('conv');
       });
     }, 30);
   });
+})();
+</script>
+<script>/* 칠판 피드백: 글상자 휠 크기 · 글상자 테두리 숨김 · 도구별 커서 · 도구 사용법(연습) */
+(function () {
+  if (typeof CH === 'undefined' || !document.getElementById('chWrap')) return;
+  var LS = function (k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } };
+  var sec = document.getElementById('sec-chalk'), wrap = document.getElementById('chWrap');
+  var css = document.createElement('style');
+  css.textContent = '#sec-chalk:not(.chbox) .cho.on:has(.tx[contenteditable=true]){outline-color:transparent}#sec-chalk:not(.chbox) .cho .tx[contenteditable=true]{outline:0}'
+    + '#chMan{position:absolute;right:10px;top:10px;z-index:25;width:270px;max-width:calc(100% - 20px);max-height:min(70%,520px);overflow:auto;background:rgba(255,255,255,.96);color:#111;border:1px solid #d4d4d4;border-radius:12px;box-shadow:0 6px 22px rgba(0,0,0,.18);font-size:13px;line-height:1.5;padding:10px 12px}'
+    + '#chMan[hidden],#chManB[hidden]{display:none}#chMan .mh{display:flex;align-items:center;gap:6px;margin-bottom:4px}#chMan .mh b{flex:1;font-size:14px}#chMan .mh button{border:1px solid #d4d4d4;background:#fff;border-radius:6px;font-size:12px;padding:2px 8px;cursor:pointer;color:#111}'
+    + '#chMan ul{list-style:none;margin:4px 0 6px;padding:0}#chMan li{display:flex;gap:7px;align-items:flex-start;padding:4px 0;border-top:1px solid #eee;cursor:pointer}#chMan li i{flex:none;width:16px;height:16px;margin-top:2px;border:1.5px solid #9a9a9a;border-radius:4px;font-style:normal;font-size:11px;line-height:13px;text-align:center;color:#fff}#chMan li.ok i{background:#1f7a5c;border-color:#1f7a5c}#chMan li.ok span{color:#777}'
+    + '#chMan .mf{color:#666;font-size:12px;border-top:1px solid #eee;padding-top:6px}#chMan .mp{font-size:12px;color:#1f7a5c;margin:2px 0 0}#chMan label{display:flex;gap:6px;align-items:center;font-size:12px;color:#444;margin-top:4px;cursor:pointer}'
+    + '#chManB{position:absolute;right:10px;top:10px;z-index:25;border:1px solid #d4d4d4;background:rgba(255,255,255,.92);color:#111;border-radius:999px;padding:4px 11px;font-size:13px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15)}';
+  document.head.appendChild(css);
+  if (LS('dg_ch_tbox') === '1') sec.classList.add('chbox');
+
+  /* 1) 휠로 글자 크기: 글상자를 고른 상태(쓰는 중 포함) → 그 글상자, 글상자 도구만 켠 상태 → 새 글상자 크기 */
+  var badge = null, bt = 0, wBefore = null, wT = 0;
+  var showBadge = function (e, txt) {
+    if (!badge) { badge = document.createElement('div'); badge.className = 'chszb'; document.getElementById('chStage').appendChild(badge); }
+    var r = document.getElementById('chCv').getBoundingClientRect(); badge.style.left = (e.clientX - r.left) + 'px'; badge.style.top = (e.clientY - r.top + 40) + 'px';
+    badge.innerHTML = '<b>' + txt + '</b>'; badge.hidden = false; clearTimeout(bt); bt = setTimeout(function () { badge.hidden = true; }, 900);
+  };
+  wrap.addEventListener('wheel', function (e) {
+    if (typeof MODE === 'undefined' || MODE !== 'chalk' || e.ctrlKey) return;
+    var o = CH.sel && chObjOf(CH.sel), isTx = !!o && chTL(o) && !(o.t === 'clock' && o.md === 'ana');
+    if (!isTx && CH.tool !== 'text') return;
+    e.preventDefault(); e.stopImmediatePropagation(); var up = e.deltaY < 0;
+    if (isTx) {
+      if (o.lk) { showBadge(e, '고정된 글상자'); return; }
+      if (!wBefore) wBefore = chSnap();
+      var el = document.querySelector('#chObj [data-oid="' + o.id + '"] .tx');
+      if (CH.edit === o.id && el) o.txt = el.innerText.replace(/\n$/, '');
+      var st = Math.max(1, Math.round(o.fs * 0.04)); o.fs = Math.max(10, Math.min(600, o.fs + (up ? st : -st)));
+      if (el) el.style.fontSize = o.fs * chR() + 'px'; else chObjs();
+      showBadge(e, '글자 크기 ' + o.fs);
+      clearTimeout(wT); wT = setTimeout(function () { if (wBefore) { chPush(wBefore); wBefore = null; } if (!CH.edit) chObjs(); }, 500);
+    } else {
+      CH.size = Math.max(2, Math.min(40, CH.size + (up ? 1 : -1))); var sz = document.getElementById('chSize'); if (sz) sz.value = CH.size;
+      showBadge(e, '새 글상자 글자 크기 ' + Math.round(Math.max(32, CH.size * 6) * 1.3225));
+    }
+  }, { passive: false, capture: true });
+
+  /* 3) 도구마다 커서 모양 */
+  var enc = function (svg, hx, hy, fb) { return 'url("data:image/svg+xml;utf8,' + encodeURIComponent(svg) + '") ' + hx + ' ' + hy + ', ' + fb; };
+  var X = "<path d='M8 1v14M1 8h14' stroke='#fff' stroke-width='4'/><path d='M8 1v14M1 8h14' stroke='#222' stroke-width='1.6'/>";
+  var SHP = {
+    line: "<path d='M14 26L27 13' stroke='#fff' stroke-width='4.5' stroke-linecap='round'/><path d='M14 26L27 13' stroke='#222' stroke-width='2' stroke-linecap='round'/>",
+    arrow: "<path d='M14 26L26 14M19 14h7v7' fill='none' stroke='#fff' stroke-width='4.5' stroke-linecap='round' stroke-linejoin='round'/><path d='M14 26L26 14M19 14h7v7' fill='none' stroke='#222' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>",
+    rect: "<rect x='14' y='15' width='13' height='11' fill='#fff' stroke='#222' stroke-width='2'/>",
+    ellipse: "<ellipse cx='20.5' cy='20.5' rx='7' ry='5.5' fill='#fff' stroke='#222' stroke-width='2'/>"
+  };
+  var oldCur = chCursor;
+  chCursor = function () {
+    var t = CH.tool;
+    if (t === 'text') return enc("<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'><path d='M3 3h7M6.5 3v20M3 23h7' fill='none' stroke='#fff' stroke-width='4' stroke-linecap='round'/><path d='M3 3h7M6.5 3v20M3 23h7' fill='none' stroke='#222' stroke-width='1.8' stroke-linecap='round'/><rect x='13' y='13' width='14' height='13' rx='2' fill='" + chCol() + "' stroke='#222' stroke-width='1.2'/><path d='M16 16.5h8M20 16.5v7' stroke='#fff' stroke-width='2' stroke-linecap='round'/></svg>", 6, 13, 'text');
+    if (SHP[t]) return enc("<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'>" + X + SHP[t] + "</svg>", 8, 8, 'crosshair');
+    return oldCur();
+  };
+  var curSig = '';
+  setInterval(function () {
+    if (typeof MODE === 'undefined' || MODE !== 'chalk') return; var cv = document.getElementById('chCv'); if (!cv) return;
+    var sig = CH.tool + '|' + chCol() + '|' + CH.size; if (sig === curSig && cv.style.cursor) return; curSig = sig; cv.style.cursor = chCursor();
+  }, 300);
+
+  /* 4) 도구 사용법 (연습 체크) */
+  var M = {
+    sel: ['선택·이동 (V)', ['글상자·그림·시계를 눌러 골라 보세요', '고른 개체를 끌어서 옮겨 보세요', '모서리의 점을 끌어 크기를 바꿔 보세요', '글상자를 두 번 눌러 글을 고쳐 보세요', '고른 뒤 Delete 키로 지워 보세요 (Ctrl+Z로 되살리기)']],
+    pen: ['펜 (P)', ['칠판에 글씨를 써 보세요', 'Shift를 누른 채 그어 직선을 그어 보세요', '칠판 위에서 휠을 굴려 굵기를 바꿔 보세요', '칠판에서 마우스 오른쪽을 눌러 색을 바꿔 보세요', 'Shift+1로 지금 펜을 즐겨찾기에 저장하고, 1을 눌러 불러와 보세요']],
+    hl: ['형광펜 (H)', ['글씨 위에 칠해서 강조해 보세요', 'Shift를 누른 채 그어 반듯하게 칠해 보세요', '휠을 굴려 굵기를 바꿔 보세요']],
+    eraser: ['지우개 (E)', ['쓴 곳을 문질러 지워 보세요', '위 줄에서 「선 통째로」를 골라 선을 한 번에 지워 보세요', '휠을 굴려 지우개 크기를 바꿔 보세요', '글상자에 닿으면 글상자도 지워집니다 (Ctrl+Z로 되살리기)']],
+    text: ['글상자 (T)', ['칠판을 눌러 글상자를 만들고 글을 써 보세요', '쓰는 중에 휠을 굴려 글자 크기를 바꿔 보세요', '바깥을 눌러 쓰기를 끝내 보세요', '글상자를 고른 뒤 작은 메뉴에서 굵게·가운데 정렬·배경을 바꿔 보세요', '글상자를 두 번 눌러 다시 고쳐 보세요']],
+    laser: ['레이저 포인터 (L)', ['마우스를 움직여 빨간 점으로 가리켜 보세요', '누른 채 끌어 선을 그어 보세요 (잠시 뒤 사라집니다)', 'L을 한 번 더 눌러 레이저를 고정해 보세요', '위 줄에서 무지개 색과 남는 시간을 바꿔 보세요']],
+    shape: ['도형 (직선·화살표·네모·원)', ['끌어서 도형을 그려 보세요', 'Shift를 누른 채 그려 정사각형·정원을 만들어 보세요', '위 줄에서 화살표·네모·원을 바꿔 보세요', '선 모양을 점선으로 바꿔 그려 보세요']]
+  };
+  var man = document.createElement('div'); man.id = 'chMan'; wrap.appendChild(man);
+  var mb = document.createElement('button'); mb.id = 'chManB'; mb.type = 'button'; mb.textContent = '사용법 보기'; mb.title = '이 도구의 사용법·연습 보기'; wrap.appendChild(mb);
+  var key = function () { return /^(line|arrow|rect|ellipse)$/.test(CH.tool) ? 'shape' : (M[CH.tool] ? CH.tool : 'sel'); };
+  var done = function () { try { return JSON.parse(LS('dg_ch_mand') || '{}'); } catch (e) { return {}; } };
+  var mSig = '';
+  var draw = function (force) {
+    var on = LS('dg_ch_man') !== '0'; man.hidden = !on; mb.hidden = on; if (!on) return;
+    var k = key(), D = done(), sig = k + JSON.stringify(D[k] || []) + sec.classList.contains('chbox'); if (!force && sig === mSig) return; mSig = sig;
+    var m = M[k], ok = D[k] || [], n = ok.length;
+    man.innerHTML = '<div class="mh"><b>' + m[0] + '</b><button type="button" data-mx>숨기기</button></div>'
+      + '<p class="mp">해 보면서 눌러 체크하세요 · ' + n + '/' + m[1].length + (n >= m[1].length ? ' 완료!' : '') + '</p>'
+      + '<ul>' + m[1].map(function (s, i) { var c = ok.indexOf(i) >= 0; return '<li data-mi="' + i + '" class="' + (c ? 'ok' : '') + '"><i>' + (c ? '✓' : '') + '</i><span>' + s + '</span></li>'; }).join('') + '</ul>'
+      + (k === 'text' ? '<label><input type="checkbox" data-mbox' + (sec.classList.contains('chbox') ? ' checked' : '') + '> 쓰는 중에 글상자 테두리 보이기</label>' : '')
+      + '<div class="mf">다른 도구를 고르면 그 도구 사용법으로 바뀝니다. Ctrl+Z 되돌리기 · ←/→ 쪽 넘기기</div>';
+  };
+  man.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
+  mb.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
+  man.addEventListener('click', function (e) {
+    if (e.target.closest('[data-mx]')) { LS('dg_ch_man', '0'); draw(true); return; }
+    var bx = e.target.closest('[data-mbox]'); if (bx) { sec.classList.toggle('chbox', bx.checked); LS('dg_ch_tbox', bx.checked ? '1' : '0'); return; }
+    var li = e.target.closest('[data-mi]'); if (!li) return; var k = key(), D = done(), a = D[k] || [], i = +li.dataset.mi, p = a.indexOf(i);
+    if (p >= 0) a.splice(p, 1); else a.push(i); D[k] = a; LS('dg_ch_mand', JSON.stringify(D)); draw(true);
+  });
+  mb.addEventListener('click', function () { LS('dg_ch_man', '1'); draw(true); });
+  setInterval(function () { if (typeof MODE !== 'undefined' && MODE === 'chalk') draw(false); }, 400);
+  draw(true);
 })();
 </script>
 <script>(function(){var a=document.getElementById('siteHome');if(a&&window.SITE_NAME)a.textContent=window.SITE_NAME;})();</script>
