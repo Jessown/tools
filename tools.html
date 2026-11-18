@@ -3960,8 +3960,8 @@ if (new URLSearchParams(location.search).get('m') === 'conv') setMode('conv');
   if (!sec || !box || document.getElementById('chPgFl')) return;
   var LS = function (k, v) { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return null; } };
   var css = document.createElement('style');
-  css.textContent = '#sec-chalk .chsub{flex-wrap:nowrap!important;height:44px;min-height:44px!important;overflow:hidden}'
-    + '#sec-chalk .chsub>*{flex:0 0 auto}#sec-chalk .chsub #chFav{display:inline-flex;flex-wrap:nowrap;white-space:nowrap}#sec-chalk .chsub #chOpt{flex:1 1 0;min-width:0;display:flex;align-items:center;gap:6px;white-space:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}#sec-chalk .chsub #chOpt::-webkit-scrollbar{display:none}'
+  css.textContent = '#sec-chalk .chsub{flex-wrap:wrap!important;height:auto;min-height:44px!important;overflow:visible}'
+    + '#sec-chalk .chsub>*{flex:0 0 auto}#sec-chalk .chsub #chFav{display:inline-flex;flex-wrap:nowrap;white-space:nowrap}#sec-chalk .chsub #chOpt{flex:1 1 260px;min-width:200px;height:34px;display:flex;align-items:center;gap:6px;white-space:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}#sec-chalk .chsub #chOpt::-webkit-scrollbar{display:none}'
     + '#chPgFl{position:fixed;left:12px;top:72px;z-index:41;width:150px;background:#fff;border:1px solid #d4d4d4;border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.14);display:flex;flex-direction:column;max-height:calc(100vh - 90px)}'
     + '#chPgFl .ph{display:flex;align-items:center;gap:4px;padding:6px 8px;border-bottom:1px solid #eee;cursor:grab;user-select:none;touch-action:none;font-size:12.5px;font-weight:700;color:#333}#chPgFl .ph:active{cursor:grabbing}#chPgFl .ph span{flex:1}#chPgFl .ph i{font-style:normal;color:#999;letter-spacing:-2px}'
     + '#chPgFl .chpages{flex-direction:column!important;align-items:center!important;overflow-y:auto!important;overflow-x:hidden!important;margin:0!important;padding:8px 6px!important;min-height:0}'
