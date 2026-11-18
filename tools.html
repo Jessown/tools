@@ -3784,5 +3784,28 @@ if (new URLSearchParams(location.search).get('m') === 'conv') setMode('conv');
   document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && !P.hidden) { ev.stopPropagation(); open(false); } }, true);
 })();
 </script>
+<script>/* 사진 대지 바로 인쇄 */
+(function () {
+  var b = document.getElementById('shPdf'); if (!b || document.getElementById('shPrint')) return;
+  var p = document.createElement('button'); p.className = 'btn'; p.type = 'button'; p.id = 'shPrint'; p.textContent = '바로 인쇄'; b.parentNode.insertBefore(p, b);
+  var st = document.createElement('style'); st.textContent = '#shPrintBox{display:none}@media print{body.shprinting>*:not(#shPrintBox){display:none!important}html,body.shprinting{margin:0!important;padding:0!important;background:#fff!important}body.shprinting #shPrintBox{display:block!important}#shPrintBox img{display:block;break-after:page;page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact}#shPrintBox img:last-child{break-after:auto;page-break-after:auto}}'; document.head.appendChild(st);
+  p.addEventListener('click', function () {
+    if (!SH.ph.length) { toast('사진을 먼저 넣어 주세요'); return; } busy('인쇄 준비 중…');
+    setTimeout(function () {
+      var L = shLay(), n = shPages(), box = document.getElementById('shPrintBox'), pg = document.getElementById('shPrintPage'), c = document.createElement('canvas');
+      if (!box) { box = document.createElement('div'); box.id = 'shPrintBox'; document.body.appendChild(box); }
+      if (!pg) { pg = document.createElement('style'); pg.id = 'shPrintPage'; document.head.appendChild(pg); }
+      pg.textContent = '@page{size:A4 ' + (L.l ? 'landscape' : 'portrait') + ';margin:0}'; box.innerHTML = '';
+      for (var i = 0; i < n; i++) { shDraw(c, i, 1); var im = new Image(); im.style.width = L.l ? '297mm' : '210mm'; im.style.height = L.l ? '209mm' : '296mm'; im.src = c.toDataURL('image/jpeg', 0.92); box.appendChild(im); }
+      Promise.all([].map.call(box.querySelectorAll('img'), function (im) { return im.decode ? im.decode().catch(function () {}) : null; })).then(function () {
+        busy(''); document.body.classList.add('shprinting');
+        var done = function () { document.body.classList.remove('shprinting'); box.innerHTML = ''; pg.textContent = ''; window.removeEventListener('afterprint', done); };
+        window.addEventListener('afterprint', done);
+        setTimeout(function () { try { window.print(); } catch (e) { toast('인쇄 창을 열 수 없습니다. PDF로 받아 인쇄해 주세요'); } setTimeout(done, 1500); }, 50);
+      });
+    }, 30);
+  });
+})();
+</script>
 <script>(function(){var a=document.getElementById('siteHome');if(a&&window.SITE_NAME)a.textContent=window.SITE_NAME;})();</script>
 </body></html>
