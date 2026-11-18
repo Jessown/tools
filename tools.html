@@ -1972,7 +1972,7 @@ function chEndEdit() {
   chObjs();
 }
 function chAddText(x, y, txt, fs, extra) {
-  var before = chSnap(), o = Object.assign({ id: chNewId(), ly: chLyCur(), t: 'text', x: x, y: y, w: 700, fs: fs || Math.round(Math.max(32, CH.size * 6) * 1.3225), c: chCol(), b: true, al: 'left', txt: txt || '' }, extra || {});
+  var before = chSnap(), o = Object.assign({ id: chNewId(), ly: chLyCur(), t: 'text', x: (CH.W - x < 320 ? CH.W - 320 : x), y: y, w: Math.max(300, CH.W - x - 20), fs: fs || Math.round(Math.max(32, CH.size * 6) * 1.3225), c: chCol(), b: true, al: 'left', txt: txt || '' }, extra || {});
   chPage().o.push(o); CH.sel = o.id; if (!txt) { CH.edit = o.id; CH.editBefore = before; } else chPush(before);
   if (CH.tool !== 'sel' && CH.tool !== 'text') CH.tool = 'sel'; chUI(); chObjs(); return o;
 }
@@ -2249,7 +2249,7 @@ function chOptUI() {
     else if (a === 't-run') { try { var AC = window.AudioContext || window.webkitAudioContext; if (AC && !CH.ac) CH.ac = new AC(); if (CH.ac && CH.ac.resume) CH.ac.resume(); } catch (x) {} if (o.run) { o.left = chTmLeft(o); o.run = false; } else { var l0 = chTmLeft(o); if (l0 <= 0) l0 = o.dur || 300000; o.end = Date.now() + l0; o.run = true; o.done = false; } }
     else if (a === 't-reset') { o.run = false; o.left = o.dur || 300000; o.done = false; }
     else if ((a === 'smaller' || a === 'bigger') && o.t === 'clock' && o.md === 'ana') { o.w = Math.max(60, Math.round(a === 'bigger' ? o.w * 1.15 : o.w / 1.15)); }
-    else if (a === 'smaller') o.fs = Math.max(10, Math.round(o.fs / 1.15)); else if (a === 'bigger') o.fs = Math.round(o.fs * 1.15);
+    else if (a === 'smaller') o.fs = Math.max(10, Math.round(o.fs / 1.15)); else if (a === 'bigger') { o.fs = Math.round(o.fs * 1.15); if (o.t === 'text') o.w = Math.max(o.w, CH.W - o.x - 20); }
     else if (a === 'bold') o.b = !o.b; else if (a === 'align') o.al = { left: 'center', center: 'right', right: 'left' }[o.al || 'left'];
     else if (a === 'fill') o.fill = o.fill ? '' : (chDark() ? 'rgba(0,0,0,.45)' : '#fff3bf');
     else if (a === 'front') { pg.o = pg.o.filter(function (x) { return x !== o; }); pg.o.push(o); }
@@ -3842,7 +3842,7 @@ if (new URLSearchParams(location.search).get('m') === 'conv') setMode('conv');
       var el = document.querySelector('#chObj [data-oid="' + o.id + '"] .tx');
       if (CH.edit === o.id && el) o.txt = el.innerText.replace(/\n$/, '');
       var st = Math.max(1, Math.round(o.fs * 0.04)); o.fs = Math.max(10, Math.min(600, o.fs + (up ? st : -st)));
-      if (el) el.style.fontSize = o.fs * chR() + 'px'; else chObjs();
+      if (o.t === 'text' && up && o.w < CH.W - o.x - 20) { o.w = CH.W - o.x - 20; var bx = el && el.closest('.cho'); if (bx) bx.style.width = o.w * chR() + 'px'; } if (el) el.style.fontSize = o.fs * chR() + 'px'; else chObjs();
       showBadge(e, '글자 크기 ' + o.fs);
       clearTimeout(wT); wT = setTimeout(function () { if (wBefore) { chPush(wBefore); wBefore = null; } if (!CH.edit) chObjs(); }, 500);
     } else {
