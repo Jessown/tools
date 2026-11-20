@@ -14,6 +14,7 @@
 ## 문서 · 보고
 
 - [사진 대지 만들기 (보고서용 A4)](https://sseuktool.com/sheet.html): 활동사진을 넣으면 결과보고서용 A4 사진 대지를 만들어 PDF·JPG로 내려받습니다. 사진마다 설명을 쓰고 순서·방향을 바꿀 수 있습니다. 바로 쓰기: https://sseuktool.com/tools.html?m=sheet
+- [명찰 만들기 (A4 자동 배치)](https://sseuktool.com/tag.html): 엑셀·구글시트에서 명단을 복사해 붙여 넣으면 구분별 색 띠·로고를 넣은 명찰을 A4에 배치해 바로 인쇄하거나 PDF로 받습니다. 바로 쓰기: https://sseuktool.com/tools.html?m=tag
 - [비스듬히 찍은 문서 반듯하게 펴기 (스캔)](https://sseuktool.com/scan.html): 휴대폰으로 비스듬히 찍은 서류 사진을 스캔한 것처럼 반듯하게 펴고 바깥을 잘라냅니다. 여러 장을 PDF 한 파일로. 바로 쓰기: https://sseuktool.com/tools.html?m=scan
 - [파일 형식 변환 (사진·PDF·엑셀·워드·PPT·MP3)](https://sseuktool.com/conv.html): 사진·PDF·엑셀·워드·파워포인트·글·소리·동영상 파일의 형식을 바꿉니다. 여러 파일을 한 번에, PDF 합치기도. 파일은 서버로 보내지 않습니다. 바로 쓰기: https://sseuktool.com/tools.html?m=conv
 - [QR 코드 만들기](https://sseuktool.com/qr.html): 링크를 넣으면 바로 QR 코드를 만듭니다. 포스터·안내문에 넣을 수 있게 복사하거나 그림으로 내려받습니다. 무료, 기간 제한 없음. 바로 쓰기: https://sseuktool.com/tools.html?m=qr
