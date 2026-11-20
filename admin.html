@@ -43,6 +43,16 @@ input[type=text],input[type=password]{font:inherit;font-size:14px;padding:9px 12
 #gate{max-width:320px;margin:120px auto;text-align:center}
 #gate input{width:100%;min-width:0;padding:12px;margin:18px 0 10px}
 .err{color:var(--bad);font-size:13px;min-height:20px}
+select,textarea,input[type=date]{font:inherit;font-size:14px;padding:9px 12px;border:1.5px solid var(--rule);border-radius:8px;background:var(--paper);color:inherit}
+textarea{width:100%;resize:vertical;line-height:1.6}
+.form{display:grid;gap:12px;margin-top:16px}.form label{display:grid;gap:4px;font-size:13px;font-weight:700;color:var(--soft)}
+.form input[type=text]{min-width:0;width:100%}.form .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.form .two3{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:12px}
+.form .sw{display:flex;align-items:center;gap:8px;color:var(--ink);font-size:15px}.sw input{width:18px;height:18px}
+.wq{font-weight:700}.ww{color:var(--soft);font-size:13.5px;font-weight:500;word-break:keep-all}.wt{color:var(--soft);font-size:12px;font-weight:500}
+.st-반영{color:var(--ok)}.st-보류{color:var(--soft)}.st-접수{color:var(--mark)}
+.x{border:0;padding:4px 8px;color:var(--soft)}.x:hover{color:var(--bad)}
+#wishN{font-size:11px;background:var(--mark);color:#fff;border-radius:99px;padding:0 6px;margin-left:2px}#wishN:empty{display:none}
+@media (max-width:560px){.form .two,.form .two3{grid-template-columns:1fr}}
 [hidden]{display:none!important}
 @media (max-width:560px){.kpi{grid-template-columns:repeat(2,1fr)}input[type=text],input[type=password]{min-width:0}}
 </style></head><body>
@@ -51,7 +61,7 @@ input[type=text],input[type=password]{font:inherit;font-size:14px;padding:9px 12
 
 <div class="w" id="app" hidden>
 <header><a class="logo" href="/">쓱<i>툴</i></a><span class="sub">관리자 · <span id="upd">-</span></span></header>
-<nav class="tabs"><button data-p="stat" class="on">방문 통계</button><button data-p="sys">상태 점검</button><button data-p="set">설정</button></nav>
+<nav class="tabs"><button data-p="stat" class="on">방문 통계</button><button data-p="wish">도구 희망 <span id="wishN"></span></button><button data-p="pop">공지 팝업</button><button data-p="upd">업데이트 소식</button><button data-p="sys">상태 점검</button><button data-p="set">설정</button></nav>
 
 <!-- 방문 통계 -->
 <section id="p-stat">
@@ -72,6 +82,41 @@ input[type=text],input[type=password]{font:inherit;font-size:14px;padding:9px 12
 </div>
 <div class="err" id="msg"></div>
 <div class="row"><button id="re">새로 불러오기</button><a class="btn" href="https://sseuktool.goatcounter.com" target="_blank" rel="noopener">상세 통계 열기</a></div>
+</section>
+
+
+<!-- 도구 희망 -->
+<section id="p-wish" hidden>
+<h2>도구 희망 <span><a id="wishSheet" href="#" target="_blank" rel="noopener" style="color:inherit">시트에서 보기 ↗</a></span></h2>
+<div class="row" style="margin-top:12px"><select id="wishF"><option value="">전체</option><option>접수</option><option>검토 중</option><option>반영</option><option>보류</option></select><span class="note" id="wishSum" style="margin:0"></span></div>
+<table><thead><tr><th>받은 때 · 내용</th><th style="width:120px">상태</th></tr></thead><tbody id="wishTb"></tbody></table>
+<div class="err" id="wishMsg"></div>
+</section>
+
+<!-- 공지 팝업 -->
+<section id="p-pop" hidden>
+<h2>홈 공지 팝업 <span>첫 화면에 뜨는 안내창</span></h2>
+<div class="form">
+<label class="sw"><input type="checkbox" id="pOn"> 팝업 띄우기</label>
+<label>제목 (선택)<input type="text" id="pTitle" maxlength="60" placeholder="예: 새 도구가 나왔어요"></label>
+<label>내용<textarea id="pText" maxlength="800" rows="4" placeholder="줄바꿈 그대로 보입니다"></textarea></label>
+<div class="two"><label>링크 (선택)<input type="text" id="pLink" placeholder="https:// 또는 /tools.html?m=qr"></label><label>링크 글자<input type="text" id="pLinkT" maxlength="30" placeholder="자세히 보기"></label></div>
+<div class="two"><label>시작일 (비우면 바로)<input type="date" id="pFrom"></label><label>종료일 (비우면 계속)<input type="date" id="pTo"></label></div>
+</div>
+<div class="row"><button id="pSave">저장</button><button id="pPrev">미리 보기</button><span class="note" id="pMsg" style="margin:0"></span></div>
+<div class="note">· 방문자가 "오늘 그만 보기"를 누르면 그날은 다시 안 뜹니다. 저장할 때마다 새 공지로 보고 다시 뜹니다.<br>· 저장 후 반영까지 최대 2분 걸릴 수 있습니다.</div>
+</section>
+
+<!-- 업데이트 소식 -->
+<section id="p-upd" hidden>
+<h2>업데이트 소식 <span>첫 화면 '업데이트 소식'에 최신 5개 표시</span></h2>
+<div class="form">
+<div class="two3"><label>날짜<input type="date" id="uD"></label><label>종류<select id="uK"><option value="new">새 도구</option><option value="up">개선</option><option value="fix">고침</option></select></label><label>연결 도구 (선택)<select id="uM"></select></label></div>
+<label>내용<input type="text" id="uT" maxlength="200" placeholder="예: 명찰 만들기에 사진 넣기 추가"></label>
+</div>
+<div class="row"><button id="uAdd">추가</button><span class="note" id="uMsg" style="margin:0"></span></div>
+<div class="note">· '새 도구'로 올리고 도구를 연결하면 첫 화면 목록에 <b style="color:var(--mark)">NEW</b>가 14일 동안 자동으로 붙습니다.</div>
+<table><thead><tr><th>날짜 · 내용</th><th style="width:60px"></th></tr></thead><tbody id="uTb"></tbody></table>
 </section>
 
 <!-- 상태 점검 -->
@@ -166,21 +211,61 @@ async function runSys(){
   $('sysAt').textContent=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})+' 점검';
 }
 
+
+/* ---------- 서버(Apps Script) 관리 기능 ---------- */
+function pw(){try{return sessionStorage.getItem('sseuk_pw')||''}catch(e){return ''}}
+async function api(fn,args){
+  var r=await fetch(window.TOOL_API_URL,{method:'POST',credentials:'omit',redirect:'follow',cache:'no-store',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({fn:fn,args:args||[]})});
+  var j=await r.json();if(j.__err)throw new Error(j.__err);return j.r;
+}
+var KIND={'new':'새 도구',up:'개선',fix:'고침'},ST=['접수','검토 중','반영','보류'],WISH=[];
+/* 도구 희망 */
+function wishDraw(){
+  var f=$('wishF').value,rows=WISH.filter(function(w){return !f||w.st===f});
+  var c={};WISH.forEach(function(w){c[w.st]=(c[w.st]||0)+1});
+  $('wishSum').textContent='전체 '+WISH.length+'건 · 접수 '+(c['접수']||0)+' · 검토 중 '+(c['검토 중']||0)+' · 반영 '+(c['반영']||0)+' · 보류 '+(c['보류']||0);
+  $('wishN').textContent=c['접수']||'';
+  $('wishTb').innerHTML=rows.length?rows.map(function(w){return '<tr><td><div class="wt">'+esc(w.at)+(w.who?' · 연락: '+esc(w.who):'')+'</div><div class="wq">'+esc(w.what)+'</div>'+(w.why?'<div class="ww">'+esc(w.why)+'</div>':'')+'</td><td><select data-row="'+w.row+'" class="st-'+esc(w.st).replace(' ','')+'">'+ST.map(function(s){return '<option'+(s===w.st?' selected':'')+'>'+s+'</option>'}).join('')+'</select></td></tr>'}).join(''):'<tr><td colspan="2" class="note">해당하는 요청이 없습니다.</td></tr>';
+}
+async function wishLoad(){$('wishMsg').textContent='';try{var r=await api('adminWishList',[pw()]);WISH=r.rows;$('wishSheet').href=r.url;wishDraw()}catch(e){$('wishMsg').textContent='불러오지 못했습니다: '+e.message}}
+$('wishF').onchange=wishDraw;
+$('wishTb').onchange=async function(e){var s=e.target;if(!s.dataset.row)return;var w=WISH.find(function(x){return x.row==s.dataset.row});var old=w.st;w.st=s.value;wishDraw();
+  try{await api('adminWishSet',[pw(),+s.dataset.row,s.value])}catch(er){w.st=old;wishDraw();$('wishMsg').textContent='저장 실패: '+er.message}};
+/* 공지 팝업 */
+async function popLoad(){try{var p=await api('adminPopupGet',[pw()]);$('pOn').checked=!!p.on;$('pTitle').value=p.title||'';$('pText').value=p.text||'';$('pLink').value=p.link||'';$('pLinkT').value=p.linkText||'';$('pFrom').value=p.from||'';$('pTo').value=p.to||''}catch(e){$('pMsg').textContent='불러오지 못했습니다: '+e.message}}
+function popVal(){return {on:$('pOn').checked,title:$('pTitle').value,text:$('pText').value,link:$('pLink').value.trim(),linkText:$('pLinkT').value,from:$('pFrom').value,to:$('pTo').value}}
+$('pSave').onclick=async function(){$('pMsg').textContent='저장 중…';try{await api('adminPopupSet',[pw(),popVal()]);$('pMsg').textContent=$('pOn').checked?'저장했습니다. 첫 화면에 뜹니다.':'저장했습니다. (팝업 꺼짐)'}catch(e){$('pMsg').textContent='저장 실패: '+e.message}};
+$('pPrev').onclick=function(){var p=popVal();if(!p.text){$('pMsg').textContent='내용을 써 주세요';return}
+  var w=document.createElement('div');w.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:20px;z-index:99';
+  w.innerHTML='<div style="background:var(--paper);max-width:420px;width:100%;border-radius:14px;padding:26px 24px 0;box-shadow:0 20px 60px rgba(0,0,0,.25)">'+(p.title?'<b style="display:block;font-size:19px;font-weight:800;margin-bottom:8px">'+esc(p.title)+'</b>':'')+'<p style="margin:0 0 14px;word-break:keep-all;line-height:1.7">'+esc(p.text).replace(/\n/g,'<br>')+'</p>'+(p.link?'<div style="font-weight:800;color:var(--mark);margin-bottom:18px">'+esc(p.linkText||'자세히 보기')+' →</div>':'')+'<div style="display:flex;border-top:1px solid var(--rule);margin:0 -24px"><span style="flex:1;text-align:center;padding:14px;color:var(--soft);font-size:14px;font-weight:700">오늘 그만 보기</span><span style="flex:1;text-align:center;padding:14px;font-size:14px;font-weight:700;border-left:1px solid var(--rule)">닫기 (미리 보기)</span></div></div>';
+  w.onclick=function(){w.remove()};document.body.appendChild(w)};
+/* 업데이트 소식 */
+var UPD=[];
+$('uM').innerHTML='<option value="">연결 안 함</option>'+Object.keys(NAMES).filter(function(k){return /^\/[a-z]+$/.test(k)&&['/wish','/privacy','/tools'].indexOf(k)<0}).map(function(k){return '<option value="'+k.slice(1)+'">'+NAMES[k]+'</option>'}).join('');
+function updDraw(){$('uTb').innerHTML=UPD.length?UPD.map(function(u,i){return '<tr><td><span class="wt">'+esc(u.d)+' · '+KIND[u.k]+(u.m?' · '+esc(NAMES['/'+u.m]||u.m):'')+'</span><div class="wq">'+esc(u.t)+'</div></td><td><button class="x" data-i="'+i+'" title="삭제">삭제</button></td></tr>'}).join(''):'<tr><td colspan="2" class="note">아직 없습니다.</td></tr>'}
+async function updLoad(){try{UPD=await api('adminUpdatesGet',[pw()]);updDraw()}catch(e){$('uMsg').textContent='불러오지 못했습니다: '+e.message}}
+async function updSave(list,msg){$('uMsg').textContent='저장 중…';try{var r=await api('adminUpdatesSet',[pw(),list]);UPD=r.list;updDraw();$('uMsg').textContent=msg}catch(e){$('uMsg').textContent='저장 실패: '+e.message}}
+$('uD').value=ymd(new Date());
+$('uAdd').onclick=function(){var t=$('uT').value.trim();if(!t){$('uMsg').textContent='내용을 써 주세요';return}
+  updSave([{d:$('uD').value,k:$('uK').value,m:$('uM').value,t:t}].concat(UPD),'추가했습니다.').then(function(){$('uT').value=''})};
+$('uTb').onclick=function(e){var i=e.target.dataset&&e.target.dataset.i;if(i==null)return;if(!confirm('이 소식을 지울까요?'))return;var l=UPD.slice();l.splice(+i,1);updSave(l,'삭제했습니다.')};
+var loaded={};
+function tabLoad(p){if(loaded[p])return;loaded[p]=1;if(p==='wish')wishLoad();if(p==='pop')popLoad();if(p==='upd')updLoad();if(p==='sys')runSys()}
+
 /* 화면 전환·설정 */
-var sysDone=false;
 [].forEach.call(document.querySelectorAll('nav.tabs button'),function(b){b.onclick=function(){
   [].forEach.call(document.querySelectorAll('nav.tabs button'),function(x){x.classList.toggle('on',x===b)});
-  ['stat','sys','set'].forEach(function(p){$('p-'+p).hidden=p!==b.dataset.p});
-  if(b.dataset.p==='sys'&&!sysDone){sysDone=true;runSys()}
+  ['stat','wish','pop','upd','sys','set'].forEach(function(p){$('p-'+p).hidden=p!==b.dataset.p});
+  tabLoad(b.dataset.p);
 }});
 function meLabel(){$('me').textContent='내 기기 집계 제외: '+(ls('sseuk_nostat')==='1'?'켜짐':'꺼짐')}
 $('me').onclick=function(){ls('sseuk_nostat',ls('sseuk_nostat')==='1'?null:'1');meLabel()};
 $('keySave').onclick=function(){var v=$('keyIn').value.trim();if(!v)return;ls('sseuk_gckey',v);$('keyIn').value='';load()};
 $('keyDel').onclick=function(){ls('sseuk_gckey',null);alert('지웠습니다.');load()};
 $('re').onclick=load;$('sysRun').onclick=runSys;
-$('out').onclick=function(){try{sessionStorage.removeItem('sseuk_admin')}catch(e){}location.reload()};
-function open_(){$('gate').hidden=true;$('app').hidden=false;meLabel();load()}
-$('go').onclick=async function(){if(await sha($('pw').value)===HASH){try{sessionStorage.setItem('sseuk_admin','1')}catch(e){}open_()}else $('err').textContent='비밀번호가 맞지 않습니다.'};
+$('out').onclick=function(){try{sessionStorage.removeItem('sseuk_admin');sessionStorage.removeItem('sseuk_pw')}catch(e){}location.reload()};
+function open_(){$('gate').hidden=true;$('app').hidden=false;meLabel();load();api('adminWishList',[pw()]).then(function(r){WISH=r.rows;$('wishSheet').href=r.url;wishDraw();loaded.wish=1}).catch(function(){})}
+$('go').onclick=async function(){if(await sha($('pw').value)===HASH){try{sessionStorage.setItem('sseuk_admin','1');sessionStorage.setItem('sseuk_pw',$('pw').value)}catch(e){}open_()}else $('err').textContent='비밀번호가 맞지 않습니다.'};
 $('pw').onkeydown=function(e){if(e.key==='Enter')$('go').click()};
-try{if(sessionStorage.getItem('sseuk_admin')==='1')open_()}catch(e){}
+try{if(sessionStorage.getItem('sseuk_admin')==='1'&&sessionStorage.getItem('sseuk_pw'))open_()}catch(e){}
 </script></body></html>
