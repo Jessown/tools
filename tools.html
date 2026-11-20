@@ -604,12 +604,12 @@ main{padding-top:20px}
   </section>
   <section class="card" id="sec-tag" hidden>
     <div class="tgh"><b>1</b> 명단 붙여넣기 <span class="sub">엑셀·구글시트에서 칸을 그대로 복사해 붙여 넣으세요. 한 줄이 명찰 한 장, 칸마다 명찰의 한 줄이 됩니다 (최대 3칸).</span></div>
-    <textarea id="tgIn" rows="7" spellcheck="false" placeholder="구분	이름	역할&#10;나비엣	도지원	모임장&#10;나비엣	보티민&#10;해바라기 무용단	여승남	모임장"></textarea>
+    <textarea id="tgIn" rows="7" spellcheck="false" placeholder="소속	이름	역할&#10;1모둠	김하늘	모둠장&#10;1모둠	이바다&#10;2모둠	박산들	모둠장"></textarea>
     <div class="row"><label><input type="checkbox" id="tgHead" checked> 첫 줄은 제목 줄 (명찰에 안 나옴)</label><span class="sub" id="tgCnt"></span><span style="flex:1"></span><button class="btn" type="button" id="tgEx">예시 넣기</button><button class="btn" type="button" id="tgClr">비우기</button></div>
     <div class="tgh"><b>2</b> 칸 배치</div>
     <div class="row"><label>위 작은 글 <select id="tgL1"></select></label><label>가운데 큰 글 <select id="tgL2"></select></label><label>아래 작은 글 <select id="tgL3"></select></label><label>색 띠 <select id="tgBand"></select></label></div>
     <div class="tgh"><b>3</b> 모양</div>
-    <div class="row"><label>크기 <select id="tgSize"><option value="90x55">90×55mm (명함)</option><option value="90x60" selected>90×60mm</option><option value="100x70">100×70mm</option><option value="c">직접 입력</option></select></label><span id="tgCus" hidden><input type="number" id="tgW" value="90" min="40" max="190" style="width:66px"> × <input type="number" id="tgHt" value="60" min="25" max="270" style="width:66px"> mm</span><label>띠 문구 <input id="tgTitle" maxlength="40" placeholder="예: 2026 자조모임 평가회의" style="width:230px"></label><label><input type="checkbox" id="tgCut" checked> 자르는 선</label></div>
+    <div class="row"><label>크기 <select id="tgSize"><option value="90x55">90×55mm (명함)</option><option value="90x60" selected>90×60mm</option><option value="100x70">100×70mm</option><option value="c">직접 입력</option></select></label><span id="tgCus" hidden><input type="number" id="tgW" value="90" min="40" max="190" style="width:66px"> × <input type="number" id="tgHt" value="60" min="25" max="270" style="width:66px"> mm</span><label>띠 문구 <input id="tgTitle" maxlength="40" placeholder="예: 2026 신년 워크숍" style="width:230px"></label><label><input type="checkbox" id="tgCut" checked> 자르는 선</label></div>
     <div class="row"><button class="btn" type="button" id="tgLogoBtn">로고 넣기</button><input type="file" id="tgLogo" accept="image/*" hidden><span class="sub" id="tgLogoInfo">로고 없음</span><label>위치 <select id="tgLogoPos"><option value="br">오른쪽 아래</option><option value="bc">아래 가운데</option><option value="tl">왼쪽 위</option><option value="tr">오른쪽 위</option></select></label><button class="btn" type="button" id="tgLogoDel" hidden>로고 빼기</button></div>
     <div class="row"><label>빈 명찰 더하기 <input type="number" id="tgBlank" value="0" min="0" max="60" style="width:60px"> 장</label><span class="sub" id="tgPg"></span><span style="flex:1"></span><button class="btn" type="button" id="tgPrint">바로 인쇄</button><button class="btn pri" type="button" id="tgPdf">PDF로 받기</button></div>
     <div class="shpv" id="tgPv"></div>
@@ -4194,7 +4194,7 @@ if (new URLSearchParams(location.search).get('m') === 'conv') setMode('conv');
   function sched() { clearTimeout(T.t); T.t = setTimeout(function () { parse(); preview(); keep(); }, 200); }
   ['#tgIn', '#tgTitle', '#tgW', '#tgHt', '#tgBlank'].forEach(function (s) { $(s).addEventListener('input', sched); });
   ['#tgHead', '#tgL1', '#tgL2', '#tgL3', '#tgBand', '#tgSize', '#tgCut', '#tgLogoPos'].forEach(function (s) { $(s).addEventListener('change', function () { if (s === '#tgHead') T.nc = -1; $('#tgCus').hidden = $('#tgSize').value !== 'c'; sched(); }); });
-  $('#tgEx').addEventListener('click', function () { $('#tgIn').value = '구분\t이름\t역할\n나비엣\t도지원\t모임장\n나비엣\t보티민\t\n소소담담\t한라니\t모임장\n소소담담\t모두에바 울칸\t\n해바라기 무용단\t여승남\t모임장\n행.한.생\t이설\t모임장\n성북구가족센터\t민병길\t담당자'; $('#tgHead').checked = true; T.nc = -1; sched(); });
+  $('#tgEx').addEventListener('click', function () { $('#tgIn').value = '소속\t이름\t역할\n1모둠\t김하늘\t모둠장\n1모둠\t이바다\t\n2모둠\t박산들\t모둠장\n2모둠\t최가람\t\n3모둠\t정새봄\t모둠장\n3모둠\t한여름\t\n진행팀\t윤도담\t진행'; $('#tgHead').checked = true; T.nc = -1; sched(); });
   $('#tgClr').addEventListener('click', function () { $('#tgIn').value = ''; T.nc = -1; sched(); });
   $('#tgLogoBtn').addEventListener('click', function () { $('#tgLogo').click(); });
   $('#tgLogo').addEventListener('change', function () {
