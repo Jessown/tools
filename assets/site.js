@@ -9,13 +9,9 @@
     .then(function (r) { return r.json(); }).then(function (j) {
       var d = j && j.r; if (!d) return;
       var ups = d.updates || [], lim = new Date(); lim.setDate(lim.getDate() - 14); lim = ymd(lim);
-      /* NEW: 최근 14일 안에 '새 도구'로 올린 것만 */
+      /* 도구 목록: 관리자 순서·숨김 + NEW(최근 14일 '새 도구', 관리자 강제 켜기/끄기 우선) */
       var fresh = {}; ups.forEach(function (u) { if (u.k === 'new' && u.m && u.d >= lim) fresh[u.m] = 1; });
-      [].forEach.call(document.querySelectorAll('#list a[href^="tools.html?m="]'), function (a) {
-        var m = a.getAttribute('href').split('m=')[1], t = a.querySelector('.t'), b = t && t.querySelector('.new');
-        if (fresh[m] && !b) t.insertAdjacentHTML('beforeend', '<span class="new">NEW</span>');
-        if (!fresh[m] && b) b.remove();
-      });
+      if (window.renderList) window.renderList(d.tools || {}, fresh);
       /* 업데이트 소식 */
       var box = document.getElementById('news');
       if (box && ups.length) {

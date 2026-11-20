@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
 <title>관리자 · 쓱툴</title><link rel="icon" href="/favicon.ico">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<script src="assets/config.js"></script>
+<script src="assets/config.js"></script><script src="assets/tools-list.js"></script>
 <style>
 :root{--paper:#fff;--ink:#111;--soft:#666;--rule:#e4e4e4;--mark:#0047ff;--hover:#f5f5f5;--ok:#0a8a3a;--bad:#d33}
 @media (prefers-color-scheme:dark){:root{--paper:#111;--ink:#f2f2f2;--soft:#9a9a9a;--rule:#2c2c2c;--mark:#6b8cff;--hover:#1b1b1b;--ok:#3ccf74;--bad:#ff6b6b}}
@@ -53,6 +53,10 @@ textarea{width:100%;resize:vertical;line-height:1.6}
 .x{border:0;padding:4px 8px;color:var(--soft)}.x:hover{color:var(--bad)}
 #wishN{font-size:11px;background:var(--mark);color:#fff;border-radius:99px;padding:0 6px;margin-left:2px}#wishN:empty{display:none}
 @media (max-width:560px){.form .two,.form .two3{grid-template-columns:1fr}}
+.tg{margin-top:22px}.tg h3{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800;margin:0;padding:8px 4px;border-bottom:2px solid var(--ink)}
+.tr{display:flex;align-items:center;gap:8px;padding:8px 4px;border-bottom:1px solid var(--rule);font-size:15px}.tr.off .tn{color:var(--soft);text-decoration:line-through}
+.tn{flex:1;font-weight:700}.mv{border:1px solid var(--rule);padding:2px 9px;font-size:13px}.mv:disabled{opacity:.3;cursor:default}
+.tr select{padding:4px 8px;font-size:13px}.tr label{font-size:13px;color:var(--soft);display:flex;align-items:center;gap:4px;white-space:nowrap}
 [hidden]{display:none!important}
 @media (max-width:560px){.kpi{grid-template-columns:repeat(2,1fr)}input[type=text],input[type=password]{min-width:0}}
 </style></head><body>
@@ -61,7 +65,7 @@ textarea{width:100%;resize:vertical;line-height:1.6}
 
 <div class="w" id="app" hidden>
 <header><a class="logo" href="/">쓱<i>툴</i></a><span class="sub">관리자 · <span id="upd">-</span></span></header>
-<nav class="tabs"><button data-p="stat" class="on">방문 통계</button><button data-p="wish">도구 희망 <span id="wishN"></span></button><button data-p="pop">공지 팝업</button><button data-p="upd">업데이트 소식</button><button data-p="sys">상태 점검</button><button data-p="set">설정</button></nav>
+<nav class="tabs"><button data-p="stat" class="on">방문 통계</button><button data-p="wish">도구 희망 <span id="wishN"></span></button><button data-p="pop">공지 팝업</button><button data-p="upd">업데이트 소식</button><button data-p="tools">도구 목록</button><button data-p="sys">상태 점검</button><button data-p="set">설정</button></nav>
 
 <!-- 방문 통계 -->
 <section id="p-stat">
@@ -117,6 +121,15 @@ textarea{width:100%;resize:vertical;line-height:1.6}
 <div class="row"><button id="uAdd">추가</button><span class="note" id="uMsg" style="margin:0"></span></div>
 <div class="note">· '새 도구'로 올리고 도구를 연결하면 첫 화면 목록에 <b style="color:var(--mark)">NEW</b>가 14일 동안 자동으로 붙습니다.</div>
 <table><thead><tr><th>날짜 · 내용</th><th style="width:60px"></th></tr></thead><tbody id="uTb"></tbody></table>
+</section>
+
+
+<!-- 도구 목록 -->
+<section id="p-tools" hidden>
+<h2>첫 화면 도구 목록 <span>순서 · 숨기기 · NEW</span></h2>
+<div id="tlBox"></div>
+<div class="row"><button id="tlSave">저장</button><button id="tlReset">기본 순서로</button><span class="note" id="tlMsg" style="margin:0"></span></div>
+<div class="note">· ↑↓ 버튼으로 순서를 바꿉니다. 분류 이름 옆 ↑↓는 분류 순서입니다.<br>· 숨긴 도구는 첫 화면에서만 빠지고, 주소로는 계속 들어갈 수 있습니다.<br>· NEW: <b>자동</b>=업데이트 소식에 '새 도구'로 올린 뒤 14일 · <b>켜기/끄기</b>=날짜와 상관없이 고정<br>· 저장 후 첫 화면 반영까지 최대 2분 걸릴 수 있습니다.</div>
 </section>
 
 <!-- 상태 점검 -->
@@ -249,13 +262,37 @@ $('uD').value=ymd(new Date());
 $('uAdd').onclick=function(){var t=$('uT').value.trim();if(!t){$('uMsg').textContent='내용을 써 주세요';return}
   updSave([{d:$('uD').value,k:$('uK').value,m:$('uM').value,t:t}].concat(UPD),'추가했습니다.').then(function(){$('uT').value=''})};
 $('uTb').onclick=function(e){var i=e.target.dataset&&e.target.dataset.i;if(i==null)return;if(!confirm('이 소식을 지울까요?'))return;var l=UPD.slice();l.splice(+i,1);updSave(l,'삭제했습니다.')};
+
+/* 도구 목록 (순서·숨김·NEW) */
+var TL=null;
+function tlDefault(){return {groups:window.G.map(function(g){return {n:g[0],t:g[1].map(function(t){return t[0]})}}),hide:[],nw:{}}}
+function tlName(m){var r=m;window.G.forEach(function(g){g[1].forEach(function(t){if(t[0]===m)r=t[1]})});return r}
+function tlNorm(c){var d=tlDefault();if(!c||!c.groups||!c.groups.length)return d;
+  var out=[],seen={};c.groups.forEach(function(cg){var og=d.groups.filter(function(x){return x.n===cg.n})[0];if(!og||seen[cg.n])return;seen[cg.n]=1;var ts=(cg.t||[]).filter(function(m){return og.t.indexOf(m)>=0});og.t.forEach(function(m){if(ts.indexOf(m)<0)ts.push(m)});out.push({n:cg.n,t:ts})});
+  d.groups.forEach(function(x){if(!seen[x.n])out.push(x)});return {groups:out,hide:c.hide||[],nw:c.nw||{}}}
+function tlDraw(){var G2=TL.groups;
+  $('tlBox').innerHTML=G2.map(function(g,gi){return '<div class="tg"><h3>'+esc(g.n)+'<button class="mv" data-g="'+gi+'" data-d="-1"'+(gi===0?' disabled':'')+'>↑</button><button class="mv" data-g="'+gi+'" data-d="1"'+(gi===G2.length-1?' disabled':'')+'>↓</button></h3>'+
+    g.t.map(function(m,ti){var off=TL.hide.indexOf(m)>=0,nv=TL.nw[m]||'';return '<div class="tr'+(off?' off':'')+'"><button class="mv" data-g="'+gi+'" data-t="'+ti+'" data-d="-1"'+(ti===0?' disabled':'')+'>↑</button><button class="mv" data-g="'+gi+'" data-t="'+ti+'" data-d="1"'+(ti===g.t.length-1?' disabled':'')+'>↓</button><span class="tn">'+esc(tlName(m))+'</span>'+
+      '<select data-nw="'+m+'"><option value=""'+(nv===''?' selected':'')+'>NEW 자동</option><option value="on"'+(nv==='on'?' selected':'')+'>NEW 켜기</option><option value="off"'+(nv==='off'?' selected':'')+'>NEW 끄기</option></select>'+
+      '<label><input type="checkbox" data-hide="'+m+'"'+(off?' checked':'')+'>숨기기</label></div>'}).join('')+'</div>'}).join('')}
+$('tlBox').onclick=function(e){var b=e.target.closest&&e.target.closest('.mv');if(!b||b.disabled)return;var gi=+b.dataset.g,d=+b.dataset.d;
+  if(b.dataset.t==null){var a=TL.groups;var x=a[gi];a[gi]=a[gi+d];a[gi+d]=x}else{var t=TL.groups[gi].t,ti=+b.dataset.t,y=t[ti];t[ti]=t[ti+d];t[ti+d]=y}
+  $('tlMsg').textContent='바뀐 내용이 있습니다. 저장을 눌러 주세요.';tlDraw()};
+$('tlBox').onchange=function(e){var el=e.target;
+  if(el.dataset.hide){var m=el.dataset.hide;TL.hide=TL.hide.filter(function(x){return x!==m});if(el.checked)TL.hide.push(m)}
+  if(el.dataset.nw){if(el.value)TL.nw[el.dataset.nw]=el.value;else delete TL.nw[el.dataset.nw]}
+  $('tlMsg').textContent='바뀐 내용이 있습니다. 저장을 눌러 주세요.';tlDraw()};
+async function tlLoad(){try{TL=tlNorm(await api('adminToolsGet',[pw()]));tlDraw()}catch(e){$('tlMsg').textContent='불러오지 못했습니다: '+e.message}}
+$('tlSave').onclick=async function(){$('tlMsg').textContent='저장 중…';try{await api('adminToolsSet',[pw(),TL]);$('tlMsg').textContent='저장했습니다. 첫 화면에 반영됩니다.'}catch(e){$('tlMsg').textContent='저장 실패: '+e.message}};
+$('tlReset').onclick=function(){if(!confirm('기본 순서로 되돌릴까요? (숨기기·NEW 설정도 초기화)'))return;TL=tlDefault();tlDraw();$('tlMsg').textContent='저장을 눌러야 반영됩니다.'};
+
 var loaded={};
-function tabLoad(p){if(loaded[p])return;loaded[p]=1;if(p==='wish')wishLoad();if(p==='pop')popLoad();if(p==='upd')updLoad();if(p==='sys')runSys()}
+function tabLoad(p){if(loaded[p])return;loaded[p]=1;if(p==='wish')wishLoad();if(p==='pop')popLoad();if(p==='upd')updLoad();if(p==='tools')tlLoad();if(p==='sys')runSys()}
 
 /* 화면 전환·설정 */
 [].forEach.call(document.querySelectorAll('nav.tabs button'),function(b){b.onclick=function(){
   [].forEach.call(document.querySelectorAll('nav.tabs button'),function(x){x.classList.toggle('on',x===b)});
-  ['stat','wish','pop','upd','sys','set'].forEach(function(p){$('p-'+p).hidden=p!==b.dataset.p});
+  ['stat','wish','pop','upd','tools','sys','set'].forEach(function(p){$('p-'+p).hidden=p!==b.dataset.p});
   tabLoad(b.dataset.p);
 }});
 function meLabel(){$('me').textContent='내 기기 집계 제외: '+(ls('sseuk_nostat')==='1'?'켜짐':'꺼짐')}

@@ -62,37 +62,32 @@ footer{margin:40px 0 44px;font-size:13px;color:var(--soft);display:flex;flex-wra
 <nav class="intro2" aria-label="도구 소개" style="margin-top:28px;font-size:13px;color:var(--soft);line-height:2">도구 소개: <a href="mosaic.html">모자이크·가리기</a> · <a href="bgrm.html">배경 지우기</a> · <a href="resize.html">사진 용량 줄이기</a> · <a href="px.html">사진 크기 맞추기</a> · <a href="sheet.html">사진 대지</a> · <a href="tag.html">명찰 만들기</a> · <a href="scan.html">문서 펴기</a> · <a href="conv.html">파일 형식 바꾸기</a> · <a href="qr.html">QR 만들기</a> · <a href="chalk.html">칠판</a> · <a href="vote.html">실시간 투표</a> · <a href="notice.html">다국어 공지</a> · <a href="timer.html">타이머</a> · <a href="wheel.html">돌림판</a> · <a href="ladder.html">사다리타기</a> · <a href="lotto.html">공 추첨</a></nav>
 <footer><span id="cp"></span><a href="privacy.html">개인정보 안내</a></footer>
 </div>
+<script src="assets/tools-list.js"></script>
 <script>
-var G = [
-  ['사진 · 개인정보', [
-    ['mosaic', '모자이크·가리기', '사진 속 얼굴, 신청서·명단의 연락처를 가리기 (PDF도 됨)'],
-    ['bgrm', '배경 지우기', '사람이나 물건만 남기고 배경 없애기'],
-    ['resize', '사진 용량 줄이기', '메일·업로드 용량 제한에 맞추기'],
-    ['px', '사진 크기 맞추기', '가로·세로 픽셀을 여러 장 한 번에']]],
-  ['문서 · 보고', [
-    ['sheet', '사진 대지', '활동사진을 보고서용 A4 대지로, 설명까지', 1],
-    ['scan', '문서 펴기', '비스듬히 찍은 서류를 스캔한 것처럼'],
-    ['conv', '파일 형식 바꾸기', '사진·PDF·엑셀·워드·PPT·소리 형식을 한 번에', 1],
-    ['qr', 'QR 만들기', '링크를 QR 그림으로'],
-    ['tag', '명찰 만들기', '명단을 붙여 넣으면 A4 명찰로 바로 인쇄', 1]]],
-  ['진행 · 참여', [
-    ['chalk', '칠판', '판서·안내문 띄우기, 휴대폰으로 함께 보기'],
-    ['vote', '실시간 투표', '만족도·의견을 QR로 받아 바로 그래프로', 1],
-    ['notice', '다국어 공지', '한국어로 쓰면 참여자 언어로 번역되어 보임', 1],
-    ['timer', '타이머', '활동·쉬는 시간을 큰 화면으로']]],
-  ['뽑기 · 놀이', [
-    ['wheel', '돌림판', '이름이나 항목을 넣고 돌리기'],
-    ['ladder', '사다리타기', '역할·순서 정하기'],
-    ['lotto', '공 추첨', '경품별 개수를 정해 뽑기']]]
-];
+var G = window.G;
 function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-var k = 0;
-document.getElementById('list').innerHTML = G.map(function (g) {
-  return '<section><h2>' + esc(g[0]) + '</h2><ol>' + g[1].map(function (t) {
-    k++;
-    return '<li><a href="tools.html?m=' + t[0] + '"><span class="n">' + (k < 10 ? '0' + k : k) + '</span><span class="t">' + esc(t[1]) + (t[3] ? '<span class="new">NEW</span>' : '') + '</span><span class="go">→</span><span class="d">' + esc(t[2]) + '</span></a></li>';
-  }).join('') + '</ol></section>';
-}).join('');
+window.renderList = function (cfg, fresh) {
+  cfg = cfg || {}; var hide = {}, nw = cfg.nw || {}, byM = {}, k = 0;
+  (cfg.hide || []).forEach(function (m) { hide[m] = 1; });
+  G.forEach(function (g, gi) { g[1].forEach(function (t) { byM[t[0]] = { t: t, g: gi }; }); });
+  var groups = G.map(function (g) { return { n: g[0], t: g[1].map(function (t) { return t[0]; }) }; });
+  if (cfg.groups && cfg.groups.length) {
+    var seen = {}, out = [];
+    cfg.groups.forEach(function (cg) { var og = groups.filter(function (x) { return x.n === cg.n; })[0]; if (!og || seen[cg.n]) return; seen[cg.n] = 1;
+      var ts = (cg.t || []).filter(function (m) { return byM[m] && G[byM[m].g][0] === cg.n; });
+      og.t.forEach(function (m) { if (ts.indexOf(m) < 0) ts.push(m); }); out.push({ n: cg.n, t: ts }); });
+    groups.forEach(function (x) { if (!seen[x.n]) out.push(x); }); groups = out;
+  }
+  document.getElementById('list').innerHTML = groups.map(function (g) {
+    var items = g.t.filter(function (m) { return !hide[m]; }); if (!items.length) return '';
+    return '<section><h2>' + esc(g.n) + '</h2><ol>' + items.map(function (m) {
+      var t = byM[m].t; k++;
+      var isNew = nw[m] === 'on' ? 1 : nw[m] === 'off' ? 0 : fresh ? fresh[m] : t[3];
+      return '<li><a href="tools.html?m=' + t[0] + '"><span class="n">' + (k < 10 ? '0' + k : k) + '</span><span class="t">' + esc(t[1]) + (isNew ? '<span class="new">NEW</span>' : '') + '</span><span class="go">→</span><span class="d">' + esc(t[2]) + '</span></a></li>';
+    }).join('') + '</ol></section>';
+  }).join('');
+};
+renderList();
 var N = window.SITE_NAME || '쓱툴';
 document.getElementById('nm').textContent = N; 
 document.getElementById('cp').textContent = '© ' + new Date().getFullYear() + ' ' + N;
