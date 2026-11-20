@@ -1,78 +1,186 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src https://cdn.jsdelivr.net; img-src 'self' data:; connect-src https://sseuktool.goatcounter.com; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src https://cdn.jsdelivr.net; img-src 'self' data:; connect-src https://sseuktool.goatcounter.com https://script.google.com https://script.googleusercontent.com; object-src 'none'; base-uri 'self'; form-action 'none'">
 <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
 <title>관리자 · 쓱툴</title><link rel="icon" href="/favicon.ico">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<script src="assets/config.js"></script>
 <style>
-:root{--paper:#fff;--ink:#111;--soft:#666;--rule:#e4e4e4;--mark:#0047ff;--hover:#f5f5f5}
-@media (prefers-color-scheme:dark){:root{--paper:#111;--ink:#f2f2f2;--soft:#9a9a9a;--rule:#2c2c2c;--mark:#6b8cff;--hover:#1b1b1b}}
+:root{--paper:#fff;--ink:#111;--soft:#666;--rule:#e4e4e4;--mark:#0047ff;--hover:#f5f5f5;--ok:#0a8a3a;--bad:#d33}
+@media (prefers-color-scheme:dark){:root{--paper:#111;--ink:#f2f2f2;--soft:#9a9a9a;--rule:#2c2c2c;--mark:#6b8cff;--hover:#1b1b1b;--ok:#3ccf74;--bad:#ff6b6b}}
 *{box-sizing:border-box}html,body{background:var(--paper)}
 body{margin:0;color:var(--ink);font:16px/1.6 "Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;-webkit-font-smoothing:antialiased}
-.w{max-width:760px;margin:0 auto;padding:0 20px 60px}
-header{padding:48px 0 0;display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
+.w{max-width:860px;margin:0 auto;padding:0 20px 60px}
+header{padding:44px 0 0;display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
 .logo{font-size:36px;font-weight:900;letter-spacing:-2px;text-decoration:none;color:inherit}.logo i{font-style:normal;color:var(--mark)}
 .sub{color:var(--soft);font-size:14px}
-h2{font-size:13px;font-weight:800;margin:44px 0 0;padding-bottom:10px;border-bottom:2px solid var(--ink);letter-spacing:.3px;display:flex;justify-content:space-between}
+nav.tabs{display:flex;gap:4px;margin-top:22px;border-bottom:2px solid var(--ink);overflow-x:auto}
+nav.tabs button{border:0;border-radius:0;padding:10px 14px;font-weight:800;color:var(--soft);background:none}
+nav.tabs button.on{color:var(--paper);background:var(--ink)}
+h2{font-size:13px;font-weight:800;margin:36px 0 0;padding-bottom:10px;border-bottom:2px solid var(--ink);letter-spacing:.3px;display:flex;justify-content:space-between;gap:8px}
 h2 span{font-weight:500;color:var(--soft)}
 .kpi{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--rule)}
 .kpi div{padding:18px 4px}.kpi b{display:block;font-size:30px;font-weight:900;letter-spacing:-1px;font-variant-numeric:tabular-nums}
-.kpi small{color:var(--soft);font-size:13px;font-weight:600}
+.kpi small{color:var(--soft);font-size:13px;font-weight:600}.kpi em{font-style:normal;font-size:12px;color:var(--soft);font-weight:600}
+.chart{display:flex;align-items:flex-end;gap:3px;height:150px;padding:14px 0 0;border-bottom:1px solid var(--rule)}
+.chart div{flex:1;background:var(--mark);opacity:.85;min-height:2px;border-radius:2px 2px 0 0;position:relative}
+.chart div.we{opacity:.45}.chart div:hover{opacity:1}
+.chart div:hover::after{content:attr(data-t);position:absolute;bottom:100%;left:50%;transform:translate(-50%,-4px);white-space:nowrap;background:var(--ink);color:var(--paper);font-size:12px;padding:2px 6px;border-radius:4px}
+.axis{display:flex;justify-content:space-between;color:var(--soft);font-size:12px;padding-top:4px}
 table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
-th,td{padding:12px 4px;border-bottom:1px solid var(--rule);text-align:right;font-size:15px}
+th,td{padding:11px 4px;border-bottom:1px solid var(--rule);text-align:right;font-size:15px;vertical-align:top}
 th{font-size:12px;color:var(--soft);font-weight:700}th:first-child,td:first-child{text-align:left}
 td:first-child{font-weight:700}td .bar{display:block;height:3px;background:var(--mark);margin-top:6px;border-radius:2px}
-.row{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+td a{color:inherit;text-decoration:none}
+.row{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;align-items:center}
 button,.btn{font:inherit;font-size:14px;font-weight:700;padding:9px 14px;border:1.5px solid var(--ink);background:none;color:var(--ink);border-radius:8px;cursor:pointer;text-decoration:none}
 button:hover,.btn:hover{background:var(--hover)}
+input[type=text],input[type=password]{font:inherit;font-size:14px;padding:9px 12px;border:1.5px solid var(--rule);border-radius:8px;background:none;color:inherit;min-width:260px;flex:1}
 .note{color:var(--soft);font-size:13.5px;margin-top:12px;word-break:keep-all}
+.box{border:1.5px solid var(--rule);border-radius:10px;padding:16px;margin-top:16px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;background:var(--rule)}
+.dot.ok{background:var(--ok)}.dot.bad{background:var(--bad)}
 #gate{max-width:320px;margin:120px auto;text-align:center}
-#gate input{width:100%;font:inherit;padding:12px;border:1.5px solid var(--rule);border-radius:8px;background:none;color:inherit;margin:18px 0 10px}
-#gate .err{color:#d33;font-size:13px;min-height:20px}
-@media (max-width:560px){.kpi{grid-template-columns:repeat(2,1fr)}}
+#gate input{width:100%;min-width:0;padding:12px;margin:18px 0 10px}
+.err{color:var(--bad);font-size:13px;min-height:20px}
+[hidden]{display:none!important}
+@media (max-width:560px){.kpi{grid-template-columns:repeat(2,1fr)}input[type=text],input[type=password]{min-width:0}}
 </style></head><body>
 <div id="gate"><div class="logo">쓱<i>툴</i></div><div class="sub">관리자</div>
 <input id="pw" type="password" placeholder="비밀번호" autocomplete="current-password"><button id="go" style="width:100%">들어가기</button><div class="err" id="err"></div></div>
+
 <div class="w" id="app" hidden>
-<header><a class="logo" href="/">쓱<i>툴</i></a><span class="sub">관리자 · <span id="upd"></span></span></header>
-<h2>방문자 <span>페이지 조회 기준</span></h2>
-<div class="kpi"><div><small>오늘</small><b id="k0">-</b></div><div><small>최근 7일</small><b id="k7">-</b></div><div><small>최근 30일</small><b id="k30">-</b></div><div><small>누적</small><b id="kall">-</b></div></div>
-<h2>도구별 사용 <span>많이 쓴 순</span></h2>
-<table><thead><tr><th>도구</th><th>오늘</th><th>7일</th><th>누적</th></tr></thead><tbody id="tb"></tbody></table>
-<div class="note" id="msg"></div>
-<h2>바로가기</h2>
-<div class="row"><a class="btn" href="https://sseuktool.goatcounter.com" target="_blank" rel="noopener">상세 통계 (유입경로·기기)</a><button id="me"></button><button id="re">새로 불러오기</button><button id="out">잠그기</button></div>
-<div class="note">· 숫자는 페이지가 열린 횟수입니다. 한 사람이 여러 번 열면 여러 번 집계됩니다.<br>· "내 기기 집계 제외"를 켜 두면 관리자 본인 방문은 통계에 빠집니다(기기·브라우저마다 따로 설정).</div>
+<header><a class="logo" href="/">쓱<i>툴</i></a><span class="sub">관리자 · <span id="upd">-</span></span></header>
+<nav class="tabs"><button data-p="stat" class="on">방문 통계</button><button data-p="sys">상태 점검</button><button data-p="set">설정</button></nav>
+
+<!-- 방문 통계 -->
+<section id="p-stat">
+<div class="box" id="needKey" hidden><b>통계 연결이 필요합니다 (처음 1회)</b>
+<div class="note">GoatCounter 로그인 → 오른쪽 위 계정 이름 → <b>API</b> → <b>New API key</b> → 권한은 <b>Read statistics</b>만 체크 → 만든 키를 아래에 붙여넣기<br>※ 키는 이 기기 브라우저에만 저장되고 사이트에는 올라가지 않습니다.</div>
+<div class="row"><input type="password" id="keyIn" placeholder="API 키 붙여넣기"><button id="keySave">연결</button></div></div>
+
+<div id="statBody">
+<h2>방문 <span>페이지 열린 횟수 · 방문자 수는 상세 통계에서</span></h2>
+<div class="kpi"><div><small>오늘</small><b id="k0">-</b><em id="k0d"></em></div><div><small>최근 7일</small><b id="k7">-</b></div><div><small>최근 30일</small><b id="k30">-</b></div><div><small>누적</small><b id="kall">-</b></div></div>
+<h2>최근 30일 추이 <span>막대에 마우스를 올리면 숫자 · 연한 막대는 주말</span></h2>
+<div class="chart" id="chart"></div><div class="axis"><span id="ax0"></span><span id="ax1"></span></div>
+<h2>도구별 사용 <span>최근 30일 많이 쓴 순</span></h2>
+<table><thead><tr><th>도구</th><th>오늘</th><th>7일</th><th>30일</th></tr></thead><tbody id="tb"></tbody></table>
+<h2>어디서 들어왔나 <span>최근 30일 유입 경로 상위</span></h2>
+<table><thead><tr><th>유입 경로</th><th>방문</th></tr></thead><tbody id="rf"></tbody></table>
+<div class="note">· "직접 접속"은 주소를 직접 쳤거나 즐겨찾기·카톡 앱 안 브라우저 등으로 들어온 경우입니다.</div>
 </div>
+<div class="err" id="msg"></div>
+<div class="row"><button id="re">새로 불러오기</button><a class="btn" href="https://sseuktool.goatcounter.com" target="_blank" rel="noopener">상세 통계 열기</a></div>
+</section>
+
+<!-- 상태 점검 -->
+<section id="p-sys" hidden>
+<h2>서버·페이지 상태 <span id="sysAt"></span></h2>
+<table><thead><tr><th>항목</th><th>상태</th><th>응답</th></tr></thead><tbody id="sy"></tbody></table>
+<div class="row"><button id="sysRun">지금 점검</button></div>
+<div class="note">· 서버(Apps Script)는 투표·공지·칠판 함께 보기·도구 희망에 쓰입니다. 빨간색이면 해당 기능이 안 됩니다.<br>· 응답이 3초 넘게 걸리면 처음 접속한 사람이 느리다고 느낄 수 있습니다.</div>
+</section>
+
+<!-- 설정 -->
+<section id="p-set" hidden>
+<h2>이 기기 설정</h2>
+<div class="row"><button id="me"></button><span class="note" style="margin:0">켜 두면 이 기기에서 본인이 방문한 건 통계에 빠집니다 (PC·휴대폰 각각 설정)</span></div>
+<div class="row"><button id="keyDel">통계 API 키 지우기</button><button id="out">잠그기</button></div>
+</section>
+</div>
+
 <script>
-var HASH='d4aa649c82fa367f7fc008e6a8178b42a7643fd7c52f054ae62f9459e55107c7',GC='https://sseuktool.goatcounter.com/counter/';
-var TOOLS=[['/','첫 화면'],['/mosaic','모자이크·가리기'],['/sheet','사진 대지'],['/chalk','온라인 칠판'],['/v/chalk','칠판 함께 보기'],['/vote','실시간 투표'],['/v/vote','투표 응답 화면'],['/notice','다국어 공지'],['/v/notice','공지 보기 화면'],['/bgrm','배경 지우기'],['/conv','파일 형식 변환'],['/resize','사진 용량 줄이기'],['/px','사진 크기 변경'],['/scan','문서 펴기(스캔)'],['/qr','QR 코드'],['/tag','명찰 만들기'],['/timer','타이머'],['/ladder','사다리타기'],['/lotto','공 추첨기'],['/wheel','돌림판'],['/wish','도구 희망'],['/tools','도구 목록'],['/privacy','개인정보 안내']];
+var HASH='d4aa649c82fa367f7fc008e6a8178b42a7643fd7c52f054ae62f9459e55107c7';
+var API='https://sseuktool.goatcounter.com/api/v0/stats/';
+var NAMES={'/':'첫 화면','/mosaic':'모자이크·가리기','/sheet':'사진 대지','/chalk':'칠판','/v/chalk':'칠판 함께 보기(참여자)','/vote':'실시간 투표','/v/vote':'투표 응답(참여자)','/notice':'다국어 공지','/v/notice':'공지 보기(참여자)','/bgrm':'배경 지우기','/conv':'파일 형식 바꾸기','/resize':'사진 용량 줄이기','/px':'사진 크기 맞추기','/scan':'문서 펴기','/qr':'QR 만들기','/tag':'명찰 만들기','/timer':'타이머','/ladder':'사다리타기','/lotto':'공 추첨','/wheel':'돌림판','/wish':'도구 희망','/tools':'도구 화면','/privacy':'개인정보 안내'};
 function $(i){return document.getElementById(i)}
-async function sha(t){var b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function n(v){return (v||0).toLocaleString()}
+function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)}catch(e){}}
+async function sha(t){var b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return [...new Uint8Array(b)].map(function(x){return x.toString(16).padStart(2,'0')}).join('')}
+function dayStart(back){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-back);return d}
 function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
-function ago(n){var d=new Date();d.setDate(d.getDate()-n);return ymd(d)}
-async function cnt(path,start){
-  var u=GC+encodeURIComponent(path)+'.json'+(start?'?start='+start:'');
-  try{var r=await fetch(u);if(r.status===404)return 0;if(!r.ok)throw r.status;var j=await r.json();return parseInt(String(j.count).replace(/[^0-9]/g,''))||0}catch(e){throw e}
+async function gc(path,q){
+  var r=await fetch(API+path+'?'+new URLSearchParams(q),{headers:{'Authorization':'Bearer '+ls('sseuk_gckey'),'Content-Type':'application/json'}});
+  if(r.status===401||r.status===403){var e=new Error('key');e.key=1;throw e}
+  if(!r.ok)throw new Error(r.status);return r.json();
 }
+function sumDays(stats,from){var f=ymd(from),s=0;(stats||[]).forEach(function(x){if(x.day>=f)s+=x.daily||0});return s}
+
 async function load(){
-  $('msg').textContent='불러오는 중…';
+  $('msg').textContent='';
+  if(!ls('sseuk_gckey')){$('needKey').hidden=false;$('statBody').hidden=true;return}
+  $('needKey').hidden=true;$('statBody').hidden=false;
   try{
-    var t=ago(0),w=ago(6),m=ago(29);
-    var k=await Promise.all([cnt('TOTAL',t),cnt('TOTAL',w),cnt('TOTAL',m),cnt('TOTAL')]);
-    $('k0').textContent=k[0].toLocaleString();$('k7').textContent=k[1].toLocaleString();$('k30').textContent=k[2].toLocaleString();$('kall').textContent=k[3].toLocaleString();
-    var rows=await Promise.all(TOOLS.map(async x=>{var v=await Promise.all([cnt(x[0],t),cnt(x[0],w),cnt(x[0])]);return [x[1],x[0]].concat(v)}));
-    rows.sort((a,b)=>b[4]-a[4]);var mx=Math.max(1,...rows.map(r=>r[4]));
-    $('tb').innerHTML=rows.map(r=>'<tr><td><a href="'+r[1]+'" target="_blank" style="text-decoration:none;color:inherit">'+r[0]+'</a><span class="bar" style="width:'+Math.round(r[4]/mx*100)+'%"></span></td><td>'+r[2].toLocaleString()+'</td><td>'+r[3].toLocaleString()+'</td><td>'+r[4].toLocaleString()+'</td></tr>').join('');
-    $('msg').textContent='';$('upd').textContent=new Date().toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+' 기준';
-  }catch(e){$('msg').textContent='통계를 불러오지 못했습니다. GoatCounter 설정에서 "Allow adding visitor counts on your website"가 켜져 있는지 확인해 주세요.'}
+    var now=new Date().toISOString(),d30=dayStart(29),d7=dayStart(6),d0=dayStart(0);
+    var t30=await gc('total',{start:d30.toISOString(),end:now});
+    var tall=await gc('total',{start:'2026-11-01T00:00:00Z',end:now});
+    var hits=await gc('hits',{start:d30.toISOString(),end:now,limit:100});
+    var refs=await gc('toprefs',{start:d30.toISOString(),end:now,limit:10});
+    /* 요약 */
+    var st=t30.stats||[],today=sumDays(st,d0),yest=sumDays(st,dayStart(1))-today;
+    $('k0').textContent=n(today);$('k0d').textContent=' 어제 '+n(yest);
+    $('k7').textContent=n(sumDays(st,d7));$('k30').textContent=n(t30.total);$('kall').textContent=n(tall.total);
+    /* 그래프 */
+    var map={};st.forEach(function(x){map[x.day]=x.daily||0});
+    var days=[];for(var i=29;i>=0;i--){var d=dayStart(i);days.push([d,map[ymd(d)]||0])}
+    var mx=Math.max(1,...days.map(function(x){return x[1]}));
+    $('chart').innerHTML=days.map(function(x){var w=x[0].getDay();return '<div class="'+(w===0||w===6?'we':'')+'" style="height:'+Math.max(1.5,x[1]/mx*100)+'%" data-t="'+(x[0].getMonth()+1)+'/'+x[0].getDate()+' · '+x[1]+'"></div>'}).join('');
+    $('ax0').textContent=(days[0][0].getMonth()+1)+'/'+days[0][0].getDate();$('ax1').textContent='오늘';
+    /* 도구별 */
+    var rows=(hits.hits||[]).filter(function(h){return !h.event}).map(function(h){var s=h.stats||[];return {p:h.path,name:NAMES[h.path]||h.title||h.path,t:sumDays(s,d0),w:sumDays(s,d7),m:h.count}});
+    rows.sort(function(a,b){return b.m-a.m});var m2=Math.max(1,...rows.map(function(r){return r.m}));
+    $('tb').innerHTML=rows.length?rows.map(function(r){var href=r.p.indexOf('/v/')===0||r.p==='/'||!NAMES[r.p]?r.p:'/tools.html?m='+r.p.slice(1);if(['/wish','/privacy','/tools'].indexOf(r.p)>=0)href=r.p;return '<tr><td><a href="'+esc(href)+'" target="_blank">'+esc(r.name)+'</a><span class="bar" style="width:'+Math.round(r.m/m2*100)+'%"></span></td><td>'+n(r.t)+'</td><td>'+n(r.w)+'</td><td>'+n(r.m)+'</td></tr>'}).join(''):'<tr><td colspan="4" class="note">아직 기록이 없습니다.</td></tr>';
+    /* 유입 */
+    var rs=(refs.stats||[]);
+    $('rf').innerHTML=rs.length?rs.map(function(r){var nm=r.name||'직접 접속';nm=nm.replace(/^(m\.)?search\.naver\.com.*/,'네이버 검색').replace(/^www\.google\..*/,'구글 검색').replace(/^Google$/,'구글 검색');return '<tr><td>'+esc(nm)+'</td><td>'+n(r.count)+'</td></tr>'}).join(''):'<tr><td colspan="2" class="note">아직 기록이 없습니다.</td></tr>';
+    $('upd').textContent=new Date().toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+' 기준';
+  }catch(e){
+    if(e.key){ls('sseuk_gckey',null);$('msg').textContent='API 키가 맞지 않거나 권한이 없습니다. 다시 붙여넣어 주세요.';$('needKey').hidden=false;$('statBody').hidden=true}
+    else $('msg').textContent='통계를 불러오지 못했습니다. 잠시 뒤 "새로 불러오기"를 눌러 주세요. ('+e.message+')';
+  }
 }
-function meLabel(){var on=false;try{on=localStorage.getItem('sseuk_nostat')==='1'}catch(e){}$('me').textContent='내 기기 집계 제외: '+(on?'켜짐':'꺼짐')}
+
+/* 상태 점검 */
+var CHECKS=[['서버 (Apps Script)','api'],['첫 화면','/'],['도구 화면','/tools.html'],['참여자 투표 화면','/v/vote.html'],['참여자 공지 화면','/v/notice.html'],['참여자 칠판 화면','/v/chalk.html'],['방문 통계 수집','gc']];
+async function check(c){
+  var t=performance.now();
+  try{
+    if(c[1]==='api'){
+      var r=await fetch(window.TOOL_API_URL,{method:'POST',credentials:'omit',redirect:'follow',cache:'no-store',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({fn:'__ping',args:[]})});
+      if(!r.ok)throw new Error('응답 '+r.status);await r.json();
+    }else if(c[1]==='gc'){
+      var g=await fetch('https://sseuktool.goatcounter.com/counter/TOTAL.json',{cache:'no-store'});if(!g.ok)throw new Error('응답 '+g.status);
+    }else{
+      var p=await fetch(c[1],{cache:'no-store'});if(!p.ok)throw new Error('응답 '+p.status);
+    }
+    return [true,Math.round(performance.now()-t)];
+  }catch(e){return [false,e.message||'연결 실패']}
+}
+async function runSys(){
+  $('sy').innerHTML=CHECKS.map(function(c,i){return '<tr><td>'+c[0]+'</td><td id="s'+i+'"><span class="dot"></span>확인 중</td><td id="r'+i+'">-</td></tr>'}).join('');
+  await Promise.all(CHECKS.map(async function(c,i){var r=await check(c);
+    $('s'+i).innerHTML=r[0]?'<span class="dot ok"></span>정상':'<span class="dot bad"></span>이상';
+    $('r'+i).textContent=r[0]?(r[1]>=1000?(r[1]/1000).toFixed(1)+'초':r[1]+'ms')+(r[1]>3000?' (느림)':''):r[1];}));
+  $('sysAt').textContent=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})+' 점검';
+}
+
+/* 화면 전환·설정 */
+var sysDone=false;
+[].forEach.call(document.querySelectorAll('nav.tabs button'),function(b){b.onclick=function(){
+  [].forEach.call(document.querySelectorAll('nav.tabs button'),function(x){x.classList.toggle('on',x===b)});
+  ['stat','sys','set'].forEach(function(p){$('p-'+p).hidden=p!==b.dataset.p});
+  if(b.dataset.p==='sys'&&!sysDone){sysDone=true;runSys()}
+}});
+function meLabel(){$('me').textContent='내 기기 집계 제외: '+(ls('sseuk_nostat')==='1'?'켜짐':'꺼짐')}
+$('me').onclick=function(){ls('sseuk_nostat',ls('sseuk_nostat')==='1'?null:'1');meLabel()};
+$('keySave').onclick=function(){var v=$('keyIn').value.trim();if(!v)return;ls('sseuk_gckey',v);$('keyIn').value='';load()};
+$('keyDel').onclick=function(){ls('sseuk_gckey',null);alert('지웠습니다.');load()};
+$('re').onclick=load;$('sysRun').onclick=runSys;
+$('out').onclick=function(){try{sessionStorage.removeItem('sseuk_admin')}catch(e){}location.reload()};
 function open_(){$('gate').hidden=true;$('app').hidden=false;meLabel();load()}
 $('go').onclick=async function(){if(await sha($('pw').value)===HASH){try{sessionStorage.setItem('sseuk_admin','1')}catch(e){}open_()}else $('err').textContent='비밀번호가 맞지 않습니다.'};
 $('pw').onkeydown=function(e){if(e.key==='Enter')$('go').click()};
-$('me').onclick=function(){try{var on=localStorage.getItem('sseuk_nostat')==='1';on?localStorage.removeItem('sseuk_nostat'):localStorage.setItem('sseuk_nostat','1')}catch(e){}meLabel()};
-$('re').onclick=load;
-$('out').onclick=function(){try{sessionStorage.removeItem('sseuk_admin')}catch(e){}location.reload()};
 try{if(sessionStorage.getItem('sseuk_admin')==='1')open_()}catch(e){}
 </script></body></html>
