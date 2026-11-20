@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src https://cdn.jsdelivr.net; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; base-uri 'self'; form-action 'none'"><meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="ko"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src https://cdn.jsdelivr.net; img-src 'self' data: https://sseuktool.goatcounter.com; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; base-uri 'self'; form-action 'none'"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>도구 희망 · 쓱툴</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <script src="assets/config.js"></script><script src="assets/gas-shim.js"></script>
@@ -52,4 +52,4 @@ $('go').onclick = function () {
   }).catch(function (e) { $('go').disabled = false; $('go').textContent = '다시 보내기'; $('msg').textContent = (e && e.message && /^[가-힣]/.test(e.message)) ? e.message : '보내지 못했습니다. 잠시 뒤 다시 눌러 주세요.'; });
 };
 </script>
-</body></html>
+<script src="assets/stat.js" defer></script></body></html>

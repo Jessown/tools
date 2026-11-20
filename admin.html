@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src https://cdn.jsdelivr.net; img-src 'self' data:; connect-src https://sseuktool.goatcounter.com; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>관리자 · 쓱툴</title><link rel="icon" href="/favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{--paper:#fff;--ink:#111;--soft:#666;--rule:#e4e4e4;--mark:#0047ff;--hover:#f5f5f5}
+@media (prefers-color-scheme:dark){:root{--paper:#111;--ink:#f2f2f2;--soft:#9a9a9a;--rule:#2c2c2c;--mark:#6b8cff;--hover:#1b1b1b}}
+*{box-sizing:border-box}html,body{background:var(--paper)}
+body{margin:0;color:var(--ink);font:16px/1.6 "Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;-webkit-font-smoothing:antialiased}
+.w{max-width:760px;margin:0 auto;padding:0 20px 60px}
+header{padding:48px 0 0;display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
+.logo{font-size:36px;font-weight:900;letter-spacing:-2px;text-decoration:none;color:inherit}.logo i{font-style:normal;color:var(--mark)}
+.sub{color:var(--soft);font-size:14px}
+h2{font-size:13px;font-weight:800;margin:44px 0 0;padding-bottom:10px;border-bottom:2px solid var(--ink);letter-spacing:.3px;display:flex;justify-content:space-between}
+h2 span{font-weight:500;color:var(--soft)}
+.kpi{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--rule)}
+.kpi div{padding:18px 4px}.kpi b{display:block;font-size:30px;font-weight:900;letter-spacing:-1px;font-variant-numeric:tabular-nums}
+.kpi small{color:var(--soft);font-size:13px;font-weight:600}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{padding:12px 4px;border-bottom:1px solid var(--rule);text-align:right;font-size:15px}
+th{font-size:12px;color:var(--soft);font-weight:700}th:first-child,td:first-child{text-align:left}
+td:first-child{font-weight:700}td .bar{display:block;height:3px;background:var(--mark);margin-top:6px;border-radius:2px}
+.row{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+button,.btn{font:inherit;font-size:14px;font-weight:700;padding:9px 14px;border:1.5px solid var(--ink);background:none;color:var(--ink);border-radius:8px;cursor:pointer;text-decoration:none}
+button:hover,.btn:hover{background:var(--hover)}
+.note{color:var(--soft);font-size:13.5px;margin-top:12px;word-break:keep-all}
+#gate{max-width:320px;margin:120px auto;text-align:center}
+#gate input{width:100%;font:inherit;padding:12px;border:1.5px solid var(--rule);border-radius:8px;background:none;color:inherit;margin:18px 0 10px}
+#gate .err{color:#d33;font-size:13px;min-height:20px}
+@media (max-width:560px){.kpi{grid-template-columns:repeat(2,1fr)}}
+</style></head><body>
+<div id="gate"><div class="logo">쓱<i>툴</i></div><div class="sub">관리자</div>
+<input id="pw" type="password" placeholder="비밀번호" autocomplete="current-password"><button id="go" style="width:100%">들어가기</button><div class="err" id="err"></div></div>
+<div class="w" id="app" hidden>
+<header><a class="logo" href="/">쓱<i>툴</i></a><span class="sub">관리자 · <span id="upd"></span></span></header>
+<h2>방문자 <span>페이지 조회 기준</span></h2>
+<div class="kpi"><div><small>오늘</small><b id="k0">-</b></div><div><small>최근 7일</small><b id="k7">-</b></div><div><small>최근 30일</small><b id="k30">-</b></div><div><small>누적</small><b id="kall">-</b></div></div>
+<h2>도구별 사용 <span>많이 쓴 순</span></h2>
+<table><thead><tr><th>도구</th><th>오늘</th><th>7일</th><th>누적</th></tr></thead><tbody id="tb"></tbody></table>
+<div class="note" id="msg"></div>
+<h2>바로가기</h2>
+<div class="row"><a class="btn" href="https://sseuktool.goatcounter.com" target="_blank" rel="noopener">상세 통계 (유입경로·기기)</a><button id="me"></button><button id="re">새로 불러오기</button><button id="out">잠그기</button></div>
+<div class="note">· 숫자는 페이지가 열린 횟수입니다. 한 사람이 여러 번 열면 여러 번 집계됩니다.<br>· "내 기기 집계 제외"를 켜 두면 관리자 본인 방문은 통계에 빠집니다(기기·브라우저마다 따로 설정).</div>
+</div>
+<script>
+var HASH='d4aa649c82fa367f7fc008e6a8178b42a7643fd7c52f054ae62f9459e55107c7',GC='https://sseuktool.goatcounter.com/counter/';
+var TOOLS=[['/','첫 화면'],['/mosaic','모자이크·가리기'],['/sheet','사진 대지'],['/chalk','온라인 칠판'],['/v/chalk','칠판 함께 보기'],['/vote','실시간 투표'],['/v/vote','투표 응답 화면'],['/notice','다국어 공지'],['/v/notice','공지 보기 화면'],['/bgrm','배경 지우기'],['/conv','파일 형식 변환'],['/resize','사진 용량 줄이기'],['/px','사진 크기 변경'],['/scan','문서 펴기(스캔)'],['/qr','QR 코드'],['/tag','명찰 만들기'],['/timer','타이머'],['/ladder','사다리타기'],['/lotto','공 추첨기'],['/wheel','돌림판'],['/wish','도구 희망'],['/tools','도구 목록'],['/privacy','개인정보 안내']];
+function $(i){return document.getElementById(i)}
+async function sha(t){var b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function ago(n){var d=new Date();d.setDate(d.getDate()-n);return ymd(d)}
+async function cnt(path,start){
+  var u=GC+encodeURIComponent(path)+'.json'+(start?'?start='+start:'');
+  try{var r=await fetch(u);if(r.status===404)return 0;if(!r.ok)throw r.status;var j=await r.json();return parseInt(String(j.count).replace(/[^0-9]/g,''))||0}catch(e){throw e}
+}
+async function load(){
+  $('msg').textContent='불러오는 중…';
+  try{
+    var t=ago(0),w=ago(6),m=ago(29);
+    var k=await Promise.all([cnt('TOTAL',t),cnt('TOTAL',w),cnt('TOTAL',m),cnt('TOTAL')]);
+    $('k0').textContent=k[0].toLocaleString();$('k7').textContent=k[1].toLocaleString();$('k30').textContent=k[2].toLocaleString();$('kall').textContent=k[3].toLocaleString();
+    var rows=await Promise.all(TOOLS.map(async x=>{var v=await Promise.all([cnt(x[0],t),cnt(x[0],w),cnt(x[0])]);return [x[1],x[0]].concat(v)}));
+    rows.sort((a,b)=>b[4]-a[4]);var mx=Math.max(1,...rows.map(r=>r[4]));
+    $('tb').innerHTML=rows.map(r=>'<tr><td><a href="'+r[1]+'" target="_blank" style="text-decoration:none;color:inherit">'+r[0]+'</a><span class="bar" style="width:'+Math.round(r[4]/mx*100)+'%"></span></td><td>'+r[2].toLocaleString()+'</td><td>'+r[3].toLocaleString()+'</td><td>'+r[4].toLocaleString()+'</td></tr>').join('');
+    $('msg').textContent='';$('upd').textContent=new Date().toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+' 기준';
+  }catch(e){$('msg').textContent='통계를 불러오지 못했습니다. GoatCounter 설정에서 "Allow adding visitor counts on your website"가 켜져 있는지 확인해 주세요.'}
+}
+function meLabel(){var on=false;try{on=localStorage.getItem('sseuk_nostat')==='1'}catch(e){}$('me').textContent='내 기기 집계 제외: '+(on?'켜짐':'꺼짐')}
+function open_(){$('gate').hidden=true;$('app').hidden=false;meLabel();load()}
+$('go').onclick=async function(){if(await sha($('pw').value)===HASH){try{sessionStorage.setItem('sseuk_admin','1')}catch(e){}open_()}else $('err').textContent='비밀번호가 맞지 않습니다.'};
+$('pw').onkeydown=function(e){if(e.key==='Enter')$('go').click()};
+$('me').onclick=function(){try{var on=localStorage.getItem('sseuk_nostat')==='1';on?localStorage.removeItem('sseuk_nostat'):localStorage.setItem('sseuk_nostat','1')}catch(e){}meLabel()};
+$('re').onclick=load;
+$('out').onclick=function(){try{sessionStorage.removeItem('sseuk_admin')}catch(e){}location.reload()};
+try{if(sessionStorage.getItem('sseuk_admin')==='1')open_()}catch(e){}
+</script></body></html>

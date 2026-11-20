@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /v/
+Disallow: /admin
 
 User-agent: GPTBot
 User-agent: OAI-SearchBot
@@ -20,5 +21,6 @@ User-agent: CCBot
 User-agent: meta-externalagent
 Allow: /
 Disallow: /v/
+Disallow: /admin
 
 Sitemap: https://sseuktool.com/sitemap.xml
